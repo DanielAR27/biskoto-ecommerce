@@ -1,5 +1,5 @@
-const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config(); // Aseguramos que las variables estén cargadas
+const { createClient } = require("@supabase/supabase-js");
+require("dotenv").config(); // Aseguramos que las variables estén cargadas
 
 /**
  * Genera una URL firmada para permitir la subida de un archivo específico.
@@ -9,46 +9,57 @@ const generarUrlSubida = async (req, res) => {
   const { fileName } = req.body;
 
   if (!fileName) {
-    return res.status(400).json({ error: 'El nombre del archivo es requerido.' });
+    return res
+      .status(400)
+      .json({ error: "El nombre del archivo es requerido." });
   }
 
   try {
     // 1. CREAMOS UNA INSTANCIA LIMPIA Y EXCLUSIVA PARA ESTA OPERACIÓN
-    // Esto evita que cualquier sesión de usuario (setSession) que haya ocurrido
-    // en los middlewares afecte los permisos de "Service Role" de este cliente.
     const storageClient = createClient(
       process.env.SUPABASE_URL,
-      process.env.SUPABASE_KEY, // Asegúrate que esta sea la SERVICE_ROLE_KEY
+      process.env.SUPABASE_KEY, // Debe ser SERVICE_ROLE_KEY
       {
         auth: {
           autoRefreshToken: false,
-          persistSession: false, // Importante: No guardar sesiones en memoria
-          detectSessionInUrl: false
-        }
+          persistSession: false,
+          detectSessionInUrl: false,
+        },
       }
     );
 
-    // 2. Usamos esta instancia limpia para firmar la URL
-    const { data, error } = await storageClient
-      .storage
-      .from('productos')
-      .createSignedUploadUrl(fileName);
+    // 2. Generar path único con timestamp
+    const timestamp = Date.now();
+    const filePath = `${timestamp}-${fileName}`;
+
+    // 3. Determinar bucket según el tipo de archivo
+    const bucket = fileName.includes("comprobante-")
+      ? "comprobantes"
+      : "productos";
+
+    // 4. Generar URL firmada
+    const { data, error } = await storageClient.storage
+      .from(bucket)
+      .createSignedUploadUrl(filePath);
 
     if (error) throw error;
 
     res.status(200).json({
       signedUrl: data.signedUrl,
       token: data.token,
-      path: data.path
+      path: data.path,
+      bucket: bucket,
     });
-
   } catch (error) {
-    console.error('Error generando firma de storage:', error);
-    // Tip: Si el error es 403, confirma que sea por RLS
-    if (error.statusCode === '403' || error.status === 400) {
-      console.error("🔍 Pista: Verifica que SUPABASE_KEY en el .env sea la SERVICE_ROLE (no la anon).");
+    console.error("Error generando firma de storage:", error);
+    if (error.statusCode === "403" || error.status === 400) {
+      console.error(
+        "🔍 Pista: Verifica que SUPABASE_KEY en el .env sea la SERVICE_ROLE (no la anon)."
+      );
     }
-    res.status(500).json({ error: 'No se pudo autorizar la subida al storage.' });
+    res
+      .status(500)
+      .json({ error: "No se pudo autorizar la subida al storage." });
   }
 };
 

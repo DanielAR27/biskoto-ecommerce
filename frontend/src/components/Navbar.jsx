@@ -59,7 +59,10 @@ const Navbar = () => {
               <Link to="/home" className={getLinkClass("/home")}>
                 Inicio
               </Link>
-              {/* Aquí puedes agregar más links públicos como "Nosotros", "Contacto", etc. */}
+              <Link to="/noticias" className={getLinkClass("/noticias")}>
+                Noticias
+              </Link>
+              {/* Aquí se pueden gar más links públicos como "Nosotros", "Contacto", etc. */}
             </div>
           </div>
 
@@ -69,9 +72,12 @@ const Navbar = () => {
             <ThemeToggleBtn />
 
             {/* 2. Widget del Carrito (Siempre visible) */}
-            <button onClick={toggleCart} className="focus:outline-none">
+            <div
+              onClick={toggleCart}
+              className="focus:outline-none cursor-pointer"
+            >
               <CartWidget />
-            </button>
+            </div>
 
             <div className="h-6 w-px bg-gray-200 dark:bg-slate-700 mx-1"></div>
 

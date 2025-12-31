@@ -29,6 +29,9 @@ import CategoriasPage from "./pages/admin/categorias/CategoriasPage";
 import CrearCategoriaPage from "./pages/admin/categorias/CrearCategoriaPage";
 import EditarCategoriaPage from "./pages/admin/categorias/EditarCategoriaPage";
 
+//Pedidos
+import PedidosAdminPage from "./pages/admin/pedidos/PedidosAdminPage";
+
 // Productos
 import ProductosPage from "./pages/admin/productos/ProductosPage";
 import CrearProductoPage from "./pages/admin/productos/CrearProductoPage";
@@ -57,6 +60,12 @@ import EditarProveedorPage from "./pages/admin/proveedores/EditarProveedorPage";
 import ComprasPage from "./pages/admin/compras/ComprasPage";
 import CrearCompraPage from "./pages/admin/compras/CrearCompraPage";
 import ConsultarCompraPage from "./pages/admin/compras/ConsultarCompraPage";
+
+//Comentarios y Noticias
+import NoticiasPage from "./pages/NoticiasPage";
+import NoticiaDetailPage from "./pages/NoticiaDetailPage";
+import NoticiasAdminPage from "./pages/admin/noticias/NoticiasAdminPage";
+import ComentariosAdminPage from "./pages/admin/comentarios/ComentariosAdminPage";
 
 /**
  * Componente para la protección de rutas privadas de usuario (ej: Perfil).
@@ -152,6 +161,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/noticias" element={<NoticiasPage />} />
+        <Route path="/noticias/:id" element={<NoticiaDetailPage />} />
         {/* Rutas de Administración Protegidas por AdminRoute */}
         <Route element={<AdminRoute />}>
           <Route path="/admin/categorias" element={<CategoriasPage />} />
@@ -205,6 +216,31 @@ function App() {
           <Route
             path="/admin/proveedores/editar/:id"
             element={<EditarProveedorPage />}
+          />
+
+          <Route
+            path="/admin/pedidos"
+            element={
+              <AdminRoute>
+                <PedidosAdminPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/noticias"
+            element={
+              <AdminRoute>
+                <NoticiasAdminPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/comentarios"
+            element={
+              <AdminRoute>
+                <ComentariosAdminPage />
+              </AdminRoute>
+            }
           />
 
           <Route path="/admin/compras" element={<ComprasPage />} />

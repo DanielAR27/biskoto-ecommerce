@@ -270,7 +270,7 @@ const CheckoutPage = () => {
         throw new Error("Error al obtener autorización de subida");
       }
 
-      const { signedUrl, path } = await responseUrl.json();
+      const { signedUrl, path, bucket } = await responseUrl.json();
 
       // 3. Subir archivo directamente a Supabase Storage
       const uploadResponse = await fetch(signedUrl, {
@@ -288,7 +288,7 @@ const CheckoutPage = () => {
       // 4. Construir URL pública del comprobante
       const comprobanteUrl = `${
         import.meta.env.VITE_SUPABASE_URL
-      }/storage/v1/object/public/productos/${path}`;
+      }/storage/v1/object/public/${bucket}/${path}`;
 
       // 5. Confirmar pago en el backend
       await confirmarPago(pedidoCreado.id, comprobanteUrl);

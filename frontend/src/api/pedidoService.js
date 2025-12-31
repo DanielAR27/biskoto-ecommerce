@@ -76,3 +76,25 @@ export const actualizarEstadoPedido = async (id, estadoId) => {
   });
   return response.data;
 };
+
+/**
+ * Actualiza datos del pedido completo (Solo Admin)
+ * @param {Number} id - ID del pedido
+ * @param {Object} data - Datos a actualizar { total, cupon_id, notas }
+ * @returns {Promise<Object>} Pedido actualizado
+ */
+export const actualizarPedido = async (id, data) => {
+  const response = await api.put(`/pedidos/${id}`, data);
+  return response.data;
+};
+
+/**
+ * Elimina un pedido (Solo Admin)
+ * Solo permite eliminar pedidos en estado Pendiente de Pago o Cancelado
+ * @param {Number} id - ID del pedido
+ * @returns {Promise<Object>} Confirmación de eliminación
+ */
+export const eliminarPedido = async (id) => {
+  const response = await api.delete(`/pedidos/${id}`);
+  return response.data;
+};

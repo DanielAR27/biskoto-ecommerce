@@ -1,6 +1,17 @@
-import { Link, useLocation } from 'react-router-dom';
-import { User, LogIn, UserPlus, ShoppingCart, LayoutGrid, Package, ClipboardList, Ticket, Truck, PackagePlus } from 'lucide-react';
-import { useCart } from '../../context/CartContext'; 
+import { Link, useLocation } from "react-router-dom";
+import {
+  User,
+  LogIn,
+  UserPlus,
+  ShoppingCart,
+  LayoutGrid,
+  Package,
+  ClipboardList,
+  Ticket,
+  Truck,
+  PackagePlus,
+} from "lucide-react";
+import { useCart } from "../../context/CartContext";
 
 const MobileMenu = ({ isOpen, setIsOpen, user, logout, isAdmin }) => {
   const location = useLocation();
@@ -10,26 +21,36 @@ const MobileMenu = ({ isOpen, setIsOpen, user, logout, isAdmin }) => {
 
   const getMobileLinkClass = (path) => {
     const isActive = location.pathname === path;
-    const baseClasses = "block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors duration-200";
-    
-    return isActive 
+    const baseClasses =
+      "block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors duration-200";
+
+    return isActive
       ? `${baseClasses} bg-biskoto-50 border-biskoto text-biskoto dark:bg-white/10 dark:text-white dark:border-white`
       : `${baseClasses} border-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-800 dark:hover:text-white`;
   };
 
   return (
     <div className="md:hidden bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 animate-in slide-in-from-top-2 duration-200">
-      
       <div className="pt-2 pb-3 space-y-1">
-        <Link to="/home" className={getMobileLinkClass('/home')} onClick={() => setIsOpen(false)}>
+        <Link
+          to="/home"
+          className={getMobileLinkClass("/home")}
+          onClick={() => setIsOpen(false)}
+        >
           Inicio
         </Link>
-        
+        <Link
+          to="/noticias"
+          onClick={() => setIsOpen(false)}
+          className="block px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+        >
+          Noticias
+        </Link>
         {/* MODIFICADO: Ahora abre el Drawer en lugar de navegar */}
-        <button 
+        <button
           onClick={() => {
             setIsOpen(false); // Cerramos menú móvil
-            toggleCart();    // Abrimos carrito lateral
+            toggleCart(); // Abrimos carrito lateral
           }}
           className="w-full text-left block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800"
         >
@@ -39,7 +60,7 @@ const MobileMenu = ({ isOpen, setIsOpen, user, logout, isAdmin }) => {
               {totalItems > 0 && (
                 <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900">
                   <span className="text-[9px] font-bold text-white leading-none">
-                    {totalItems > 9 ? '9+' : totalItems}
+                    {totalItems > 9 ? "9+" : totalItems}
                   </span>
                 </span>
               )}
@@ -47,7 +68,7 @@ const MobileMenu = ({ isOpen, setIsOpen, user, logout, isAdmin }) => {
             <span>Mi Carrito</span>
           </div>
         </button>
-        
+
         {/* Enlaces de Admin */}
         {isAdmin && (
           <div className="space-y-1 mt-4">
@@ -55,13 +76,21 @@ const MobileMenu = ({ isOpen, setIsOpen, user, logout, isAdmin }) => {
               Panel Admin
             </div>
             {[
-              { path: '/admin/categorias', label: 'Categorías', icon: LayoutGrid },
-              { path: '/admin/productos', label: 'Productos', icon: Package },
-              { path: '/admin/ingredientes', label: 'Ingredientes', icon: ClipboardList },
-              { path: '/admin/cupones', label: 'Cupones', icon: Ticket },
-              { path: '/admin/usuarios', label: 'Usuarios', icon: User },
-              { path: '/admin/proveedores', label: 'Proveedores', icon: Truck },
-              { path: '/admin/compras', label: 'Compras', icon: PackagePlus },
+              {
+                path: "/admin/categorias",
+                label: "Categorías",
+                icon: LayoutGrid,
+              },
+              { path: "/admin/productos", label: "Productos", icon: Package },
+              {
+                path: "/admin/ingredientes",
+                label: "Ingredientes",
+                icon: ClipboardList,
+              },
+              { path: "/admin/cupones", label: "Cupones", icon: Ticket },
+              { path: "/admin/usuarios", label: "Usuarios", icon: User },
+              { path: "/admin/proveedores", label: "Proveedores", icon: Truck },
+              { path: "/admin/compras", label: "Compras", icon: PackagePlus },
             ].map((item) => (
               <Link
                 key={item.path}
@@ -70,15 +99,15 @@ const MobileMenu = ({ isOpen, setIsOpen, user, logout, isAdmin }) => {
                 onClick={() => setIsOpen(false)}
               >
                 <div className="flex items-center gap-2">
-                   <item.icon size={16} className="opacity-70" />
-                   {item.label}
+                  <item.icon size={16} className="opacity-70" />
+                  {item.label}
                 </div>
               </Link>
             ))}
           </div>
         )}
       </div>
-      
+
       <div className="pt-4 pb-3 border-t border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-900/50">
         {user ? (
           <>
@@ -87,12 +116,20 @@ const MobileMenu = ({ isOpen, setIsOpen, user, logout, isAdmin }) => {
                 <User size={20} />
               </div>
               <div className="ml-3">
-                <div className="text-base font-medium text-gray-800 dark:text-white">{user.nombre}</div>
-                <div className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate max-w-[200px]">{user.email}</div>
+                <div className="text-base font-medium text-gray-800 dark:text-white">
+                  {user.nombre}
+                </div>
+                <div className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
+                  {user.email}
+                </div>
               </div>
             </div>
             <div className="mt-3 space-y-1">
-              <Link to="/perfil" className="block px-4 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100" onClick={() => setIsOpen(false)}>
+              <Link
+                to="/perfil"
+                className="block px-4 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100"
+                onClick={() => setIsOpen(false)}
+              >
                 Mi Perfil
               </Link>
               <button
@@ -108,10 +145,18 @@ const MobileMenu = ({ isOpen, setIsOpen, user, logout, isAdmin }) => {
           </>
         ) : (
           <div className="px-4 space-y-3">
-            <Link to="/login" onClick={() => setIsOpen(false)} className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg dark:bg-slate-800 dark:text-white dark:border-slate-600">
+            <Link
+              to="/login"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg dark:bg-slate-800 dark:text-white dark:border-slate-600"
+            >
               <LogIn className="w-4 h-4 mr-2" /> Iniciar Sesión
             </Link>
-            <Link to="/registro" onClick={() => setIsOpen(false)} className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-biskoto rounded-lg">
+            <Link
+              to="/registro"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-biskoto rounded-lg"
+            >
               <LogIn className="w-4 h-4 mr-2" /> Registrarse
             </Link>
           </div>

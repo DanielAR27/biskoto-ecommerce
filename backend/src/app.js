@@ -31,5 +31,7 @@ app.use("/api/compras", comprasRoutes);
 app.use("/api/pedidos", pedidosRoutes);
 app.use("/api/unidades", unidadesRoutes);
 app.use("/api/proveedores", proveedorRoutes);
+app.use("/api/noticias", require("./routes/noticiasRoutes"));
+app.use("/api/comentarios", require("./routes/comentariosRoutes"));
 
 module.exports = app;

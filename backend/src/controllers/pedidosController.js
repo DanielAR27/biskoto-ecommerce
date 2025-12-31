@@ -527,7 +527,7 @@ const cancelarPedido = async (req, res) => {
       });
     }
 
-    // Actualizar a estado "Cancelado" (estado_id = 6, debes crearlo en la DB)
+    // Actualizar a estado "Cancelado" (estado_id = 6)
     const { error } = await supabase
       .from("pedidos")
       .update({ estado_id: 6 })
@@ -542,6 +542,124 @@ const cancelarPedido = async (req, res) => {
   }
 };
 
+/**
+ * ELIMINAR PEDIDO (Admin)
+ * Elimina físicamente un pedido del sistema.
+ * Solo permite eliminar pedidos en estado Pendiente de Pago o Cancelado.
+ */
+const eliminarPedido = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Verificar que el pedido existe
+    const { data: pedido, error: errorPedido } = await supabase
+      .from("pedidos")
+      .select("id, estado_id")
+      .eq("id", parseInt(id))
+      .single();
+
+    if (errorPedido || !pedido) {
+      return res.status(404).json({ error: "Pedido no encontrado" });
+    }
+
+    // Solo permitir eliminar pedidos Pendientes de Pago (1) o Cancelados (6)
+    if (![1, 6].includes(pedido.estado_id)) {
+      return res.status(400).json({
+        error:
+          "Solo se pueden eliminar pedidos Pendientes de Pago o Cancelados",
+      });
+    }
+
+    // Eliminar el pedido (los detalles se eliminan en cascada si está configurado)
+    const { error } = await supabase
+      .from("pedidos")
+      .delete()
+      .eq("id", parseInt(id));
+
+    if (error) throw error;
+
+    res.status(200).json({
+      mensaje: "Pedido eliminado exitosamente",
+      id: parseInt(id),
+    });
+  } catch (error) {
+    console.error("Error al eliminar pedido:", error);
+    res.status(500).json({ error: "Error al eliminar el pedido" });
+  }
+};
+
+/**
+ * ACTUALIZAR DATOS DEL PEDIDO (Admin)
+ * Permite al admin modificar el total del pedido y agregar notas administrativas.
+ */
+const actualizarPedido = async (req, res) => {
+  const { id } = req.params;
+  const { total, cupon_id, notas } = req.body;
+
+  try {
+    // Construir objeto de actualización
+    const updates = {};
+    if (total !== undefined) updates.total = parseFloat(total);
+    if (cupon_id !== undefined) updates.cupon_id = cupon_id;
+
+    // Si vienen notas nuevas, combinarlas con las existentes
+    if (notas !== undefined) {
+      // Primero obtener las notas actuales
+      const { data: pedidoActual } = await supabase
+        .from("pedidos")
+        .select("notas")
+        .eq("id", parseInt(id))
+        .single();
+
+      const notasActuales = pedidoActual?.notas
+        ? typeof pedidoActual.notas === "string"
+          ? JSON.parse(pedidoActual.notas)
+          : pedidoActual.notas
+        : {};
+
+      // Combinar notas existentes con las nuevas
+      updates.notas = JSON.stringify({
+        ...notasActuales,
+        ...notas,
+      });
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: "No hay datos para actualizar" });
+    }
+
+    // Actualizar el pedido
+    const { data, error } = await supabase
+      .from("pedidos")
+      .update(updates)
+      .eq("id", parseInt(id))
+      .select(
+        `
+        *,
+        perfiles (nombre, apellido, email),
+        estados_pedido (nombre),
+        cupones (codigo, descuento_porcentaje)
+      `
+      )
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") {
+        return res.status(404).json({ error: "Pedido no encontrado" });
+      }
+      throw error;
+    }
+
+    res.status(200).json({
+      mensaje: "Pedido actualizado exitosamente",
+      pedido: data,
+    });
+  } catch (error) {
+    console.error("Error al actualizar pedido:", error);
+    res.status(500).json({ error: "Error al actualizar el pedido" });
+  }
+};
+
 module.exports = {
   crearPedido,
   confirmarPago,
@@ -550,4 +668,6 @@ module.exports = {
   listarTodosPedidos,
   actualizarEstadoPedido,
   cancelarPedido,
+  eliminarPedido,
+  actualizarPedido,
 };

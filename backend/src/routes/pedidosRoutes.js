@@ -59,4 +59,16 @@ router.put(
   pedidosController.actualizarEstadoPedido
 );
 
+/**
+ * Actualiza datos del pedido completo (Admin)
+ * Body: { total: number, cupon_id: number, notas: object }
+ */
+router.put("/:id", verifyToken, isAdmin, pedidosController.actualizarPedido);
+
+/**
+ * Elimina un pedido (Admin)
+ * Solo permite eliminar pedidos en estado Pendiente de Pago o Cancelado
+ */
+router.delete("/:id", verifyToken, isAdmin, pedidosController.eliminarPedido);
+
 module.exports = router;
