@@ -1,13 +1,28 @@
-import api from './axiosConfig';
+import api from "./axiosConfig";
 
 /**
  * Obtiene el listado de productos para el catálogo público.
  * Incluye la relación completa de imágenes de cada producto.
  */
 export const getProductosCatalogo = async (params = {}) => {
-  // params puede contener { page: 1, limit: 20, search: 'galleta' }
-  const response = await api.get('/productos', { params });
-  return response.data;
+  const { page = 1, limit = 20, search = "", categoria_id = null } = params;
+
+  // Construir query string
+  const queryParams = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+
+  if (search) {
+    queryParams.append("search", search);
+  }
+
+  if (categoria_id) {
+    queryParams.append("categoria_id", categoria_id);
+  }
+
+  const { data } = await api.get(`/productos?${queryParams.toString()}`);
+  return data;
 };
 
 /**
@@ -15,7 +30,7 @@ export const getProductosCatalogo = async (params = {}) => {
  * Este endpoint retorna datos básicos sin la carga de imágenes.
  */
 export const getProductosAdmin = async () => {
-  const response = await api.get('/productos/admin/listado');
+  const response = await api.get("/productos/admin/listado");
   return response.data;
 };
 
@@ -29,11 +44,13 @@ export const getProducto = async (id) => {
 };
 
 /**
- * Envía la lista de productos del carrito al servidor para validar 
+ * Envía la lista de productos del carrito al servidor para validar
  * si existe disponibilidad física (insumos + stock) para procesar el pedido.
  */
 export const validarDisponibilidad = async (items) => {
-  const response = await api.post('/productos/validar-disponibilidad', { items });
+  const response = await api.post("/productos/validar-disponibilidad", {
+    items,
+  });
   return response.data; // Si falla aquí, la promesa se rechaza automáticamente
 };
 
@@ -43,7 +60,7 @@ export const validarDisponibilidad = async (items) => {
  * previamente cargadas en el bucket de Supabase.
  */
 export const createProducto = async (productoData) => {
-  const response = await api.post('/productos', productoData);
+  const response = await api.post("/productos", productoData);
   return response.data;
 };
 

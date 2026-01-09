@@ -143,3 +143,10 @@ CREATE TABLE detalle_pedidos (
   cantidad INT NOT NULL,
   precio_unitario_historico DECIMAL(10,2) NOT NULL 
 );
+
+
+ALTER TABLE categorias 
+ADD COLUMN activo BOOLEAN DEFAULT TRUE;
+
+-- Índice para mejorar rendimiento de filtros
+CREATE INDEX idx_categorias_activo ON categorias(activo);
