@@ -32,6 +32,7 @@ const HomePage = () => {
   const paginaActual = parseInt(searchParams.get("page") || "1", 10);
   const terminoBusqueda = searchParams.get("search") || "";
   const categoriaFiltro = searchParams.get("categoria") || "";
+  const categoriaFiltroId = categoriaFiltro ? String(categoriaFiltro) : "";
 
   // Estados locales para datos y carga
   const [productos, setProductos] = useState([]);
@@ -121,8 +122,10 @@ const HomePage = () => {
     if (terminoBusqueda) newParams.search = terminoBusqueda;
 
     // Si hace clic en la misma categoría, la deselecciona
-    if (catId && catId !== categoriaFiltro) {
-      newParams.categoria = catId;
+    const nextCategoriaId = catId ? String(catId) : "";
+
+    if (nextCategoriaId && nextCategoriaId !== categoriaFiltroId) {
+      newParams.categoria = nextCategoriaId;
     }
 
     setSearchParams(newParams);
@@ -155,7 +158,7 @@ const HomePage = () => {
 
   // Obtener nombre de categoría seleccionada para mostrar en UI
   const categoriaNombre = categorias.find(
-    (c) => c.id === categoriaFiltro
+    (c) => String(c.id) === categoriaFiltroId
   )?.nombre;
 
   // Verificar si hay filtros activos
@@ -220,7 +223,7 @@ const HomePage = () => {
               <button
                 onClick={() => handleCategoriaClick(null)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                  !categoriaFiltro
+                  !categoriaFiltroId
                     ? "bg-biskoto text-white shadow-md scale-105"
                     : "bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-slate-600"
                 }`}
@@ -245,7 +248,7 @@ const HomePage = () => {
                     key={cat.id}
                     onClick={() => handleCategoriaClick(cat.id)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                      categoriaFiltro === cat.id
+                      categoriaFiltroId === String(cat.id)
                         ? "bg-biskoto text-white shadow-md scale-105"
                         : "bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-slate-600"
                     }`}
