@@ -15,6 +15,7 @@ import {
   FileText,
   Loader2,
   AlertCircle,
+  Store,
 } from "lucide-react";
 import { getPedido } from "../../api/pedidoService";
 import Navbar from "../../components/Navbar";
@@ -275,16 +276,57 @@ const DetallePedidoPage = () => {
               })}
             </div>
           </div>
-
           {/* Información de entrega */}
-          {datosEntrega.telefono && (
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                <Truck size={24} className="text-biskoto" />
-                Información de Entrega
-              </h2>
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+              <Truck size={24} className="text-biskoto" />
+              Información de Entrega
+            </h2>
 
-              <div className="space-y-3">
+            <div className="space-y-3">
+              {/* Método de entrega */}
+              {datosEntrega.metodo_entrega && (
+                <div className="flex items-start gap-3">
+                  {datosEntrega.metodo_entrega === "express" ? (
+                    <Truck size={18} className="text-gray-400 mt-1" />
+                  ) : (
+                    <Store size={18} className="text-gray-400 mt-1" />
+                  )}
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Método de Entrega
+                    </p>
+                    <p className="font-semibold text-gray-900 dark:text-white">
+                      {datosEntrega.metodo_entrega === "express"
+                        ? "Envío Express"
+                        : "Recoger en el local"}
+                    </p>
+                    {datosEntrega.metodo_entrega === "express" && (
+                      <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                        Costo de envío se paga contra entrega
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Teléfono de contacto (nuevo formato) */}
+              {datosEntrega.telefono_contacto && (
+                <div className="flex items-start gap-3">
+                  <Phone size={18} className="text-gray-400 mt-1" />
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Teléfono de Contacto
+                    </p>
+                    <p className="font-semibold text-gray-900 dark:text-white">
+                      {datosEntrega.telefono_contacto}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Teléfono (formato antiguo - retrocompatibilidad) */}
+              {!datosEntrega.telefono_contacto && datosEntrega.telefono && (
                 <div className="flex items-start gap-3">
                   <Phone size={18} className="text-gray-400 mt-1" />
                   <div>
@@ -296,7 +338,25 @@ const DetallePedidoPage = () => {
                     </p>
                   </div>
                 </div>
+              )}
 
+              {/* Dirección de entrega (nuevo formato) */}
+              {datosEntrega.direccion_entrega && (
+                <div className="flex items-start gap-3">
+                  <MapPin size={18} className="text-gray-400 mt-1" />
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Dirección de Entrega
+                    </p>
+                    <p className="font-semibold text-gray-900 dark:text-white">
+                      {datosEntrega.direccion_entrega}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Dirección (formato antiguo - retrocompatibilidad) */}
+              {!datosEntrega.direccion_entrega && datosEntrega.direccion && (
                 <div className="flex items-start gap-3">
                   <MapPin size={18} className="text-gray-400 mt-1" />
                   <div>
@@ -308,23 +368,36 @@ const DetallePedidoPage = () => {
                     </p>
                   </div>
                 </div>
+              )}
 
-                {datosEntrega.notas && (
-                  <div className="flex items-start gap-3">
-                    <FileText size={18} className="text-gray-400 mt-1" />
-                    <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Notas adicionales
-                      </p>
-                      <p className="font-semibold text-gray-900 dark:text-white">
-                        {datosEntrega.notas}
-                      </p>
-                    </div>
+              {/* Notas adicionales */}
+              {datosEntrega.notas && (
+                <div className="flex items-start gap-3">
+                  <FileText size={18} className="text-gray-400 mt-1" />
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Notas adicionales
+                    </p>
+                    <p className="font-semibold text-gray-900 dark:text-white">
+                      {datosEntrega.notas}
+                    </p>
                   </div>
+                </div>
+              )}
+
+              {/* Mensaje si no hay información de entrega */}
+              {!datosEntrega.metodo_entrega &&
+                !datosEntrega.telefono &&
+                !datosEntrega.telefono_contacto &&
+                !datosEntrega.direccion &&
+                !datosEntrega.direccion_entrega &&
+                !datosEntrega.notas && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                    No se registró información de entrega para este pedido.
+                  </p>
                 )}
-              </div>
             </div>
-          )}
+          </div>
 
           {/* Resumen de pago */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
@@ -359,7 +432,6 @@ const DetallePedidoPage = () => {
               </div>
             </div>
           </div>
-
           {/* Comprobante (si existe) */}
           {datosEntrega.comprobante_url && (
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
