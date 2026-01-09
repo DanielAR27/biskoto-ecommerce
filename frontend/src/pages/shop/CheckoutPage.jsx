@@ -13,6 +13,9 @@ import {
   Loader2,
   ArrowLeft,
   X,
+  Store,
+  Truck,
+  Info,
 } from "lucide-react";
 
 import { useCart } from "../../context/CartContext";
@@ -42,8 +45,9 @@ const CheckoutPage = () => {
 
   // Estados de datos del pedido
   const [datosEntrega, setDatosEntrega] = useState({
-    telefono: user?.telefono || "",
-    direccion: user?.direccion || "",
+    metodo_entrega: "local", // "local" o "express"
+    telefono_contacto: "", // Solo para express
+    direccion_entrega: "", // Solo para express
     notas: "",
   });
 
@@ -104,6 +108,7 @@ const CheckoutPage = () => {
 
     cargarPedidoExistente();
   }, [pedidoIdFromURL, navigate]);
+
   // Cálculos de precios
   const subtotal = totalPrice;
   const descuento = cuponAplicado
@@ -155,16 +160,20 @@ const CheckoutPage = () => {
     e.preventDefault();
     setErrorCheckout("");
 
-    // Validaciones
-    if (!datosEntrega.telefono || !datosEntrega.direccion) {
-      setErrorCheckout("Por favor completa todos los campos obligatorios");
-      return;
-    }
+    // Validaciones según el método de entrega
+    if (datosEntrega.metodo_entrega === "express") {
+      if (!datosEntrega.telefono_contacto || !datosEntrega.direccion_entrega) {
+        setErrorCheckout(
+          "Por favor completa el teléfono y dirección para el envío express"
+        );
+        return;
+      }
 
-    const telefonoRegex = /^[0-9]{8}$/;
-    if (!telefonoRegex.test(datosEntrega.telefono)) {
-      setErrorCheckout("El teléfono debe tener 8 dígitos");
-      return;
+      const telefonoRegex = /^[0-9]{8}$/;
+      if (!telefonoRegex.test(datosEntrega.telefono_contacto)) {
+        setErrorCheckout("El teléfono debe tener 8 dígitos");
+        return;
+      }
     }
 
     setCreandoPedido(true);
@@ -397,59 +406,162 @@ const CheckoutPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Columna principal */}
           <div className="lg:col-span-2">
-            {/* PASO 1: Datos de entrega */}
+            {/* PASO 1: Método de entrega y datos */}
             {paso === 1 && (
               <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                  <User size={24} className="text-biskoto" />
-                  Datos de Entrega
+                  <Truck size={24} className="text-biskoto" />
+                  Método de Entrega
                 </h2>
 
-                <form onSubmit={handleCrearPedido} className="space-y-4">
-                  {/* Teléfono */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      <Phone size={16} className="inline mr-2" />
-                      Teléfono *
+                <form onSubmit={handleCrearPedido} className="space-y-6">
+                  {/* Selección de método de entrega */}
+                  <div className="space-y-3">
+                    {/* Opción: Recoger en el local */}
+                    <label
+                      className={`flex items-start gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                        datosEntrega.metodo_entrega === "local"
+                          ? "border-biskoto bg-biskoto/5 dark:bg-biskoto/10"
+                          : "border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="metodo_entrega"
+                        value="local"
+                        checked={datosEntrega.metodo_entrega === "local"}
+                        onChange={(e) =>
+                          setDatosEntrega({
+                            ...datosEntrega,
+                            metodo_entrega: e.target.value,
+                            telefono_contacto: "",
+                            direccion_entrega: "",
+                          })
+                        }
+                        className="mt-1 w-4 h-4 text-biskoto focus:ring-biskoto"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Store size={20} className="text-biskoto" />
+                          <span className="font-bold text-gray-900 dark:text-white">
+                            Recoger en el local
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Pasá a retirar tu pedido cuando esté listo. Te
+                          notificaremos por WhatsApp.
+                        </p>
+                      </div>
                     </label>
-                    <input
-                      type="tel"
-                      value={datosEntrega.telefono}
-                      onChange={(e) =>
-                        setDatosEntrega({
-                          ...datosEntrega,
-                          telefono: e.target.value,
-                        })
-                      }
-                      placeholder="8888-8888"
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-biskoto focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white"
-                      required
-                    />
+
+                    {/* Opción: Envío Express */}
+                    <label
+                      className={`flex items-start gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                        datosEntrega.metodo_entrega === "express"
+                          ? "border-biskoto bg-biskoto/5 dark:bg-biskoto/10"
+                          : "border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="metodo_entrega"
+                        value="express"
+                        checked={datosEntrega.metodo_entrega === "express"}
+                        onChange={(e) =>
+                          setDatosEntrega({
+                            ...datosEntrega,
+                            metodo_entrega: e.target.value,
+                          })
+                        }
+                        className="mt-1 w-4 h-4 text-biskoto focus:ring-biskoto"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Truck size={20} className="text-biskoto" />
+                          <span className="font-bold text-gray-900 dark:text-white">
+                            Envío Express
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                          Entrega a domicilio el mismo día. El servicio de
+                          mensajería se coordina directamente con vos.
+                        </p>
+                        <div className="flex items-start gap-2 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                          <Info
+                            size={16}
+                            className="text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5"
+                          />
+                          <p className="text-xs text-orange-700 dark:text-orange-300">
+                            <strong>Importante:</strong> El costo del envío
+                            express NO está incluido en este total. Se paga
+                            directamente al mensajero contra entrega.
+                          </p>
+                        </div>
+                      </div>
+                    </label>
                   </div>
 
-                  {/* Dirección */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      <MapPin size={16} className="inline mr-2" />
-                      Dirección de Entrega *
-                    </label>
-                    <textarea
-                      value={datosEntrega.direccion}
-                      onChange={(e) =>
-                        setDatosEntrega({
-                          ...datosEntrega,
-                          direccion: e.target.value,
-                        })
-                      }
-                      placeholder="Calle, número, referencias..."
-                      rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-biskoto focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white resize-none"
-                      required
-                    />
-                  </div>
+                  {/* Campos condicionales para Envío Express */}
+                  {datosEntrega.metodo_entrega === "express" && (
+                    <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-slate-700">
+                      <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <User size={18} className="text-biskoto" />
+                        Datos de Contacto y Entrega
+                      </h3>
 
-                  {/* Notas adicionales */}
-                  <div>
+                      {/* Teléfono de contacto */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                          <Phone size={16} className="inline mr-2" />
+                          Teléfono de Contacto *
+                        </label>
+                        <input
+                          type="tel"
+                          value={datosEntrega.telefono_contacto}
+                          onChange={(e) =>
+                            setDatosEntrega({
+                              ...datosEntrega,
+                              telefono_contacto: e.target.value,
+                            })
+                          }
+                          placeholder="8888-8888"
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-biskoto focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white"
+                          required={datosEntrega.metodo_entrega === "express"}
+                        />
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          El mensajero te contactará a este número para
+                          coordinar la entrega
+                        </p>
+                      </div>
+
+                      {/* Dirección de entrega */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                          <MapPin size={16} className="inline mr-2" />
+                          Dirección de Entrega *
+                        </label>
+                        <textarea
+                          value={datosEntrega.direccion_entrega}
+                          onChange={(e) =>
+                            setDatosEntrega({
+                              ...datosEntrega,
+                              direccion_entrega: e.target.value,
+                            })
+                          }
+                          placeholder="Calle, número, referencias, puntos de referencia..."
+                          rows={3}
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-biskoto focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white resize-none"
+                          required={datosEntrega.metodo_entrega === "express"}
+                        />
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Incluí referencias claras para facilitar la entrega
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Notas adicionales (siempre visible) */}
+                  <div className="pt-4 border-t border-gray-200 dark:border-slate-700">
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Notas Adicionales (Opcional)
                     </label>
@@ -461,7 +573,7 @@ const CheckoutPage = () => {
                           notas: e.target.value,
                         })
                       }
-                      placeholder="Instrucciones especiales, alergias, etc."
+                      placeholder="Instrucciones especiales, alergias, preferencias, etc."
                       rows={2}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-biskoto focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white resize-none"
                     />
@@ -510,7 +622,7 @@ const CheckoutPage = () => {
                         <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">
                           Teléfono:
                         </span>
-                        <span className="text-lg font-black text-gray-900 dark:text-white">
+                        <span className="text-lg font-bold text-gray-900 dark:text-white">
                           {pedidoCreado.datosPago.telefono}
                         </span>
                       </div>
@@ -519,7 +631,7 @@ const CheckoutPage = () => {
                         <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">
                           Titular:
                         </span>
-                        <span className="text-lg font-black text-gray-900 dark:text-white">
+                        <span className="text-lg font-bold text-gray-900 dark:text-white">
                           {pedidoCreado.datosPago.titular}
                         </span>
                       </div>
@@ -528,16 +640,16 @@ const CheckoutPage = () => {
                         <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">
                           Cédula:
                         </span>
-                        <span className="text-lg font-black text-gray-900 dark:text-white">
+                        <span className="text-lg font-bold text-gray-900 dark:text-white">
                           {pedidoCreado.datosPago.cedula}
                         </span>
                       </div>
 
-                      <div className="flex justify-between items-center bg-biskoto text-white rounded-lg p-4">
-                        <span className="text-sm font-semibold">
-                          Monto a Transferir:
+                      <div className="flex justify-between items-center bg-green-100 dark:bg-green-900/20 rounded-lg p-4 border-2 border-green-500 dark:border-green-600">
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                          Monto a transferir:
                         </span>
-                        <span className="text-2xl font-black">
+                        <span className="text-2xl font-black text-green-600 dark:text-green-400">
                           {new Intl.NumberFormat("es-CR", {
                             style: "currency",
                             currency: "CRC",
@@ -545,72 +657,88 @@ const CheckoutPage = () => {
                         </span>
                       </div>
 
-                      <div className="flex justify-between items-center bg-white dark:bg-slate-900 rounded-lg p-3">
+                      <div className="flex justify-between items-center bg-gray-100 dark:bg-slate-700 rounded-lg p-3">
                         <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">
-                          Número de Referencia:
+                          Referencia:
                         </span>
-                        <span className="text-lg font-black text-gray-900 dark:text-white font-mono">
+                        <span className="text-sm font-mono font-bold text-gray-900 dark:text-white">
                           {pedidoCreado.numeroReferencia}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Subir comprobante */}
-                  <div className="border-t border-gray-200 dark:border-slate-700 pt-6">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                      Subir Comprobante de Pago
-                    </h3>
+                  {/* Instrucciones */}
+                  <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                    <p className="font-semibold text-gray-900 dark:text-white">
+                      Pasos para completar tu pago:
+                    </p>
+                    <ol className="list-decimal list-inside space-y-1 ml-2">
+                      <li>Abrí tu app bancaria</li>
+                      <li>Seleccioná SINPE Móvil</li>
+                      <li>Ingresá el número de teléfono y el monto exacto</li>
+                      <li>Incluí la referencia en el campo de descripción</li>
+                      <li>Confirmá la transferencia</li>
+                      <li>Subí el comprobante abajo</li>
+                    </ol>
+                  </div>
+                </div>
 
-                    <label className="block w-full cursor-pointer">
-                      <div
-                        className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
-                          archivoComprobante
-                            ? "border-green-500 bg-green-50 dark:bg-green-900/20"
-                            : "border-gray-300 dark:border-slate-600 hover:border-biskoto dark:hover:border-biskoto"
-                        }`}
-                      >
-                        <Upload
-                          className={`mx-auto mb-3 ${
-                            archivoComprobante
-                              ? "text-green-500"
-                              : "text-gray-400"
-                          }`}
-                          size={40}
+                {/* Subir comprobante */}
+                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <Upload size={20} className="text-biskoto" />
+                    Subir Comprobante
+                  </h3>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block">
+                        <input
+                          type="file"
+                          accept="image/*,application/pdf"
+                          onChange={handleSeleccionarComprobante}
+                          className="block w-full text-sm text-gray-500 dark:text-gray-400
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-lg file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-biskoto file:text-white
+                            hover:file:bg-biskoto-700
+                            file:cursor-pointer file:transition-all"
                         />
+                      </label>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                        Formatos permitidos: JPG, PNG, WebP, PDF (máx. 5MB)
+                      </p>
+                    </div>
 
-                        {archivoComprobante ? (
-                          <div>
-                            <p className="font-bold text-green-600 dark:text-green-400 mb-1">
-                              Archivo seleccionado:
-                            </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                              {archivoComprobante.name}
-                            </p>
-                          </div>
-                        ) : (
-                          <div>
-                            <p className="font-bold text-gray-900 dark:text-white mb-1">
-                              Haz clic para seleccionar
-                            </p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              JPG, PNG, WebP o PDF (máx. 5MB)
-                            </p>
-                          </div>
-                        )}
+                    {archivoComprobante && (
+                      <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle
+                            className="text-green-600 dark:text-green-400"
+                            size={20}
+                          />
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {archivoComprobante.name}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => setArchivoComprobante(null)}
+                          className="text-red-500 hover:text-red-600"
+                        >
+                          <X size={18} />
+                        </button>
                       </div>
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf"
-                        onChange={handleSeleccionarComprobante}
-                        className="hidden"
-                      />
-                    </label>
+                    )}
+                  </div>
 
+                  {/* Botones de acción */}
+                  <div className="mt-6 space-y-4">
                     <button
                       onClick={handleConfirmarPago}
                       disabled={!archivoComprobante || subiendoComprobante}
-                      className="w-full mt-6 py-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-xl font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2"
+                      className="w-full py-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-xl font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2"
                     >
                       {subiendoComprobante ? (
                         <>
@@ -627,7 +755,7 @@ const CheckoutPage = () => {
                     <button
                       onClick={handleCancelarPedido}
                       disabled={cancelando || subiendoComprobante}
-                      className="w-full mt-4 py-3 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 disabled:bg-gray-100 text-red-600 dark:text-red-400 rounded-xl font-bold transition-all flex items-center justify-center gap-2"
+                      className="w-full py-3 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 disabled:bg-gray-100 text-red-600 dark:text-red-400 rounded-xl font-bold transition-all flex items-center justify-center gap-2"
                     >
                       {cancelando ? (
                         <>
@@ -677,7 +805,7 @@ const CheckoutPage = () => {
                     Ver Mis Pedidos
                   </button>
                   <button
-                    onClick={() => navigate("/shop")}
+                    onClick={() => navigate("/home")}
                     className="px-6 py-3 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-900 dark:text-white rounded-xl font-bold transition-all"
                   >
                     Seguir Comprando
@@ -814,6 +942,13 @@ const CheckoutPage = () => {
                     </span>
                   </div>
                 </div>
+
+                {paso === 1 && datosEntrega.metodo_entrega === "express" && (
+                  <p className="text-xs text-orange-600 dark:text-orange-400 italic pt-2">
+                    * Costo de envío express NO incluido (se paga contra
+                    entrega)
+                  </p>
+                )}
               </div>
             </div>
           </div>

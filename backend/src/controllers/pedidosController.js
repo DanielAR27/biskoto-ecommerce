@@ -16,10 +16,20 @@ const crearPedido = async (req, res) => {
       .json({ error: "El pedido debe contener al menos un producto." });
   }
 
-  if (!datos_entrega || !datos_entrega.telefono || !datos_entrega.direccion) {
+  if (!datos_entrega || !datos_entrega.metodo_entrega) {
     return res
       .status(400)
-      .json({ error: "Los datos de entrega son obligatorios." });
+      .json({ error: "Debe especificar el método de entrega." });
+  }
+
+  // Validaciones específicas según método de entrega
+  if (datos_entrega.metodo_entrega === "express") {
+    if (!datos_entrega.telefono_contacto || !datos_entrega.direccion_entrega) {
+      return res.status(400).json({
+        error:
+          "Para envío express se requiere teléfono de contacto y dirección de entrega.",
+      });
+    }
   }
 
   try {
