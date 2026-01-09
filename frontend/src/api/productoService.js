@@ -3,9 +3,10 @@ import api from "./axiosConfig";
 /**
  * Obtiene el listado de productos para el catálogo público.
  * Incluye la relación completa de imágenes de cada producto.
+ * Soporta paginación, búsqueda y filtro por MÚLTIPLES categorías.
  */
 export const getProductosCatalogo = async (params = {}) => {
-  const { page = 1, limit = 20, search = "", categoria_id = null } = params;
+  const { page = 1, limit = 20, search = "", categoria_ids = null } = params;
 
   // Construir query string
   const queryParams = new URLSearchParams({
@@ -17,8 +18,9 @@ export const getProductosCatalogo = async (params = {}) => {
     queryParams.append("search", search);
   }
 
-  if (categoria_id) {
-    queryParams.append("categoria_id", categoria_id);
+  // MODIFICADO: Ahora enviamos categoria_ids (múltiples, separados por coma)
+  if (categoria_ids) {
+    queryParams.append("categoria_ids", categoria_ids);
   }
 
   const { data } = await api.get(`/productos?${queryParams.toString()}`);
@@ -51,7 +53,7 @@ export const validarDisponibilidad = async (items) => {
   const response = await api.post("/productos/validar-disponibilidad", {
     items,
   });
-  return response.data; // Si falla aquí, la promesa se rechaza automáticamente
+  return response.data;
 };
 
 /**

@@ -19,7 +19,7 @@ import {
  * Componente HomePage (Catálogo Público).
  * Se encarga de renderizar la vista principal de la aplicación, mostrando un grid
  * de productos paginados. Utiliza parámetros de URL para gestionar el estado de
- * la navegación (página actual, búsqueda y categoría), permitiendo compartir enlaces específicos.
+ * la navegación (página actual, búsqueda y categorías), permitiendo compartir enlaces específicos.
  */
 const HomePage = () => {
   const navigate = useNavigate();
@@ -31,7 +31,15 @@ const HomePage = () => {
   // Se derivan los estados iniciales desde la URL
   const paginaActual = parseInt(searchParams.get("page") || "1", 10);
   const terminoBusqueda = searchParams.get("search") || "";
-  const categoriaFiltro = searchParams.get("categoria") || "";
+
+  // MODIFICADO: Ahora categoriasFiltro es un array (puede tener múltiples categorías)
+  // La URL guarda las categorías separadas por coma: ?categorias=id1,id2,id3
+  const categoriasFiltro = searchParams.get("categorias")
+    ? searchParams
+        .get("categorias")
+        .split(",")
+        .map((id) => parseInt(id, 10))
+    : [];
 
   // Estados locales para datos y carga
   const [productos, setProductos] = useState([]);
@@ -62,7 +70,7 @@ const HomePage = () => {
 
   /**
    * Efecto para la carga de datos.
-   * Se ejecuta cada vez que cambian los parámetros de paginación, búsqueda o categoría en la URL.
+   * Se ejecuta cada vez que cambian los parámetros de paginación, búsqueda o categorías en la URL.
    */
   useEffect(() => {
     const cargarCatalogo = async () => {
@@ -76,9 +84,9 @@ const HomePage = () => {
           search: terminoBusqueda,
         };
 
-        // Solo agregamos categoria_id si hay un filtro activo
-        if (categoriaFiltro) {
-          params.categoria_id = categoriaFiltro;
+        // MODIFICADO: Enviamos el array de categorías como string separado por comas
+        if (categoriasFiltro.length > 0) {
+          params.categoria_ids = categoriasFiltro.join(",");
         }
 
         const data = await getProductosCatalogo(params);
@@ -94,7 +102,7 @@ const HomePage = () => {
     };
 
     cargarCatalogo();
-  }, [paginaActual, terminoBusqueda, categoriaFiltro]);
+  }, [paginaActual, terminoBusqueda, categoriasFiltro.join(",")]); // Convertimos a string para comparación
 
   /**
    * Manejador de búsqueda.
@@ -107,23 +115,34 @@ const HomePage = () => {
 
     const newParams = { page: 1 };
     if (nuevoTermino) newParams.search = nuevoTermino;
-    if (categoriaFiltro) newParams.categoria = categoriaFiltro;
+    if (categoriasFiltro.length > 0)
+      newParams.categorias = categoriasFiltro.join(",");
 
     setSearchParams(newParams);
   };
 
   /**
-   * Manejador de filtro por categoría.
-   * Actualiza la URL y resetea la página a 1.
+   * MODIFICADO: Manejador de filtro por categoría (selección múltiple).
+   * Si la categoría ya está seleccionada, la quita. Si no, la agrega.
    */
   const handleCategoriaClick = (catId) => {
+    let nuevasCategorias;
+
+    if (catId === null) {
+      // Clic en "Todas" - limpiar todas las categorías
+      nuevasCategorias = [];
+    } else if (categoriasFiltro.includes(catId)) {
+      // Si ya está seleccionada, quitarla
+      nuevasCategorias = categoriasFiltro.filter((id) => id !== catId);
+    } else {
+      // Si no está seleccionada, agregarla
+      nuevasCategorias = [...categoriasFiltro, catId];
+    }
+
     const newParams = { page: 1 };
     if (terminoBusqueda) newParams.search = terminoBusqueda;
-
-    // Si hace clic en la misma categoría, la deselecciona
-    if (catId && catId !== categoriaFiltro) {
-      newParams.categoria = catId;
-    }
+    if (nuevasCategorias.length > 0)
+      newParams.categorias = nuevasCategorias.join(",");
 
     setSearchParams(newParams);
   };
@@ -146,20 +165,21 @@ const HomePage = () => {
     if (nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
       const newParams = { page: nuevaPagina };
       if (terminoBusqueda) newParams.search = terminoBusqueda;
-      if (categoriaFiltro) newParams.categoria = categoriaFiltro;
+      if (categoriasFiltro.length > 0)
+        newParams.categorias = categoriasFiltro.join(",");
 
       setSearchParams(newParams);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
-  // Obtener nombre de categoría seleccionada para mostrar en UI
-  const categoriaNombre = categorias.find(
-    (c) => c.id === categoriaFiltro
-  )?.nombre;
+  // Obtener nombres de categorías seleccionadas para mostrar en UI
+  const categoriasSeleccionadasNombres = categorias
+    .filter((c) => categoriasFiltro.includes(c.id))
+    .map((c) => c.nombre);
 
   // Verificar si hay filtros activos
-  const hayFiltrosActivos = terminoBusqueda || categoriaFiltro;
+  const hayFiltrosActivos = terminoBusqueda || categoriasFiltro.length > 0;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
@@ -216,11 +236,11 @@ const HomePage = () => {
 
             {/* Pills de categorías */}
             <div className="flex flex-wrap gap-2">
-              {/* Botón "Todas" */}
+              {/* Botón "Todas" - activo solo cuando NO hay categorías seleccionadas */}
               <button
                 onClick={() => handleCategoriaClick(null)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                  !categoriaFiltro
+                  categoriasFiltro.length === 0
                     ? "bg-biskoto text-white shadow-md scale-105"
                     : "bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-slate-600"
                 }`}
@@ -239,13 +259,13 @@ const HomePage = () => {
                   ))}
                 </>
               ) : (
-                /* Botones de categorías */
+                /* Botones de categorías - MODIFICADO: Ahora pueden estar múltiples activos */
                 categorias.map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => handleCategoriaClick(cat.id)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                      categoriaFiltro === cat.id
+                      categoriasFiltro.includes(cat.id)
                         ? "bg-biskoto text-white shadow-md scale-105"
                         : "bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-slate-600"
                     }`}
@@ -265,8 +285,8 @@ const HomePage = () => {
                     <button
                       onClick={() => {
                         const newParams = { page: 1 };
-                        if (categoriaFiltro)
-                          newParams.categoria = categoriaFiltro;
+                        if (categoriasFiltro.length > 0)
+                          newParams.categorias = categoriasFiltro.join(",");
                         setSearchParams(newParams);
                         const searchInput = document.querySelector(
                           'input[name="search"]'
@@ -279,21 +299,23 @@ const HomePage = () => {
                     </button>
                   </span>
                 )}
-                {categoriaNombre && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-biskoto/10 dark:bg-indigo-500/20 text-biskoto dark:text-indigo-300 rounded-full">
-                    Categoría: {categoriaNombre}
+                {/* MODIFICADO: Mostrar cada categoría seleccionada como un tag individual */}
+                {categoriasSeleccionadasNombres.map((nombre, index) => (
+                  <span
+                    key={categoriasFiltro[index]}
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-biskoto/10 dark:bg-indigo-500/20 text-biskoto dark:text-indigo-300 rounded-full"
+                  >
+                    {nombre}
                     <button
-                      onClick={() => {
-                        const newParams = { page: 1 };
-                        if (terminoBusqueda) newParams.search = terminoBusqueda;
-                        setSearchParams(newParams);
-                      }}
+                      onClick={() =>
+                        handleCategoriaClick(categoriasFiltro[index])
+                      }
                       className="ml-1 hover:text-biskoto-700 dark:hover:text-indigo-200"
                     >
                       <X className="h-3 w-3" />
                     </button>
                   </span>
-                )}
+                ))}
               </div>
             )}
           </div>

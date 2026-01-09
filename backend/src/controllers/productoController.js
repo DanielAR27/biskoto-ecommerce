@@ -2,16 +2,16 @@ const supabase = require("../config/supabase");
 
 /**
  * LISTAR PRODUCTOS CATÁLOGO (Con imágenes)
- * Endpoint para la vista de cliente. Soporta paginación, BÚSQUEDA y FILTRO POR CATEGORÍA.
+ * Endpoint para la vista de cliente. Soporta paginación, BÚSQUEDA y FILTRO POR MÚLTIPLES CATEGORÍAS.
  */
 const listarProductosCatalogo = async (req, res) => {
   try {
-    // 1. Extraemos los parámetros de query incluyendo categoria_id
+    // 1. Extraemos los parámetros de query
     const {
       page = 1,
       limit = 20,
       search = "",
-      categoria_id = null, // NUEVO: Filtro por categoría
+      categoria_ids = null, // MODIFICADO: Ahora recibe múltiples IDs separados por coma
     } = req.query;
 
     const desde = (page - 1) * limit;
@@ -31,9 +31,12 @@ const listarProductosCatalogo = async (req, res) => {
       { count: "exact" }
     );
 
-    // 3. FILTRO POR CATEGORÍA (si se envía)
-    if (categoria_id) {
-      query = query.eq("categoria_id", categoria_id);
+    // 3. FILTRO POR MÚLTIPLES CATEGORÍAS (si se envían)
+    if (categoria_ids) {
+      // Convertimos el string "id1,id2,id3" a un array ["id1", "id2", "id3"]
+      const idsArray = categoria_ids.split(",").map((id) => id.trim());
+      // Usamos .in() para filtrar por cualquiera de las categorías seleccionadas
+      query = query.in("categoria_id", idsArray);
     }
 
     // 4. FILTRO DE BÚSQUEDA (si existe)
@@ -239,11 +242,9 @@ const crearProducto = async (req, res) => {
 
   // 1. Validaciones de Negocio
   if (!nombre || nombre.trim().length < 3) {
-    return res
-      .status(400)
-      .json({
-        error: "El nombre es obligatorio y debe tener al menos 3 caracteres.",
-      });
+    return res.status(400).json({
+      error: "El nombre es obligatorio y debe tener al menos 3 caracteres.",
+    });
   }
 
   if (precio < 0) {
@@ -258,11 +259,9 @@ const crearProducto = async (req, res) => {
   }
 
   if (stock_actual > 999999) {
-    return res
-      .status(400)
-      .json({
-        error: "La cantidad de stock es demasiado grande (máximo 999,999).",
-      });
+    return res.status(400).json({
+      error: "La cantidad de stock es demasiado grande (máximo 999,999).",
+    });
   }
 
   try {
