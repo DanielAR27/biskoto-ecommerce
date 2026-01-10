@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import Navbar from '../../../components/Navbar';
-import * as productoService from '../../../api/productoService';
+import { useState, useEffect } from "react";
+import { useLocation, Link } from "react-router-dom";
+import Navbar from "../../../components/Navbar";
+import * as productoService from "../../../api/productoService";
 
 // Importación de componentes reutilizables para estandarizar la UI
-import ToastNotification from '../../../components/ToastNotification';
-import ConfirmModal from '../../../components/ConfirmModal';
-import TableSearch from '../../../components/TableSearch';
-import StatusBadge from '../../../components/StatusBadge';
-import TableActions from '../../../components/TableActions';
+import ToastNotification from "../../../components/ToastNotification";
+import ConfirmModal from "../../../components/ConfirmModal";
+import TableSearch from "../../../components/TableSearch";
+import StatusBadge from "../../../components/StatusBadge";
+import TableActions from "../../../components/TableActions";
 
 // Iconos específicos requeridos para la cabecera y estados de carga
-import { Plus, Package, Loader2 } from 'lucide-react';
+import { Plus, Package, Loader2, CreditCard } from "lucide-react";
 
 /**
  * Página de Gestión de Productos.
@@ -19,10 +19,10 @@ import { Plus, Package, Loader2 } from 'lucide-react';
  */
 const ProductosPage = () => {
   const location = useLocation();
-  
+
   // Estado para almacenar el listado de productos y el término de búsqueda
   const [productos, setProductos] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Estados para controlar la interfaz de usuario (Carga, Errores y Notificaciones)
   const [loading, setLoading] = useState(true);
@@ -31,7 +31,7 @@ const ProductosPage = () => {
 
   // Estados para controlar el Modal de Eliminación
   const [productToDelete, setProductToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false); 
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Carga inicial de datos al montar el componente
   useEffect(() => {
@@ -41,7 +41,7 @@ const ProductosPage = () => {
   // Detecta mensajes de éxito provenientes de otras rutas (ej. creación/edición)
   useEffect(() => {
     if (location.state?.successMessage) {
-      showNotification('success', location.state.successMessage);
+      showNotification("success", location.state.successMessage);
       // Limpia el estado del historial para evitar mostrar el mensaje al recargar
       window.history.replaceState({}, document.title);
     }
@@ -61,7 +61,7 @@ const ProductosPage = () => {
       setProductos(data);
     } catch (err) {
       console.error(err);
-      setError('No se pudieron cargar los productos del inventario.');
+      setError("No se pudieron cargar los productos del inventario.");
     } finally {
       setLoading(false);
     }
@@ -75,39 +75,47 @@ const ProductosPage = () => {
   // Ejecuta la eliminación del producto tras la confirmación del usuario
   const confirmDelete = async () => {
     if (!productToDelete) return;
-    
+
     setIsDeleting(true);
     try {
       await productoService.deleteProducto(productToDelete.id);
-      
-      setProductos(prev => prev.filter(p => p.id !== productToDelete.id));
-      showNotification('success', `El producto "${productToDelete.nombre}" ha sido eliminado.`);
-      setProductToDelete(null); 
+
+      setProductos((prev) => prev.filter((p) => p.id !== productToDelete.id));
+      showNotification(
+        "success",
+        `El producto "${productToDelete.nombre}" ha sido eliminado.`
+      );
+      setProductToDelete(null);
     } catch (err) {
-      const msg = err.response?.data?.error || 'No se pudo eliminar el producto.';
-      showNotification('error', msg);
-      setProductToDelete(null); 
+      const msg =
+        err.response?.data?.error || "No se pudo eliminar el producto.";
+      showNotification("error", msg);
+      setProductToDelete(null);
     } finally {
       setIsDeleting(false);
     }
   };
 
   // Filtra los productos en tiempo real por nombre o categoría
-  const productosFiltrados = productos.filter((prod) => 
-    prod.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    prod.categorias?.nombre?.toLowerCase().includes(searchTerm.toLowerCase())
+  const productosFiltrados = productos.filter(
+    (prod) =>
+      prod.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      prod.categorias?.nombre?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Formateador de moneda para CRC (Colones)
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(amount);
+    return new Intl.NumberFormat("es-CR", {
+      style: "currency",
+      currency: "CRC",
+    }).format(amount);
   };
 
   // Determina la variante de color para el badge de stock
   const getStockVariant = (stock) => {
-    if (stock > 10) return 'success'; // Verde
-    if (stock > 0) return 'warning';  // Amarillo
-    return 'error';                   // Rojo
+    if (stock > 10) return "success"; // Verde
+    if (stock > 0) return "warning"; // Amarillo
+    return "error"; // Rojo
   };
 
   return (
@@ -115,7 +123,6 @@ const ProductosPage = () => {
       <Navbar />
 
       <main className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        
         {/* Encabezado de la Sección */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
           <div className="flex-1 min-w-0">
@@ -140,17 +147,17 @@ const ProductosPage = () => {
 
         {/* Componente de Notificación (Toast) */}
         {notification && (
-          <ToastNotification 
-            type={notification.type} 
-            message={notification.text} 
-            onClose={() => setNotification(null)} 
+          <ToastNotification
+            type={notification.type}
+            message={notification.text}
+            onClose={() => setNotification(null)}
           />
         )}
 
         {/* Barra de Búsqueda y Filtrado */}
-        <TableSearch 
-          searchTerm={searchTerm} 
-          setSearchTerm={setSearchTerm} 
+        <TableSearch
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
           resultCount={productosFiltrados.length}
           placeholder="Buscar por nombre o categoría..."
         />
@@ -160,11 +167,12 @@ const ProductosPage = () => {
           <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
               <div className="shadow overflow-hidden border-b border-gray-200 dark:border-slate-700 sm:rounded-b-xl bg-white dark:bg-slate-800 transition-colors duration-300">
-                
                 {loading ? (
                   <div className="flex flex-col items-center justify-center py-20">
                     <Loader2 className="h-10 w-10 text-biskoto animate-spin mb-4" />
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">Cargando inventario...</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      Cargando inventario...
+                    </p>
                   </div>
                 ) : error ? (
                   <div className="p-10 text-center text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/10">
@@ -173,8 +181,8 @@ const ProductosPage = () => {
                 ) : productosFiltrados.length === 0 ? (
                   <div className="p-10 text-center text-gray-500 dark:text-gray-400">
                     <p>
-                      {searchTerm 
-                        ? `No se encontraron productos que coincidan con "${searchTerm}".` 
+                      {searchTerm
+                        ? `No se encontraron productos que coincidan con "${searchTerm}".`
                         : "No hay productos registrados en el inventario."}
                     </p>
                   </div>
@@ -203,8 +211,10 @@ const ProductosPage = () => {
                     </thead>
                     <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
                       {productosFiltrados.map((prod) => (
-                        <tr key={prod.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
-                          
+                        <tr
+                          key={prod.id}
+                          className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
+                        >
                           {/* Columna Nombre: Ajuste de padding y Avatar responsivo */}
                           <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
@@ -214,21 +224,29 @@ const ProductosPage = () => {
                               </div>
                               <div className="ml-3 sm:ml-4">
                                 {/* Nombre truncado en móvil para evitar desbordes */}
-                                <div className="text-sm font-medium text-gray-900 dark:text-white max-w-[100px] sm:max-w-none truncate">
+                                <div className="text-sm font-medium text-gray-900 dark:text-white max-w-[100px] sm:max-w-none truncate flex items-center gap-2">
                                   {prod.nombre}
+
+                                  {/* Badge de Adelanto */}
+                                  {prod.requiere_adelanto && (
+                                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-full">
+                                      <CreditCard size={12} />
+                                      {prod.porcentaje_adelanto}%
+                                    </span>
+                                  )}
                                 </div>
                                 {/* Mostrar Categoría aquí SOLO en móvil (gris pequeño) */}
                                 <div className="text-xs text-gray-500 dark:text-gray-400 md:hidden">
-                                  {prod.categorias?.nombre || 'General'}
+                                  {prod.categorias?.nombre || "General"}
                                 </div>
                               </div>
                             </div>
                           </td>
-                          
+
                           {/* Columna Categoría (Badge): Solo visible en Desktop (md:table-cell) */}
                           <td className="px-6 py-4 whitespace-nowrap text-sm hidden md:table-cell">
                             <StatusBadge variant="default">
-                              {prod.categorias?.nombre || 'General'}
+                              {prod.categorias?.nombre || "General"}
                             </StatusBadge>
                           </td>
 
@@ -236,17 +254,19 @@ const ProductosPage = () => {
                           <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                             {formatCurrency(prod.precio)}
                           </td>
-                          
+
                           {/* Stock: Padding reducido */}
                           <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
-                            <StatusBadge variant={getStockVariant(prod.stock_actual)}>
+                            <StatusBadge
+                              variant={getStockVariant(prod.stock_actual)}
+                            >
                               {prod.stock_actual}
                             </StatusBadge>
                           </td>
-                          
+
                           {/* Acciones: Padding reducido */}
                           <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <TableActions 
+                            <TableActions
                               editLink={`/admin/productos/editar/${prod.id}`}
                               onDelete={() => handleDeleteClick(prod)}
                               deleteTitle="Eliminar producto"
@@ -264,7 +284,7 @@ const ProductosPage = () => {
       </main>
 
       {/* Modal de Confirmación Reutilizable */}
-      <ConfirmModal 
+      <ConfirmModal
         isOpen={!!productToDelete}
         onClose={() => setProductToDelete(null)}
         onConfirm={confirmDelete}
@@ -273,8 +293,13 @@ const ProductosPage = () => {
         message={
           productToDelete && (
             <>
-              Estás a punto de eliminar el producto <span className="font-bold text-gray-800 dark:text-gray-200">"{productToDelete.nombre}"</span>. 
-              <br className="hidden sm:block"/>¿Estás seguro de que quieres continuar?
+              Estás a punto de eliminar el producto{" "}
+              <span className="font-bold text-gray-800 dark:text-gray-200">
+                "{productToDelete.nombre}"
+              </span>
+              .
+              <br className="hidden sm:block" />
+              ¿Estás seguro de que quieres continuar?
             </>
           )
         }

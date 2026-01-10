@@ -407,6 +407,65 @@ const DetallePedidoPage = () => {
             </h2>
 
             <div className="space-y-3">
+              {/* AGREGAR: Información de adelanto */}
+              {pedido.requiere_adelanto && (
+                <div
+                  className={`p-4 rounded-lg border-2 ${
+                    pedido.pago_completo
+                      ? "bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700"
+                      : "bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <CreditCard
+                      size={18}
+                      className={
+                        pedido.pago_completo
+                          ? "text-green-600"
+                          : "text-blue-600"
+                      }
+                    />
+                    <span className="font-bold text-gray-900 dark:text-white">
+                      {pedido.pago_completo ? "Pago Completo" : "Pago Parcial"}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Adelanto pagado:
+                      </span>
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        {new Intl.NumberFormat("es-CR", {
+                          style: "currency",
+                          currency: "CRC",
+                        }).format(pedido.monto_adelanto)}
+                      </span>
+                    </div>
+
+                    {!pedido.pago_completo && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Pendiente de pago:
+                        </span>
+                        <span className="font-bold text-orange-600 dark:text-orange-400">
+                          {new Intl.NumberFormat("es-CR", {
+                            style: "currency",
+                            currency: "CRC",
+                          }).format(pedido.monto_pendiente)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {!pedido.pago_completo && (
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-2 italic">
+                      El resto se paga al recoger el pedido
+                    </p>
+                  )}
+                </div>
+              )}
+
               {pedido.cupones && (
                 <div className="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-slate-700">
                   <span className="text-gray-600 dark:text-gray-400">

@@ -238,6 +238,8 @@ const crearProducto = async (req, res) => {
     stock_actual,
     imagenes,
     ingredientes,
+    requiere_adelanto,
+    porcentaje_adelanto,
   } = req.body;
 
   // 1. Validaciones de Negocio
@@ -275,6 +277,8 @@ const crearProducto = async (req, res) => {
           descripcion,
           categoria_id: categoria_id || null,
           stock_actual: stock_actual || 0,
+          requiere_adelanto: requiere_adelanto || false,
+          porcentaje_adelanto: porcentaje_adelanto || 50,
         },
       ])
       .select()
@@ -331,6 +335,8 @@ const actualizarProducto = async (req, res) => {
     stock_actual,
     imagenes,
     ingredientes,
+    requiere_adelanto,
+    porcentaje_adelanto,
   } = req.body;
 
   // 1. Validaciones de Integridad
@@ -398,6 +404,10 @@ const actualizarProducto = async (req, res) => {
         descripcion,
         categoria_id: categoria_id || null,
         stock_actual,
+        requiere_adelanto:
+          requiere_adelanto !== undefined ? requiere_adelanto : false,
+        porcentaje_adelanto:
+          porcentaje_adelanto !== undefined ? porcentaje_adelanto : 50,
       })
       .eq("id", id);
 
@@ -509,6 +519,49 @@ const eliminarProducto = async (req, res) => {
   }
 };
 
+/**
+ * Verificar si algún producto requiere adelanto
+ */
+const verificarAdelanto = async (req, res) => {
+  const { product_ids } = req.body;
+
+  if (!product_ids || product_ids.length === 0) {
+    return res.status(400).json({ error: "Se requiere lista de productos" });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("productos")
+      .select("id, nombre, requiere_adelanto, porcentaje_adelanto")
+      .in("id", product_ids);
+
+    if (error) throw error;
+
+    const productosConAdelanto = data.filter((p) => p.requiere_adelanto);
+    const requiereAdelanto = productosConAdelanto.length > 0;
+
+    // Obtener el porcentaje más alto si hay múltiples productos
+    let porcentajeAdelanto = 50; // Default
+    if (requiereAdelanto) {
+      const porcentajes = productosConAdelanto.map(
+        (p) => p.porcentaje_adelanto || 50
+      );
+      porcentajeAdelanto = Math.max(...porcentajes);
+    }
+
+    res.status(200).json({
+      requiere_adelanto: requiereAdelanto,
+      porcentaje_adelanto: porcentajeAdelanto,
+      productos_con_adelanto: productosConAdelanto,
+    });
+  } catch (error) {
+    console.error("Error verificando adelanto:", error);
+    res.status(500).json({ error: "Error al verificar adelanto" });
+  }
+};
+
+// Agregar al module.exports
+
 module.exports = {
   listarProductosCatalogo,
   listarProductosAdmin,
@@ -517,4 +570,5 @@ module.exports = {
   crearProducto,
   actualizarProducto,
   eliminarProducto,
+  verificarAdelanto,
 };

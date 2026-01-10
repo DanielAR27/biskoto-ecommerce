@@ -10,19 +10,21 @@ import {
   Loader2,
   AlertCircle,
   ChevronDown,
-  Edit, // 👈 NUEVO
-  Trash2, // 👈 NUEVO
-  X, // 👈 NUEVO
-  Save, // 👈 NUEVO
-  ChevronLeft, // 👈 NUEVO
-  ChevronRight, // 👈 NUEVO
+  Edit,
+  Trash2,
+  X,
+  Save,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle,
+  Upload,
 } from "lucide-react";
 
 import {
   getTodosPedidos,
   actualizarEstadoPedido,
-  actualizarPedido, // 👈 NUEVO
-  eliminarPedido, // 👈 NUEVO
+  actualizarPedido,
+  eliminarPedido,
 } from "../../../api/pedidoService";
 import Navbar from "../../../components/Navbar";
 import TableSearch from "../../../components/TableSearch";
@@ -44,19 +46,25 @@ const PedidosAdminPage = () => {
   const [filtroEstado, setFiltroEstado] = useState("todos");
   const [actualizandoEstado, setActualizandoEstado] = useState(null);
 
-  // 👇 NUEVO: Paginación
+  // Paginación
   const [paginaActual, setPaginaActual] = useState(1);
   const [pedidosPorPagina] = useState(15);
 
-  // 👇 NUEVO: Modal de edición
+  // Modal de edición
   const [modalEditar, setModalEditar] = useState(false);
   const [pedidoEditando, setPedidoEditando] = useState(null);
   const [guardandoEdicion, setGuardandoEdicion] = useState(false);
 
-  // 👇 NUEVO: Modal de confirmación eliminar
+  // Modal de confirmación eliminar
   const [modalEliminar, setModalEliminar] = useState(false);
   const [pedidoEliminar, setPedidoEliminar] = useState(null);
   const [eliminando, setEliminando] = useState(false);
+
+  // Modal de completar pago
+  const [modalCompletarPago, setModalCompletarPago] = useState(false);
+  const [pedidoCompletarPago, setPedidoCompletarPago] = useState(null);
+  const [archivoComprobante, setArchivoComprobante] = useState(null);
+  const [completandoPago, setCompletandoPago] = useState(false);
 
   // Estados disponibles
   const estados = [
@@ -66,6 +74,7 @@ const PedidosAdminPage = () => {
     { id: 4, nombre: "Listo para Retiro", color: "warning" },
     { id: 5, nombre: "Entregado", color: "success" },
     { id: 6, nombre: "Cancelado", color: "error" },
+    { id: 7, nombre: "Pago Parcial", color: "info" },
   ];
 
   /**
@@ -158,7 +167,7 @@ const PedidosAdminPage = () => {
     }
   };
 
-  // 👇 NUEVO: Abrir modal de edición
+  //  Abrir modal de edición
   const abrirModalEditar = (pedido) => {
     setPedidoEditando({
       id: pedido.id,
@@ -199,13 +208,13 @@ const PedidosAdminPage = () => {
     }
   };
 
-  // 👇 NUEVO: Abrir modal de confirmación eliminar
+  //  Abrir modal de confirmación eliminar
   const abrirModalEliminar = (pedido) => {
     setPedidoEliminar(pedido);
     setModalEliminar(true);
   };
 
-  // 👇 NUEVO: Confirmar eliminación
+  // Confirmar eliminación
   const confirmarEliminar = async () => {
     if (!pedidoEliminar) return;
 
@@ -232,6 +241,140 @@ const PedidosAdminPage = () => {
    */
   const verDetalle = (pedidoId) => {
     navigate(`/pedido/${pedidoId}`);
+  };
+
+  /**
+   * Abrir modal para completar pago restante
+   */
+  const abrirModalCompletarPago = (pedido) => {
+    setPedidoCompletarPago(pedido);
+    setModalCompletarPago(true);
+    setArchivoComprobante(null);
+  };
+
+  /**
+   * Manejar selección de comprobante
+   */
+  const handleSeleccionarComprobante = (e) => {
+    const archivo = e.target.files[0];
+    if (!archivo) return;
+
+    // Validar tipo
+    const tiposPermitidos = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+      "application/pdf",
+    ];
+    if (!tiposPermitidos.includes(archivo.type)) {
+      alert("Solo se permiten imágenes (JPG, PNG, WebP) o PDF");
+      return;
+    }
+
+    // Validar tamaño (5MB)
+    if (archivo.size > 5 * 1024 * 1024) {
+      alert("El archivo no debe superar 5MB");
+      return;
+    }
+
+    setArchivoComprobante(archivo);
+  };
+
+  /**
+   * Completar el pago restante
+   */
+  const completarPagoRestante = async () => {
+    if (!pedidoCompletarPago) return;
+
+    setCompletandoPago(true);
+
+    try {
+      let comprobanteUrl = null;
+
+      // Si hay comprobante, subirlo primero
+      if (archivoComprobante) {
+        const extension = archivoComprobante.name.split(".").pop();
+        const nombreArchivo = `comprobante-restante-${
+          pedidoCompletarPago.id
+        }-${Date.now()}.${extension}`;
+
+        // Solicitar URL firmada
+        const responseUrl = await fetch(
+          `${import.meta.env.VITE_API_URL}/storage/signed-upload`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            body: JSON.stringify({ fileName: nombreArchivo }),
+          }
+        );
+
+        if (!responseUrl.ok) throw new Error("Error al obtener URL de subida");
+
+        const { signedUrl, path, bucket } = await responseUrl.json();
+
+        // Subir archivo
+        const uploadResponse = await fetch(signedUrl, {
+          method: "PUT",
+          body: archivoComprobante,
+          headers: { "Content-Type": archivoComprobante.type },
+        });
+
+        if (!uploadResponse.ok) throw new Error("Error al subir archivo");
+
+        comprobanteUrl = `${
+          import.meta.env.VITE_SUPABASE_URL
+        }/storage/v1/object/public/${bucket}/${path}`;
+      }
+
+      // Llamar al endpoint de completar pago
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/pedidos/${
+          pedidoCompletarPago.id
+        }/completar-pago`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ comprobante_url: comprobanteUrl }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Error al completar pago");
+      }
+
+      // Actualizar localmente
+      setPedidos((prev) =>
+        prev.map((p) =>
+          p.id === pedidoCompletarPago.id
+            ? {
+                ...p,
+                estado_id: 2, // Confirmado
+                pago_completo: true,
+                monto_pagado: p.total,
+                monto_pendiente: 0,
+              }
+            : p
+        )
+      );
+
+      alert("Pago completado exitosamente");
+      setModalCompletarPago(false);
+      setPedidoCompletarPago(null);
+      setArchivoComprobante(null);
+    } catch (error) {
+      console.error("Error al completar pago:", error);
+      alert(error.message || "Error al completar el pago");
+    } finally {
+      setCompletandoPago(false);
+    }
   };
 
   /**
@@ -382,6 +525,9 @@ const PedidosAdminPage = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Estado
                       </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Pago
+                      </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Acciones
                       </th>
@@ -490,7 +636,47 @@ const PedidosAdminPage = () => {
                             </div>
                           </td>
 
-                          {/* 👇 CAMBIADO: Acciones - Ahora con 3 botones */}
+                          {/* Columna de Estado de Pago */}
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {pedido.requiere_adelanto ? (
+                              <div className="flex flex-col gap-1">
+                                <span
+                                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
+                                    pedido.pago_completo
+                                      ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                                      : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                                  }`}
+                                >
+                                  {pedido.pago_completo ? (
+                                    <>
+                                      <CheckCircle size={12} />
+                                      Completo
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CreditCard size={12} />
+                                      Parcial {pedido.porcentaje_adelanto}%
+                                    </>
+                                  )}
+                                </span>
+                                {!pedido.pago_completo && (
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                                    Pendiente:{" "}
+                                    {new Intl.NumberFormat("es-CR", {
+                                      style: "currency",
+                                      currency: "CRC",
+                                    }).format(pedido.monto_pendiente)}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                <CheckCircle size={12} />
+                                Completo
+                              </span>
+                            )}
+                          </td>
+
                           <td className="px-6 py-4 whitespace-nowrap text-right">
                             <div className="flex items-center justify-end gap-2">
                               <button
@@ -500,6 +686,19 @@ const PedidosAdminPage = () => {
                               >
                                 <Eye className="h-4 w-4" />
                               </button>
+                              {/* Botón Completar Pago (solo para pedidos con pago parcial) */}
+                              {pedido.requiere_adelanto &&
+                                !pedido.pago_completo && (
+                                  <button
+                                    onClick={() =>
+                                      abrirModalCompletarPago(pedido)
+                                    }
+                                    className="w-full text-left px-4 py-2 text-sm text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/20 flex items-center gap-2"
+                                  >
+                                    <CheckCircle size={16} />
+                                    Completar Pago
+                                  </button>
+                                )}
                               <button
                                 onClick={() => abrirModalEditar(pedido)}
                                 className="p-2 text-green-600 bg-green-50 dark:text-green-400 dark:bg-white/10 rounded-lg transition-colors hover:bg-green-100 dark:hover:bg-white/20"
@@ -529,7 +728,7 @@ const PedidosAdminPage = () => {
               </div>
             </div>
 
-            {/* 👇 NUEVO: Paginación */}
+            {/* Paginación */}
             {totalPaginas > 1 && (
               <div className="bg-white dark:bg-slate-800 px-6 py-4 rounded-b-xl shadow-sm border-t border-gray-200 dark:border-slate-700">
                 <div className="flex items-center justify-between">
@@ -621,7 +820,7 @@ const PedidosAdminPage = () => {
         )}
       </main>
 
-      {/* 👇 NUEVO: Modal de Edición */}
+      {/* Modal de Edición */}
       {modalEditar && pedidoEditando && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-md w-full p-6">
@@ -747,6 +946,150 @@ const PedidosAdminPage = () => {
                   <>
                     <Trash2 className="h-4 w-4" />
                     Eliminar
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 👇 NUEVO: Modal de Completar Pago */}
+      {modalCompletarPago && pedidoCompletarPago && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-lg w-full p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                Completar Pago - Pedido #{pedidoCompletarPago.id}
+              </h3>
+              <button
+                onClick={() => {
+                  setModalCompletarPago(false);
+                  setPedidoCompletarPago(null);
+                  setArchivoComprobante(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Información del pago */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  Total del pedido:
+                </span>
+                <span className="font-bold text-gray-900 dark:text-white">
+                  {new Intl.NumberFormat("es-CR", {
+                    style: "currency",
+                    currency: "CRC",
+                  }).format(pedidoCompletarPago.total)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  Ya pagado ({pedidoCompletarPago.porcentaje_adelanto}%):
+                </span>
+                <span className="font-semibold text-green-600 dark:text-green-400">
+                  {new Intl.NumberFormat("es-CR", {
+                    style: "currency",
+                    currency: "CRC",
+                  }).format(pedidoCompletarPago.monto_adelanto)}
+                </span>
+              </div>
+              <div className="pt-2 border-t border-blue-200 dark:border-blue-800">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">
+                    Monto restante:
+                  </span>
+                  <span className="text-lg font-black text-blue-600 dark:text-blue-400">
+                    {new Intl.NumberFormat("es-CR", {
+                      style: "currency",
+                      currency: "CRC",
+                    }).format(pedidoCompletarPago.monto_pendiente)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Subir comprobante (opcional) */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Comprobante de Pago (Opcional)
+              </label>
+              <div className="border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg p-4 hover:border-biskoto dark:hover:border-indigo-400 transition-colors">
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={handleSeleccionarComprobante}
+                  className="block w-full text-sm text-gray-500 dark:text-gray-400
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-lg file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-biskoto file:text-white
+                    hover:file:bg-biskoto-dark
+                    file:cursor-pointer file:transition-all"
+                />
+              </div>
+              {archivoComprobante && (
+                <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle
+                      className="text-green-600 dark:text-green-400"
+                      size={20}
+                    />
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {archivoComprobante.name}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setArchivoComprobante(null)}
+                    className="text-red-500 hover:text-red-600"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              )}
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                Formatos: JPG, PNG, WebP, PDF (máx. 5MB)
+              </p>
+            </div>
+
+            {/* Nota informativa */}
+            <div className="mb-6 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+              <p className="text-xs text-orange-700 dark:text-orange-300">
+                <strong>Nota:</strong> Al confirmar, el pedido pasará al estado
+                "Confirmado" y se marcará como pagado completamente.
+              </p>
+            </div>
+
+            {/* Botones de acción */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setModalCompletarPago(false);
+                  setPedidoCompletarPago(null);
+                  setArchivoComprobante(null);
+                }}
+                className="flex-1 px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={completarPagoRestante}
+                disabled={completandoPago}
+                className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 font-medium"
+              >
+                {completandoPago ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Procesando...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4" />
+                    Confirmar Pago Completo
                   </>
                 )}
               </button>

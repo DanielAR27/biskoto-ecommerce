@@ -144,9 +144,55 @@ CREATE TABLE detalle_pedidos (
   precio_unitario_historico DECIMAL(10,2) NOT NULL 
 );
 
-
+/* Modificaciones Pendientes a las tablas */
 ALTER TABLE categorias 
 ADD COLUMN activo BOOLEAN DEFAULT TRUE;
 
 -- Índice para mejorar rendimiento de filtros
 CREATE INDEX idx_categorias_activo ON categorias(activo);
+
+-- Agregar campos para adelanto configurable
+ALTER TABLE productos 
+ADD COLUMN requiere_adelanto BOOLEAN DEFAULT FALSE,
+ADD COLUMN porcentaje_adelanto INTEGER DEFAULT 50 CHECK (porcentaje_adelanto > 0 AND porcentaje_adelanto <= 100);
+
+-- Ejemplo: Marcar categoría de queques personalizados con adelanto del 50%
+UPDATE productos 
+SET requiere_adelanto = TRUE,
+    porcentaje_adelanto = 50
+WHERE categoria_id = (SELECT id FROM categorias WHERE nombre = 'Queques Personalizados');
+
+-- Si se quiere que un producto específico tenga adelanto diferente (ej: 30%) entonces hay que hacer
+-- UPDATE productos SET porcentaje_adelanto = 30 WHERE id = X;
+
+/* Tabla pedidos - Agregar columnas para control de pagos */
+-- Agregar campos de control de pago
+ALTER TABLE pedidos 
+ADD COLUMN requiere_adelanto BOOLEAN DEFAULT FALSE,
+ADD COLUMN porcentaje_adelanto INTEGER DEFAULT 50,
+ADD COLUMN monto_adelanto DECIMAL(10,2) DEFAULT 0,
+ADD COLUMN monto_pagado DECIMAL(10,2) DEFAULT 0,
+ADD COLUMN monto_pendiente DECIMAL(10,2) DEFAULT 0,
+ADD COLUMN pago_completo BOOLEAN DEFAULT FALSE;
+
+-- Actualizar pedidos existentes para que sean compatibles
+UPDATE pedidos 
+SET pago_completo = TRUE,
+    monto_pagado = total,
+    monto_pendiente = 0
+WHERE estado_id >= 2; -- Los que ya están confirmados o más avanzados
+
+/* C. Tabla estados_pedido - Agregar nuevo estado */
+
+-- Agregar estado para pedidos con pago parcial
+INSERT INTO estados_pedido (nombre) 
+VALUES ('Pago Parcial')
+ON CONFLICT (nombre) DO NOTHING;
+-- Debería quedar:
+-- 1 = Pendiente de Pago
+-- 2 = Confirmado (pago completo)
+-- 3 = En Producción
+-- 4 = Listo para Retiro
+-- 5 = Entregado
+-- 6 = Cancelado
+-- 7 = Pago Parcial 

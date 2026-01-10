@@ -148,6 +148,37 @@ const crearPedido = async (req, res) => {
 
     const total = subtotal - descuento;
 
+    // 4.5. Detectar si hay productos que requieren adelanto
+    const { data: productosCompletos, error: errorProductos } = await supabase
+      .from("productos")
+      .select("id, requiere_adelanto, porcentaje_adelanto")
+      .in("id", productIds);
+
+    if (errorProductos) throw errorProductos;
+
+    const hayProductosConAdelanto = productosCompletos.some(
+      (p) => p.requiere_adelanto
+    );
+
+    let requiereAdelanto = false;
+    let porcentajeAdelanto = 0;
+    let montoAdelanto = 0;
+
+    if (hayProductosConAdelanto) {
+      requiereAdelanto = true;
+
+      // Usar el porcentaje más alto de todos los productos con adelanto
+      // (si hay múltiples productos con diferentes porcentajes)
+      const porcentajes = productosCompletos
+        .filter((p) => p.requiere_adelanto)
+        .map((p) => p.porcentaje_adelanto || 50);
+
+      porcentajeAdelanto = Math.max(...porcentajes);
+
+      // Calcular monto del adelanto (redondear hacia arriba)
+      montoAdelanto = Math.ceil(total * (porcentajeAdelanto / 100));
+    }
+
     // 6. Crear el pedido (estado 1 = "Pendiente de Pago")
     const { data: pedido, error: errorPedido } = await supabase
       .from("pedidos")
@@ -155,10 +186,16 @@ const crearPedido = async (req, res) => {
         {
           perfil_id,
           total,
-          estado_id: 1, // Pendiente de Pago
+          estado_id: requiereAdelanto ? 7 : 1, // 7 = Pago Parcial, 1 = Pendiente de Pago
           cupon_id: cupon_id || null,
-          // Guardamos datos de entrega como JSON
           notas: JSON.stringify(datos_entrega),
+          // Campos de adelanto
+          requiere_adelanto: requiereAdelanto,
+          porcentaje_adelanto: porcentajeAdelanto,
+          monto_adelanto: montoAdelanto,
+          monto_pagado: 0,
+          monto_pendiente: requiereAdelanto ? total - montoAdelanto : total,
+          pago_completo: false,
         },
       ])
       .select()
@@ -191,6 +228,9 @@ const crearPedido = async (req, res) => {
         total,
         subtotal,
         descuento,
+        requiere_adelanto: requiereAdelanto,
+        monto_adelanto: montoAdelanto,
+        monto_pendiente: pedido.monto_pendiente,
         cupon: cuponAplicado
           ? {
               codigo: cuponAplicado.codigo,
@@ -198,12 +238,11 @@ const crearPedido = async (req, res) => {
             }
           : null,
         numeroReferencia,
-        // Datos para SINPE Móvil (estos deberían venir de tu config)
         datosPago: {
           telefono: process.env.SINPE_TELEFONO || "8888-8888",
           titular: process.env.SINPE_TITULAR || "Biskoto Repostería",
           cedula: process.env.SINPE_CEDULA || "1-2345-6789",
-          monto: total,
+          monto: requiereAdelanto ? montoAdelanto : total, // Monto a pagar AHORA
         },
       },
     });
@@ -244,8 +283,9 @@ const confirmarPago = async (req, res) => {
       return res.status(404).json({ error: "Pedido no encontrado" });
     }
 
-    // 2. Verificar que el pedido está en estado "Pendiente de Pago"
-    if (pedido.estado_id !== 1) {
+    // 2. Verificar que el pedido está en estado válido para confirmar pago
+    // Estado 1 = Pendiente de Pago (sin adelanto), Estado 7 = Pago Parcial (con adelanto)
+    if (![1, 7].includes(pedido.estado_id)) {
       return res.status(400).json({
         error: "Este pedido ya ha sido procesado o cancelado",
       });
@@ -318,57 +358,92 @@ const confirmarPago = async (req, res) => {
         conflictos,
       });
     }
+    // 4. Actualizar el pedido según tipo de pago
+    let nuevoEstado;
+    let montoPagado;
+    let montoPendiente;
+    let pagoCompleto;
 
-    // 4. Descontar stock de productos terminados e ingredientes
-    for (const item of pedido.detalle_pedidos) {
-      const producto = infoProductos[item.producto_id];
-
-      // Descontar producto terminado
-      const nuevoStockProducto = producto.stock_actual - item.cantidad;
-
-      await supabase
-        .from("productos")
-        .update({ stock_actual: nuevoStockProducto })
-        .eq("id", item.producto_id);
-
-      // Descontar ingredientes
-      const recetaDelProducto = recetas.filter(
-        (r) => r.producto_id === item.producto_id
-      );
-
-      for (const r of recetaDelProducto) {
-        if (r.ingredientes.es_ilimitado) continue;
-
-        const cantidadADescontar = r.cantidad_necesaria * item.cantidad;
-        const nuevoStockIngrediente =
-          r.ingredientes.stock_actual - cantidadADescontar;
-
-        await supabase
-          .from("ingredientes")
-          .update({ stock_actual: nuevoStockIngrediente })
-          .eq("id", r.ingrediente_id);
-      }
+    // Parsear notas para agregar comprobante
+    let notasActuales = {};
+    try {
+      notasActuales = pedido.notas ? JSON.parse(pedido.notas) : {};
+    } catch (e) {
+      notasActuales = {};
     }
 
-    // 5. Actualizar estado del pedido a "Confirmado" (estado_id = 2)
-    const { error: errorActualizar } = await supabase
+    if (pedido.requiere_adelanto && !pedido.pago_completo) {
+      // Primer pago (adelanto)
+      nuevoEstado = 7; // Pago Parcial
+      montoPagado = pedido.monto_adelanto;
+      montoPendiente = pedido.total - pedido.monto_adelanto;
+      pagoCompleto = false;
+      notasActuales.comprobante_adelanto_url = comprobante_url;
+    } else {
+      // Pago completo normal
+      nuevoEstado = 2; // Confirmado
+      montoPagado = pedido.total;
+      montoPendiente = 0;
+      pagoCompleto = true;
+      notasActuales.comprobante_url = comprobante_url;
+    }
+
+    // Actualizar pedido
+    const { error: errorUpdate } = await supabase
       .from("pedidos")
       .update({
-        estado_id: 2, // Confirmado
-        // Guardamos la URL del comprobante en las notas junto con los datos existentes
-        notas: JSON.stringify({
-          ...JSON.parse(pedido.notas || "{}"),
-          comprobante_url,
-        }),
+        estado_id: nuevoEstado,
+        monto_pagado: montoPagado,
+        monto_pendiente: montoPendiente,
+        pago_completo: pagoCompleto,
+        notas: JSON.stringify(notasActuales),
       })
       .eq("id", id);
 
-    if (errorActualizar) throw errorActualizar;
+    if (errorUpdate) throw errorUpdate;
+    // 4. Descontar stock de productos terminados e ingredientes
+    // Solo descontar stock cuando el pago esté completo
+    if (pagoCompleto) {
+      for (const item of pedido.detalle_pedidos) {
+        const producto = infoProductos[item.producto_id];
+
+        // Descontar producto terminado
+        const nuevoStockProducto = producto.stock_actual - item.cantidad;
+
+        await supabase
+          .from("productos")
+          .update({ stock_actual: nuevoStockProducto })
+          .eq("id", item.producto_id);
+
+        // Descontar ingredientes
+        const recetaDelProducto = recetas.filter(
+          (r) => r.producto_id === item.producto_id
+        );
+
+        for (const r of recetaDelProducto) {
+          if (r.ingredientes.es_ilimitado) continue;
+
+          const cantidadADescontar = r.cantidad_necesaria * item.cantidad;
+          const nuevoStockIngrediente =
+            r.ingredientes.stock_actual - cantidadADescontar;
+
+          await supabase
+            .from("ingredientes")
+            .update({ stock_actual: nuevoStockIngrediente })
+            .eq("id", r.ingrediente_id);
+        }
+      }
+    }
 
     res.status(200).json({
-      mensaje: "Pago confirmado exitosamente. Tu pedido está siendo procesado.",
+      mensaje: pagoCompleto
+        ? "Pago confirmado exitosamente. Tu pedido está siendo procesado."
+        : "Adelanto confirmado. Tu pedido está en Pago Parcial. El resto se paga al recoger.",
       pedido_id: id,
-      estado: "Confirmado",
+      estado: pagoCompleto ? "Confirmado" : "Pago Parcial",
+      pago_completo: pagoCompleto,
+      monto_pagado: montoPagado,
+      monto_pendiente: montoPendiente,
     });
   } catch (error) {
     console.error("Error al confirmar pago:", error);
@@ -670,6 +745,79 @@ const actualizarPedido = async (req, res) => {
   }
 };
 
+/**
+ * COMPLETAR PAGO RESTANTE (Admin)
+ * Marca un pedido con pago parcial como totalmente pagado.
+ */
+const completarPagoRestante = async (req, res) => {
+  const { id } = req.params;
+  const { comprobante_url } = req.body; // URL del comprobante del segundo pago
+
+  try {
+    // Verificar que el pedido existe y está en Pago Parcial
+    const { data: pedido, error: errorPedido } = await supabase
+      .from("pedidos")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (errorPedido || !pedido) {
+      return res.status(404).json({ error: "Pedido no encontrado" });
+    }
+
+    if (!pedido.requiere_adelanto) {
+      return res.status(400).json({
+        error: "Este pedido no requiere adelanto",
+      });
+    }
+
+    if (pedido.pago_completo) {
+      return res.status(400).json({
+        error: "El pago de este pedido ya está completo",
+      });
+    }
+
+    // Parsear notas para agregar comprobante del segundo pago
+    let notasActuales = {};
+    try {
+      notasActuales = pedido.notas ? JSON.parse(pedido.notas) : {};
+    } catch (e) {
+      notasActuales = {};
+    }
+
+    if (comprobante_url) {
+      notasActuales.comprobante_restante_url = comprobante_url;
+    }
+
+    // Actualizar pedido a Confirmado
+    const { error: errorUpdate } = await supabase
+      .from("pedidos")
+      .update({
+        estado_id: 2, // Confirmado
+        monto_pagado: pedido.total,
+        monto_pendiente: 0,
+        pago_completo: true,
+        notas: JSON.stringify(notasActuales),
+      })
+      .eq("id", id);
+
+    if (errorUpdate) throw errorUpdate;
+
+    res.status(200).json({
+      mensaje: "Pago completado exitosamente",
+      pedido: {
+        id: pedido.id,
+        total: pedido.total,
+        monto_pagado: pedido.total,
+        pago_completo: true,
+      },
+    });
+  } catch (error) {
+    console.error("Error al completar pago:", error);
+    res.status(500).json({ error: "Error al procesar el pago restante" });
+  }
+};
+
 module.exports = {
   crearPedido,
   confirmarPago,
@@ -680,4 +828,5 @@ module.exports = {
   cancelarPedido,
   eliminarPedido,
   actualizarPedido,
+  completarPagoRestante,
 };

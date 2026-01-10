@@ -51,6 +51,12 @@ const CheckoutPage = () => {
     notas: "",
   });
 
+  // Estado para productos con adelanto
+  const [requiereAdelanto, setRequiereAdelanto] = useState(false);
+  const [porcentajeAdelanto, setPorcentajeAdelanto] = useState(50); // ← AGREGAR
+  const [montoAdelanto, setMontoAdelanto] = useState(0);
+  const [montoPendiente, setMontoPendiente] = useState(0);
+
   // Estados de cupón
   const [codigoCupon, setCodigoCupon] = useState("");
   const [cuponAplicado, setCuponAplicado] = useState(null);
@@ -66,6 +72,13 @@ const CheckoutPage = () => {
   // Estados de pedido creado
   const [pedidoCreado, setPedidoCreado] = useState(null);
   const [archivoComprobante, setArchivoComprobante] = useState(null);
+
+  // Cálculos de precios
+  const subtotal = totalPrice;
+  const descuento = cuponAplicado
+    ? (subtotal * cuponAplicado.descuento) / 100
+    : 0;
+  const total = subtotal - descuento;
 
   /**
    * Cargar pedido existente si viene pedidoId en la URL
@@ -109,12 +122,50 @@ const CheckoutPage = () => {
     cargarPedidoExistente();
   }, [pedidoIdFromURL, navigate]);
 
-  // Cálculos de precios
-  const subtotal = totalPrice;
-  const descuento = cuponAplicado
-    ? (subtotal * cuponAplicado.descuento) / 100
-    : 0;
-  const total = subtotal - descuento;
+  /**
+   * Detectar si hay productos que requieren adelanto
+   */
+  useEffect(() => {
+    const verificarAdelanto = async () => {
+      if (cart.length === 0) return;
+
+      try {
+        const productIds = cart.map((item) => item.id);
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/productos/verificar-adelanto`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ product_ids: productIds }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.requiere_adelanto) {
+          setRequiereAdelanto(true);
+          setPorcentajeAdelanto(data.porcentaje_adelanto); // ← USAR PORCENTAJE DEL BACKEND
+          const totalConDescuento = total;
+          const adelanto = Math.ceil(
+            totalConDescuento * (data.porcentaje_adelanto / 100)
+          ); // ← USAR PORCENTAJE DINÁMICO
+          setMontoAdelanto(adelanto);
+          setMontoPendiente(totalConDescuento - adelanto);
+        } else {
+          setRequiereAdelanto(false);
+          setPorcentajeAdelanto(50);
+          setMontoAdelanto(0);
+          setMontoPendiente(0);
+        }
+      } catch (error) {
+        console.error("Error verificando adelanto:", error);
+      }
+    };
+
+    verificarAdelanto();
+  }, [cart, total]);
 
   // Validación inicial: si no hay items, redirigir
   useEffect(() => {
@@ -413,6 +464,44 @@ const CheckoutPage = () => {
                   <Truck size={24} className="text-biskoto" />
                   Método de Entrega
                 </h2>
+
+                {/* AGREGAR ESTE BLOQUE */}
+                {requiereAdelanto && (
+                  <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700 rounded-xl">
+                    <div className="flex items-start gap-3">
+                      <Info
+                        className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"
+                        size={20}
+                      />
+                      <div>
+                        <h3 className="font-bold text-blue-900 dark:text-blue-200 mb-1">
+                          Este pedido requiere adelanto del {porcentajeAdelanto}
+                          %
+                        </h3>
+                        <p className="text-sm text-blue-700 dark:text-blue-300 mb-2">
+                          Algunos productos de tu carrito requieren un pago
+                          adelantado del {porcentajeAdelanto}% para comenzar la
+                          preparación.
+                        </p>
+                        <div className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                          Pagarás ahora:{" "}
+                          {new Intl.NumberFormat("es-CR", {
+                            style: "currency",
+                            currency: "CRC",
+                          }).format(montoAdelanto)}
+                        </div>
+                        <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                          El resto (
+                          {new Intl.NumberFormat("es-CR", {
+                            style: "currency",
+                            currency: "CRC",
+                          }).format(montoPendiente)}
+                          ) se paga al recoger el pedido.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <form onSubmit={handleCrearPedido} className="space-y-6">
                   {/* Selección de método de entrega */}
@@ -930,17 +1019,73 @@ const CheckoutPage = () => {
                 )}
 
                 <div className="border-t border-gray-200 dark:border-slate-700 pt-2 mt-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-gray-900 dark:text-white">
-                      Total:
-                    </span>
-                    <span className="text-2xl font-black text-biskoto">
-                      {new Intl.NumberFormat("es-CR", {
-                        style: "currency",
-                        currency: "CRC",
-                      }).format(total)}
-                    </span>
-                  </div>
+                  {requiereAdelanto ? (
+                    <>
+                      {/* Mostrar adelanto y pendiente */}
+                      <div className="space-y-2 mb-3">
+                        <div className="flex justify-between items-center text-gray-700 dark:text-gray-300">
+                          <span className="font-semibold">
+                            Total del pedido:
+                          </span>
+                          <span className="text-lg font-bold">
+                            {new Intl.NumberFormat("es-CR", {
+                              style: "currency",
+                              currency: "CRC",
+                            }).format(total)}
+                          </span>
+                        </div>
+
+                        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+                              Adelanto ({porcentajeAdelanto}%):
+                            </span>
+                            <span className="text-lg font-bold text-blue-700 dark:text-blue-300">
+                              {new Intl.NumberFormat("es-CR", {
+                                style: "currency",
+                                currency: "CRC",
+                              }).format(montoAdelanto)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-gray-600 dark:text-gray-400">
+                              Pendiente al recoger:
+                            </span>
+                            <span className="font-semibold text-gray-700 dark:text-gray-300">
+                              {new Intl.NumberFormat("es-CR", {
+                                style: "currency",
+                                currency: "CRC",
+                              }).format(montoPendiente)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-2 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                          <Info
+                            size={16}
+                            className="text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5"
+                          />
+                          <p className="text-xs text-orange-700 dark:text-orange-300">
+                            Este pedido requiere un adelanto del{" "}
+                            {porcentajeAdelanto}%. El resto se paga al momento
+                            de recoger.
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-bold text-gray-900 dark:text-white">
+                        Total:
+                      </span>
+                      <span className="text-2xl font-black text-biskoto">
+                        {new Intl.NumberFormat("es-CR", {
+                          style: "currency",
+                          currency: "CRC",
+                        }).format(total)}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {paso === 1 && datosEntrega.metodo_entrega === "express" && (

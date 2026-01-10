@@ -71,4 +71,15 @@ router.put("/:id", verifyToken, isAdmin, pedidosController.actualizarPedido);
  */
 router.delete("/:id", verifyToken, isAdmin, pedidosController.eliminarPedido);
 
+/**
+ * Completa el pago restante de un pedido con adelanto (Admin)
+ * Body: { comprobante_url: string (opcional) }
+ */
+router.post(
+  "/:id/completar-pago",
+  verifyToken,
+  isAdmin,
+  pedidosController.completarPagoRestante
+);
+
 module.exports = router;
