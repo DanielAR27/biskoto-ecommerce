@@ -67,6 +67,8 @@ import NoticiaDetailPage from "./pages/NoticiaDetailPage";
 import NoticiasAdminPage from "./pages/admin/noticias/NoticiasAdminPage";
 import ComentariosAdminPage from "./pages/admin/comentarios/ComentariosAdminPage";
 
+import NosotrosPage from "./pages/NosotrosPage";
+
 /**
  * Componente para la protección de rutas privadas de usuario (ej: Perfil).
  */
@@ -163,6 +165,7 @@ function App() {
         />
         <Route path="/noticias" element={<NoticiasPage />} />
         <Route path="/noticias/:id" element={<NoticiaDetailPage />} />
+        <Route path="/nosotros" element={<NosotrosPage />} />
         {/* Rutas de Administración Protegidas por AdminRoute */}
         <Route element={<AdminRoute />}>
           <Route path="/admin/categorias" element={<CategoriasPage />} />

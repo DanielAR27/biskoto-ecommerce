@@ -10,12 +10,13 @@ import {
   Ticket,
   Truck,
   PackagePlus,
+  Info,
 } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 
 const MobileMenu = ({ isOpen, setIsOpen, user, logout, isAdmin }) => {
   const location = useLocation();
-  const { totalItems, toggleCart } = useCart(); // ✅ Importamos toggleCart
+  const { totalItems, toggleCart } = useCart();
 
   if (!isOpen) return null;
 
@@ -41,16 +42,28 @@ const MobileMenu = ({ isOpen, setIsOpen, user, logout, isAdmin }) => {
         </Link>
         <Link
           to="/noticias"
+          className={getMobileLinkClass("/noticias")}
           onClick={() => setIsOpen(false)}
-          className="block px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
         >
           Noticias
         </Link>
-        {/* MODIFICADO: Ahora abre el Drawer en lugar de navegar */}
+        {/* NUEVO: Enlace a Quiénes somos */}
+        <Link
+          to="/nosotros"
+          className={getMobileLinkClass("/nosotros")}
+          onClick={() => setIsOpen(false)}
+        >
+          <div className="flex items-center gap-2">
+            <Info size={18} />
+            Quiénes somos
+          </div>
+        </Link>
+
+        {/* Carrito */}
         <button
           onClick={() => {
-            setIsOpen(false); // Cerramos menú móvil
-            toggleCart(); // Abrimos carrito lateral
+            setIsOpen(false);
+            toggleCart();
           }}
           className="w-full text-left block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800"
         >
@@ -157,7 +170,7 @@ const MobileMenu = ({ isOpen, setIsOpen, user, logout, isAdmin }) => {
               onClick={() => setIsOpen(false)}
               className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-biskoto rounded-lg"
             >
-              <LogIn className="w-4 h-4 mr-2" /> Registrarse
+              <UserPlus className="w-4 h-4 mr-2" /> Registrarse
             </Link>
           </div>
         )}

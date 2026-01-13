@@ -9,10 +9,10 @@ import GuestMenu from "./navbar/GuestMenu";
 import UserMenu from "./navbar/UserMenu";
 import AdminMenu from "./navbar/AdminMenu";
 import MobileMenu from "./navbar/MobileMenu";
-import CartWidget from "./navbar/CartWidget"; // Asegúrate que esté en esta ruta
+import CartWidget from "./navbar/CartWidget";
 import ThemeToggleBtn from "./ThemeToggleBtn";
 
-// Assets (Ajusta la ruta si tus logos están en otro lado)
+// Assets
 import logoLight from "../assets/logo_biskoto_transparente_lm.png";
 import logoDark from "../assets/logo_biskoto_transparente_dm.png";
 
@@ -62,7 +62,10 @@ const Navbar = () => {
               <Link to="/noticias" className={getLinkClass("/noticias")}>
                 Noticias
               </Link>
-              {/* Aquí se pueden gar más links públicos como "Nosotros", "Contacto", etc. */}
+              {/* NUEVO: Enlace a Quiénes somos */}
+              <Link to="/nosotros" className={getLinkClass("/nosotros")}>
+                Quiénes somos
+              </Link>
             </div>
           </div>
 
@@ -99,9 +102,6 @@ const Navbar = () => {
 
           {/* --- CONTROLES MÓVIL --- */}
           <div className="-mr-2 flex items-center md:hidden gap-3">
-            {/* Tema y Carrito también accesibles aquí si quieres, 
-                pero el menú móvil ya tiene el carrito dentro. 
-                Dejamos el tema afuera para acceso rápido. */}
             <ThemeToggleBtn />
 
             <button
