@@ -7,6 +7,6 @@ const { verifyToken } = require("../middleware/authMiddleware");
  * Generar URL firmada para subir archivos.
  * Solo usuarios autenticados pueden pedir firmas de subida.
  */
-router.post("/signed-upload", verifyToken, storageController.generarUrlSubida);
+router.post("/sign-upload", verifyToken, storageController.generarUrlSubida); // ← QUITAR la "d"
 
 module.exports = router;
