@@ -62,9 +62,12 @@ const Navbar = () => {
               <Link to="/noticias" className={getLinkClass("/noticias")}>
                 Noticias
               </Link>
-              {/* NUEVO: Enlace a Quiénes somos */}
+              {/* Enlace a Quiénes somos */}
               <Link to="/nosotros" className={getLinkClass("/nosotros")}>
                 Quiénes somos
+              </Link>
+              <Link to="/contacto" className={getLinkClass("/contacto")}>
+                Contáctanos
               </Link>
             </div>
           </div>

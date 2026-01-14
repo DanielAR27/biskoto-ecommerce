@@ -1,17 +1,7 @@
 import { motion } from "framer-motion";
-import {
-  Heart,
-  Sparkles,
-  Award,
-  Users,
-  MapPin,
-  Clock,
-  Phone,
-  Mail,
-  Instagram,
-  Facebook,
-} from "lucide-react";
+import { Heart, Sparkles, Award, Users } from "lucide-react";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import SofiaFoto from "../assets/sofia.jpg";
 
 const NosotrosPage = () => {
@@ -242,132 +232,13 @@ const NosotrosPage = () => {
           </div>
         </motion.section>
 
-        {/* Contacto e Información */}
-        <motion.section {...fadeIn}>
-          <div className="bg-gradient-to-br from-biskoto via-biskoto-700 to-biskoto-900 dark:from-biskoto-900 dark:via-slate-900 dark:to-slate-950 rounded-3xl shadow-2xl overflow-hidden">
-            <div className="grid md:grid-cols-2 gap-8 p-8 md:p-12">
-              {/* Información de Contacto */}
-              <div className="text-white">
-                <h2 className="text-3xl font-black mb-6">Visitanos</h2>
-                <div className="space-y-6">
-                  {/* Ubicación */}
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg mb-1">Ubicación</h3>
-                      <p className="text-white/80">
-                        Cartago, Costa Rica
-                        <br />
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Horarios */}
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Clock className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg mb-1">Horario</h3>
-                      <p className="text-white/80">
-                        Lunes a Viernes: 9:00 AM - 6:00 PM
-                        <br />
-                        Sábados: 10:00 AM - 4:00 PM
-                        <br />
-                        Domingos: Cerrado
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Contacto */}
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg mb-1">Teléfono</h3>
-                      <a
-                        href="tel:+50622345678"
-                        className="text-white/80 hover:text-white transition-colors"
-                      >
-                        +506 8838-3780
-                      </a>
-                    </div>
-                  </div>
-
-                  {/* Email */}
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg mb-1">Email</h3>
-                      <a
-                        href="mailto:hola@biskoto.cr"
-                        className="text-white/80 hover:text-white transition-colors"
-                      >
-                        hola@biskoto.cr
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Redes Sociales */}
-                <div className="mt-8 pt-8 border-t border-white/20">
-                  <h3 className="font-bold text-lg mb-4">Síguenos</h3>
-                  <div className="flex gap-4">
-                    <a
-                      href="https://www.instagram.com/biskoto_dulces/?hl=es-la"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center transition-all"
-                    >
-                      <Instagram className="w-6 h-6" />
-                    </a>
-                    <a
-                      href="https://www.facebook.com/biskotodulcess/?locale=es_LA"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center transition-all"
-                    >
-                      <Facebook className="w-6 h-6" />
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              {/* Imagen/Mapa Placeholder */}
-              <div className="flex items-center justify-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 w-full">
-                  <div className="aspect-square flex items-center justify-center text-center">
-                    <div>
-                      <div className="text-7xl mb-4">📍</div>
-                      <p className="text-white font-bold text-xl mb-2">
-                        ¡Te esperamos!
-                      </p>
-                      <p className="text-white/70">
-                        Ven a conocer nuestro local y descubre
-                        <br />
-                        el sabor de la tradición
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.section>
-
         {/* Call to Action */}
         <motion.section {...fadeIn} className="text-center py-12">
           <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-6">
-            ¿Listo para endulzar tu día?
+            ¿Quieres saber más?
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-            Descubre nuestra selección de postres artesanales y haz tu pedido
-            hoy mismo
+            Contáctanos o descubre nuestra selección de postres artesanales
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -377,7 +248,7 @@ const NosotrosPage = () => {
               Ver Productos
             </a>
             <a
-              href="tel:+50622345678"
+              href="/contacto"
               className="px-8 py-4 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-slate-600 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all"
             >
               Contáctanos
@@ -386,17 +257,7 @@ const NosotrosPage = () => {
         </motion.section>
       </main>
 
-      {/* Footer simple */}
-      <footer className="bg-gray-900 dark:bg-slate-950 text-white py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-400">
-            © {new Date().getFullYear()} Biskoto. Todos los derechos reservados.
-          </p>
-          <p className="text-gray-500 text-sm mt-2">
-            Hecho con ❤️ en Costa Rica
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
