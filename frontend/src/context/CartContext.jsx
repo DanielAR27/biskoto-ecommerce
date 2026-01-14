@@ -150,38 +150,42 @@ export const CartProvider = ({ children }) => {
    * Esto permite encadenar la apertura del drawer con los datos frescos.
    */
   const addToCart = (itemToAdd, shouldOpenDrawer = false) => {
-    let newCart = [];
-    const existingItemIndex = cart.findIndex(item => item.id === itemToAdd.id);
+    setCart(prevCart => {
+      let newCart = [];
+      const existingItemIndex = prevCart.findIndex(item => item.id === itemToAdd.id);
 
-    if (existingItemIndex >= 0) {
-      newCart = [...cart];
-      const item = newCart[existingItemIndex];
-      const newQuantity = item.quantity + itemToAdd.cantidad;
+      if (existingItemIndex >= 0) {
+        newCart = [...prevCart];
+        const item = newCart[existingItemIndex];
+        const newQuantity = item.quantity + itemToAdd.cantidad;
 
-      if (itemToAdd.maxStock !== undefined && newQuantity > itemToAdd.maxStock) {
-        return; 
+        if (itemToAdd.maxStock !== undefined && newQuantity > itemToAdd.maxStock) {
+          // Si excede el stock, retorna el carrito tal cual estaba
+          return prevCart; 
+        }
+
+        newCart[existingItemIndex] = {
+          ...item,
+          quantity: newQuantity,
+          status: 'ok',
+          mensajeError: null
+        };
+      } else {
+        newCart = [...prevCart, { 
+          ...itemToAdd, 
+          quantity: itemToAdd.cantidad,
+          price: itemToAdd.precio || itemToAdd.price,
+          status: 'ok'
+        }];
       }
 
-      newCart[existingItemIndex] = {
-        ...item,
-        quantity: newQuantity,
-        status: 'ok',
-        mensajeError: null
-      };
-    } else {
-      newCart = [...cart, { 
-        ...itemToAdd, 
-        quantity: itemToAdd.cantidad,
-        price: itemToAdd.precio || itemToAdd.price,
-        status: 'ok'
-      }];
-    }
-
-    setCart(newCart);
-
-    if (shouldOpenDrawer) {
-      openCart(newCart);
-    }
+      // Si necesitamos abrir el drawer, lo hacemos con el nuevo cálculo
+      if (shouldOpenDrawer) {
+        openCart(newCart); 
+      }
+      
+      return newCart;
+    });
   };
 
   const removeFromCart = (id) => {
