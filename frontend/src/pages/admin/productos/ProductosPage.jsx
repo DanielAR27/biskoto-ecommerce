@@ -33,6 +33,9 @@ const ProductosPage = () => {
   const [productToDelete, setProductToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Estado para controlar qué producto está siendo toggleado
+  const [togglingId, setTogglingId] = useState(null);
+
   // Carga inicial de datos al montar el componente
   useEffect(() => {
     cargarProductos();
@@ -64,6 +67,36 @@ const ProductosPage = () => {
       setError("No se pudieron cargar los productos del inventario.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  /**
+   * Toggle del estado activo/inactivo de un producto.
+   * Actualiza el estado local inmediatamente para una UI responsiva.
+   */
+  const handleToggle = async (producto) => {
+    setTogglingId(producto.id);
+
+    try {
+      const response = await productoService.toggleActivo(producto.id);
+
+      // Actualizar estado local
+      setProductos((prev) =>
+        prev.map((prod) =>
+          prod.id === producto.id ? { ...prod, activo: !prod.activo } : prod
+        )
+      );
+
+      showNotification(
+        "success",
+        response.message || "Visibilidad actualizada."
+      );
+    } catch (err) {
+      const msg =
+        err.response?.data?.error || "Error al cambiar la visibilidad.";
+      showNotification("error", msg);
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -204,6 +237,10 @@ const ProductosPage = () => {
                         <th className="px-3 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Stock
                         </th>
+                        {/* Nueva columna: Estado */}
+                        <th className="px-3 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Estado
+                        </th>
                         <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Acciones
                         </th>
@@ -262,6 +299,46 @@ const ProductosPage = () => {
                             >
                               {prod.stock_actual}
                             </StatusBadge>
+                          </td>
+
+                          {/* Nueva columna: Toggle Estado */}
+                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                            <div className="flex flex-col items-center gap-1">
+                              <button
+                                onClick={() => handleToggle(prod)}
+                                disabled={togglingId === prod.id}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-biskoto focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-wait ${
+                                  prod.activo !== false
+                                    ? "bg-green-500"
+                                    : "bg-gray-300 dark:bg-slate-600"
+                                }`}
+                                title={
+                                  prod.activo !== false
+                                    ? "Desactivar producto"
+                                    : "Activar producto"
+                                }
+                              >
+                                <span
+                                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform ${
+                                    prod.activo !== false
+                                      ? "translate-x-6"
+                                      : "translate-x-1"
+                                  }`}
+                                />
+                                {togglingId === prod.id && (
+                                  <Loader2 className="absolute inset-0 m-auto h-4 w-4 animate-spin text-white" />
+                                )}
+                              </button>
+                              <span
+                                className={`text-xs ${
+                                  prod.activo !== false
+                                    ? "text-green-600 dark:text-green-400"
+                                    : "text-gray-500 dark:text-gray-400"
+                                }`}
+                              >
+                                {prod.activo !== false ? "Visible" : "Oculto"}
+                              </span>
+                            </div>
                           </td>
 
                           {/* Acciones: Padding reducido */}

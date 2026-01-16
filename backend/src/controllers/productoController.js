@@ -18,18 +18,21 @@ const listarProductosCatalogo = async (req, res) => {
     const hasta = desde + limit - 1;
 
     // 2. Iniciamos la consulta base
-    let query = supabase.from("productos").select(
-      `
-        *,
-        categorias ( id, nombre ),
-        producto_imagenes ( id, url, es_principal ),
-        producto_ingredientes (
-          cantidad_necesaria,
-          ingredientes ( stock_actual, es_ilimitado )
-        )
-      `,
-      { count: "exact" }
-    );
+    let query = supabase
+      .from("productos")
+      .select(
+        `
+    *,
+    categorias ( id, nombre ),
+    producto_imagenes ( id, url, es_principal ),
+    producto_ingredientes (
+      cantidad_necesaria,
+      ingredientes ( stock_actual, es_ilimitado )
+    )
+  `,
+        { count: "exact" }
+      )
+      .eq("activo", true); // ← AGREGAR ESTA LÍNEA
 
     // 3. FILTRO POR MÚLTIPLES CATEGORÍAS (si se envían)
     if (categoria_ids) {
@@ -560,7 +563,50 @@ const verificarAdelanto = async (req, res) => {
   }
 };
 
-// Agregar al module.exports
+/**
+ * Toggle del estado activo de un producto
+ */
+const toggleActivo = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Obtener estado actual
+    const { data: producto, error: fetchError } = await supabase
+      .from("productos")
+      .select("activo")
+      .eq("id", id)
+      .single();
+
+    if (fetchError || !producto) {
+      return res.status(404).json({ error: "Producto no encontrado" });
+    }
+
+    // Cambiar al estado opuesto
+    const nuevoEstado = !producto.activo;
+
+    const { data, error } = await supabase
+      .from("productos")
+      .update({ activo: nuevoEstado })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error al actualizar visibilidad:", error);
+      return res.status(500).json({ error: "Error al actualizar visibilidad" });
+    }
+
+    res.json({
+      message: `Producto ${
+        nuevoEstado ? "activado" : "desactivado"
+      } exitosamente`,
+      producto: data,
+    });
+  } catch (error) {
+    console.error("Error en toggleActivo:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
 
 module.exports = {
   listarProductosCatalogo,
@@ -571,4 +617,5 @@ module.exports = {
   actualizarProducto,
   eliminarProducto,
   verificarAdelanto,
+  toggleActivo,
 };

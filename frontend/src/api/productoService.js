@@ -82,3 +82,12 @@ export const deleteProducto = async (id) => {
   const response = await api.delete(`/productos/${id}`);
   return response.data;
 };
+
+/**
+ * Alterna el estado activo/inactivo de un producto
+ * (Oculta o muestra el producto en el catálogo público)
+ */
+export const toggleActivo = async (id) => {
+  const { data } = await api.patch(`/productos/${id}/toggle-activo`);
+  return data;
+};

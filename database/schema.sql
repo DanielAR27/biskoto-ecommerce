@@ -196,3 +196,6 @@ ON CONFLICT (nombre) DO NOTHING;
 -- 5 = Entregado
 -- 6 = Cancelado
 -- 7 = Pago Parcial 
+
+ALTER TABLE productos 
+ADD COLUMN activo BOOLEAN DEFAULT true;
