@@ -39,6 +39,14 @@ const Footer = () => {
               </li>
               <li>
                 <Link
+                  to="/noticias"
+                  className="text-white/85 hover:text-white transition-colors text-sm"
+                >
+                  Noticias
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/nosotros"
                   className="text-white/85 hover:text-white transition-colors text-sm"
                 >
@@ -51,14 +59,6 @@ const Footer = () => {
                   className="text-white/85 hover:text-white transition-colors text-sm"
                 >
                   Contáctanos
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/admin"
-                  className="text-white/85 hover:text-white transition-colors text-sm"
-                >
-                  Admin
                 </Link>
               </li>
             </ul>

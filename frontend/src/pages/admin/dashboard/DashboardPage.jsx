@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -23,7 +23,6 @@ import {
   Calendar,
   Loader2,
 } from "lucide-react";
-import Navbar from "../../../components/Navbar";
 import {
   obtenerResumen,
   obtenerVentas,
@@ -47,29 +46,32 @@ const DashboardPage = () => {
 
   // Colores para las gráficas
   const COLORES_ESTADOS = [
-    "#3b82f6", // Azul - Pendiente de Pago
-    "#10b981", // Verde - Pago Confirmado
-    "#8b5cf6", // Púrpura - Completado
-    "#f59e0b", // Amarillo - En Preparación
-    "#ef4444", // Rojo - Cancelado
-    "#6b7280", // Gris - Otros
+    "#3b82f6",
+    "#10b981",
+    "#8b5cf6",
+    "#f59e0b",
+    "#ef4444",
+    "#6b7280",
   ];
 
-  const getLabelPeriodo = () => {
-    switch (periodoSeleccionado) {
-      case "semana":
-        return "Última Semana";
-      case "mes":
-        return "Último Mes";
-      case "año":
-      case "anio":
-        return "Último Año";
-      case "personalizado":
-        return "Período";
-      default:
-        return "Período";
+  const textoPedidosPeriodo = useMemo(() => {
+    if (periodoSeleccionado === "semana") return "Pedidos de la Semana";
+    if (periodoSeleccionado === "mes") return "Pedidos del Mes";
+    if (periodoSeleccionado === "año") return "Pedidos del Año";
+    return "Pedidos del Período";
+  }, [periodoSeleccionado]);
+
+  const construirParamsPeriodo = () => {
+    const params = { periodo: periodoSeleccionado };
+
+    if (periodoSeleccionado === "personalizado") {
+      if (fechaInicio) params.fecha_inicio = fechaInicio;
+      if (fechaFin) params.fecha_fin = fechaFin;
     }
+
+    return params;
   };
+  console.log("ventasMensuales", ventasMensuales?.datosGrafica);
 
   /**
    * Cargar datos iniciales
@@ -79,10 +81,21 @@ const DashboardPage = () => {
       try {
         setLoading(true);
 
-        // Cargar en paralelo
+        const params = construirParamsPeriodo();
+
         const [resumenData, ventasData, mensualesData] = await Promise.all([
-          obtenerResumen(),
-          obtenerVentas({ periodo: periodoSeleccionado }),
+          obtenerResumen(
+            periodoSeleccionado === "personalizado" &&
+              (!fechaInicio || !fechaFin)
+              ? {}
+              : params,
+          ),
+          obtenerVentas(
+            periodoSeleccionado === "personalizado" &&
+              (!fechaInicio || !fechaFin)
+              ? { periodo: "mes" }
+              : params,
+          ),
           obtenerVentasMensuales(),
         ]);
 
@@ -101,32 +114,32 @@ const DashboardPage = () => {
   }, []);
 
   /**
-   * Actualizar datos de ventas cuando cambia el período
+   * Actualizar datos del período (ventas + resumen) cuando cambia el filtro
    */
   useEffect(() => {
-    const actualizarVentas = async () => {
+    const actualizarPeriodo = async () => {
       try {
-        const params = { periodo: periodoSeleccionado };
+        const params = construirParamsPeriodo();
 
-        if (
-          periodoSeleccionado === "personalizado" &&
-          fechaInicio &&
-          fechaFin
-        ) {
-          params.fecha_inicio = fechaInicio;
-          params.fecha_fin = fechaFin;
-        }
+        const [ventasData, resumenData] = await Promise.all([
+          obtenerVentas(params),
+          obtenerResumen(params),
+        ]);
 
-        const ventasData = await obtenerVentas(params);
         setDatosVentas(ventasData);
+        setResumen(resumenData);
       } catch (error) {
-        console.error("Error al actualizar ventas:", error);
+        console.error("Error al actualizar analíticas por período:", error);
       }
     };
 
-    if (periodoSeleccionado !== "personalizado" || (fechaInicio && fechaFin)) {
-      actualizarVentas();
+    const listo =
+      periodoSeleccionado !== "personalizado" || (fechaInicio && fechaFin);
+
+    if (listo) {
+      actualizarPeriodo();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [periodoSeleccionado, fechaInicio, fechaFin]);
 
   // Formatear moneda
@@ -161,7 +174,7 @@ const DashboardPage = () => {
       "Nov",
       "Dic",
     ];
-    return `${meses[parseInt(mes) - 1]} ${año.slice(2)}`;
+    return `${meses[parseInt(mes, 10) - 1]} ${año.slice(2)}`;
   };
 
   if (loading) {
@@ -187,17 +200,17 @@ const DashboardPage = () => {
           </p>
         </div>
 
-        {/* KPIs - Cards de Métricas Principales */}
+        {/* KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Total de Ventas (depende del filtro) */}
+          {/* Total de Ventas (del período) */}
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                  Total Ventas ({getLabelPeriodo()})
+                  Total Ventas
                 </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
-                  {formatMoneda(datosVentas?.totalVentas || 0)}
+                  {formatMoneda(resumen?.totalVentas || 0)}
                 </p>
               </div>
               <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
@@ -206,15 +219,15 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Pedidos (depende del filtro) */}
+          {/* Pedidos del período */}
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                  Pedidos ({getLabelPeriodo()})
+                  {textoPedidosPeriodo}
                 </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
-                  {datosVentas?.totalPedidos || 0}
+                  {resumen?.pedidosPeriodo || 0}
                 </p>
               </div>
               <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
@@ -223,7 +236,7 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Total de Clientes (global, no depende del filtro) */}
+          {/* Total de Clientes (global) */}
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
             <div className="flex items-center justify-between">
               <div>
@@ -240,12 +253,12 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Promedio por Pedido (ya dependía del filtro, porque viene de datosVentas) */}
+          {/* Promedio por Pedido (del período) */}
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                  Promedio por Pedido ({getLabelPeriodo()})
+                  Promedio por Pedido
                 </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
                   {formatMoneda(datosVentas?.promedioVenta || 0)}
@@ -309,7 +322,7 @@ const DashboardPage = () => {
 
         {/* Gráficas */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Gráfica de Ventas Diarias */}
+          {/* Ventas por Día */}
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <Calendar className="h-5 w-5 text-biskoto" />
@@ -342,7 +355,7 @@ const DashboardPage = () => {
             </ResponsiveContainer>
           </div>
 
-          {/* Gráfica de Pedidos por Estado */}
+          {/* Pedidos por Estado (del período) */}
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <Package className="h-5 w-5 text-biskoto" />
@@ -373,12 +386,17 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Gráfica de Tendencia Mensual */}
+        {/* Tendencia Mensual (siempre últimos 12 meses) */}
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800 mb-8">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-biskoto" />
             Tendencia de Ventas (Últimos 12 Meses)
           </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <span className="font-semibold text-[#7c3aed]">Morado:</span> Ventas
+            (CRC) · <span className="font-semibold text-[#10b981]">Verde:</span>{" "}
+            Cantidad de pedidos
+          </p>
           <ResponsiveContainer width="100%" height={350}>
             <LineChart data={ventasMensuales?.datosGrafica || []}>
               <CartesianGrid
@@ -386,8 +404,31 @@ const DashboardPage = () => {
                 stroke="#374151"
                 opacity={0.1}
               />
-              <XAxis dataKey="mes" tickFormatter={formatMes} stroke="#9ca3af" />
-              <YAxis stroke="#9ca3af" />
+
+              <XAxis
+                dataKey="mes"
+                tickFormatter={formatMes}
+                stroke="#9ca3af"
+                interval={0}
+                tickMargin={10}
+                angle={-35}
+                textAnchor="end"
+                height={60}
+              />
+
+              <YAxis
+                yAxisId="left"
+                stroke="#9ca3af"
+                tickFormatter={(v) => formatMoneda(v)}
+              />
+
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                stroke="#9ca3af"
+                allowDecimals={false}
+              />
+
               <Tooltip
                 contentStyle={{
                   backgroundColor: "#1e293b",
@@ -395,13 +436,17 @@ const DashboardPage = () => {
                   borderRadius: "8px",
                   color: "#fff",
                 }}
+                labelFormatter={(label) => formatMes(label)}
                 formatter={(value, name) => {
                   if (name === "total") return [formatMoneda(value), "Ventas"];
-                  return [value, "Pedidos"];
+                  return [value, "Cantidad de Pedidos"];
                 }}
               />
+
               <Legend />
+
               <Line
+                yAxisId="left"
                 type="monotone"
                 dataKey="total"
                 stroke="#7c3aed"
@@ -409,7 +454,9 @@ const DashboardPage = () => {
                 name="Ventas"
                 dot={{ fill: "#7c3aed", r: 4 }}
               />
+
               <Line
+                yAxisId="right"
                 type="monotone"
                 dataKey="cantidad"
                 stroke="#10b981"
@@ -421,7 +468,7 @@ const DashboardPage = () => {
           </ResponsiveContainer>
         </div>
 
-        {/* Top Productos */}
+        {/* Top Productos (del período) */}
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
             Top 5 Productos Más Vendidos
@@ -445,6 +492,11 @@ const DashboardPage = () => {
                 </span>
               </div>
             ))}
+            {(resumen?.topProductos || []).length === 0 && (
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                No hay datos suficientes en el período seleccionado.
+              </p>
+            )}
           </div>
         </div>
       </main>
