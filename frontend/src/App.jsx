@@ -263,8 +263,8 @@ function App() {
           <Route path="/admin/compras/:id" element={<ConsultarCompraPage />} />
         </Route>
         {/* Gestión de redirecciones predeterminadas */}
-        <Route path="/" element={<Navigate to="/home" />} />
-        <Route path="*" element={<Navigate to="/home" />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
 
       <CartDrawer />
