@@ -15,7 +15,7 @@
 5. [Modelo de Datos](#5-modelo-de-datos)
 6. [Instalación y Configuración](#6-instalacion-y-configuracion)
 7. [Endpoints de la API](#7-endpoints-de-la-api)
-8. [Módulos del Sistema](#8-modulos-del-sistema)
+8. [Módulos del Sistema](#8-módulos-del-sistema)
 9. [Seguridad](#9-seguridad)
 10. [Testing](#10-testing)
 11. [Despliegue](#11-despliegue)
@@ -824,7 +824,7 @@ Rechazar comentario (requiere rol admin).
 - **Moderación de comentarios** (Pendiente/Aprobado/Rechazado)
 - **Contador de vistas**
 
-### 8.7 Dashboard de Analíticas (Admin) ✨ NUEVO
+### 8.7 Dashboard de Analíticas (Admin)
 
 - **KPIs principales**:
   - Total de ventas
