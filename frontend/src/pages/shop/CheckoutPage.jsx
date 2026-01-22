@@ -196,6 +196,33 @@ const CheckoutPage = () => {
   };
 
   /**
+   * Listener para cancelar pedido si el usuario cierra la página
+   * en el paso 2 (pantalla SINPE) sin confirmar el pago
+   */
+  useEffect(() => {
+    const handleBeforeUnload = async (e) => {
+      // Solo intentar cancelar si estamos en paso 2 y hay un pedido creado
+      if (paso === 2 && pedidoCreado?.id) {
+        try {
+          await cancelarPedido(pedidoCreado.id);
+        } catch (error) {
+          console.error("Error al cancelar pedido automáticamente:", error);
+        }
+      }
+    };
+
+    // Agregar listener solo si estamos en paso 2
+    if (paso === 2 && pedidoCreado?.id) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
+
+    // Limpiar listener al desmontar o cambiar de paso
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [paso, pedidoCreado?.id]);
+
+  /**
    * Remover cupón aplicado
    */
   const handleRemoverCupon = () => {
@@ -315,7 +342,7 @@ const CheckoutPage = () => {
 
       // 2. Solicitar URL firmada para subir el archivo
       const responseUrl = await fetch(
-        `${import.meta.env.VITE_API_URL}/storage/signed-upload`,
+        `${import.meta.env.VITE_API_URL}/storage/sign-upload`,
         {
           method: "POST",
           headers: {

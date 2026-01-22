@@ -12,6 +12,8 @@ const comprasRoutes = require("./routes/comprasRoutes");
 const pedidosRoutes = require("./routes/pedidosRoutes");
 const unidadesRoutes = require("./routes/unidadRoutes");
 const storageRoutes = require("./routes/storageRoutes");
+const limpiezaRoutes = require("./routes/limpiezaRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 
 const app = express();
 
@@ -36,9 +38,11 @@ app.use("/api/storage", storageRoutes);
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/compras", comprasRoutes);
 app.use("/api/pedidos", pedidosRoutes);
+app.use("/api/limpieza", limpiezaRoutes);
 app.use("/api/unidades", unidadesRoutes);
 app.use("/api/proveedores", proveedorRoutes);
 app.use("/api/noticias", require("./routes/noticiasRoutes"));
 app.use("/api/comentarios", require("./routes/comentariosRoutes"));
+app.use("/api/analytics", analyticsRoutes);
 
 module.exports = app;

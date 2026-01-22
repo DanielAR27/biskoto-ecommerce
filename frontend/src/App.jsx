@@ -61,11 +61,12 @@ import ComprasPage from "./pages/admin/compras/ComprasPage";
 import CrearCompraPage from "./pages/admin/compras/CrearCompraPage";
 import ConsultarCompraPage from "./pages/admin/compras/ConsultarCompraPage";
 
-//Comentarios y Noticias
+//Comentarios, Noticias y Dashboard
 import NoticiasPage from "./pages/NoticiasPage";
 import NoticiaDetailPage from "./pages/NoticiaDetailPage";
 import NoticiasAdminPage from "./pages/admin/noticias/NoticiasAdminPage";
 import ComentariosAdminPage from "./pages/admin/comentarios/ComentariosAdminPage";
+import DashboardPage from "./pages/admin/dashboard/DashboardPage";
 
 //Nuevas secciones del navbar
 import NosotrosPage from "./pages/NosotrosPage";
@@ -246,6 +247,14 @@ function App() {
               <AdminRoute>
                 <ComentariosAdminPage />
               </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <DashboardPage />
+              </ProtectedRoute>
             }
           />
 

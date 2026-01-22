@@ -13,6 +13,7 @@ import {
   ShoppingBag,
   Newspaper,
   MessageSquare,
+  BarChart3, // ← NUEVO: Ícono para Dashboard
 } from "lucide-react";
 
 const AdminMenu = () => {
@@ -32,6 +33,12 @@ const AdminMenu = () => {
   }, []);
 
   const menuItems = [
+    // ========================================
+    // NUEVO: Dashboard de Analíticas
+    // ========================================
+    { to: "/admin/dashboard", icon: BarChart3, label: "Dashboard" },
+    // ========================================
+
     { to: "/admin/categorias", icon: LayoutGrid, label: "Categorías" },
     { to: "/admin/productos", icon: Package, label: "Productos" },
     { to: "/admin/ingredientes", icon: ClipboardList, label: "Ingredientes" },
