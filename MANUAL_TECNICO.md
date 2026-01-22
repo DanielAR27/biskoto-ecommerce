@@ -6,20 +6,20 @@
 
 ---
 
-## 📋 Tabla de Contenidos
+## Tabla de Contenidos
 
-1. [Visión General](#visión-general)
-2. [Arquitectura del Sistema](#arquitectura-del-sistema)
-3. [Stack Tecnológico](#stack-tecnológico)
-4. [Estructura del Proyecto](#estructura-del-proyecto)
-5. [Modelo de Datos](#modelo-de-datos)
-6. [Instalación y Configuración](#instalación-y-configuración)
-7. [Endpoints de la API](#endpoints-de-la-api)
-8. [Módulos del Sistema](#módulos-del-sistema)
-9. [Seguridad](#seguridad)
-10. [Testing](#testing)
-11. [Despliegue](#despliegue)
-12. [Troubleshooting](#troubleshooting)
+1. [Visión General](#1-vision-general)
+2. [Arquitectura del Sistema](#2-arquitectura-del-sistema)
+3. [Stack Tecnológico](#3-stack-tecnologico)
+4. [Estructura del Proyecto](#4-estructura-del-proyecto)
+5. [Modelo de Datos](#5-modelo-de-datos)
+6. [Instalación y Configuración](#6-instalacion-y-configuracion)
+7. [Endpoints de la API](#7-endpoints-de-la-api)
+8. [Módulos del Sistema](#8-modulos-del-sistema)
+9. [Seguridad](#9-seguridad)
+10. [Testing](#10-testing)
+11. [Despliegue](#11-despliegue)
+12. [Troubleshooting](#12-troubleshooting)
 
 ---
 
@@ -94,19 +94,20 @@ El sistema adopta una **arquitectura Cliente-Servidor desacoplada** basada en se
 
 El sistema se despliega completamente en la nube usando servicios PaaS:
 
-| Componente | Servicio | Función |
-|------------|----------|---------|
-| **Frontend** | Render Static Site | Servir SPA de React |
-| **Backend** | Render Web Service | Ejecutar API de Node.js |
-| **Base de Datos** | Supabase PostgreSQL | Persistencia relacional |
-| **Autenticación** | Supabase Auth | Gestión de identidad y JWT |
-| **Storage** | Supabase Storage | Almacenamiento de imágenes |
+| Componente        | Servicio            | Función                    |
+| ----------------- | ------------------- | -------------------------- |
+| **Frontend**      | Render Static Site  | Servir SPA de React        |
+| **Backend**       | Render Web Service  | Ejecutar API de Node.js    |
+| **Base de Datos** | Supabase PostgreSQL | Persistencia relacional    |
+| **Autenticación** | Supabase Auth       | Gestión de identidad y JWT |
+| **Storage**       | Supabase Storage    | Almacenamiento de imágenes |
 
 ---
 
 ## 3. Stack Tecnológico
 
 ### Backend
+
 - **Runtime:** Node.js v16+
 - **Framework:** Express.js
 - **Cliente DB:** Supabase Client SDK
@@ -114,6 +115,7 @@ El sistema se despliega completamente en la nube usando servicios PaaS:
 - **Variables de Entorno:** dotenv
 
 ### Frontend
+
 - **Framework:** React 18
 - **Build Tool:** Vite
 - **Estilos:** Tailwind CSS
@@ -124,12 +126,14 @@ El sistema se despliega completamente en la nube usando servicios PaaS:
 - **Iconos:** Lucide React
 
 ### Base de Datos y Servicios
+
 - **Base de Datos:** PostgreSQL (via Supabase)
 - **Autenticación:** Supabase Auth
 - **Storage:** Supabase Storage
 - **Triggers:** PL/pgSQL
 
 ### Herramientas de Desarrollo
+
 - **Control de Versiones:** Git
 - **Despliegue:** Render (Frontend y Backend)
 - **Documentación:** Markdown
@@ -259,122 +263,132 @@ Ver archivo adjunto: `database/ERD_-_Biskoto.svg`
 ### 5.2 Entidades Principales
 
 #### Tabla: `perfiles`
+
 Almacena información de usuarios (clientes y administradores).
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `id` | UUID | PK - Relacionado con Supabase Auth |
-| `perfil_id` | UUID | FK - Referencia a `auth.users` |
-| `nombre` | VARCHAR | Nombre del usuario |
-| `apellido` | VARCHAR | Apellido del usuario |
-| `telefono` | VARCHAR(8) | Teléfono de contacto |
-| `direccion` | TEXT | Dirección física |
-| `rol` | ENUM | 'admin' o 'cliente' |
+| Campo       | Tipo       | Descripción                        |
+| ----------- | ---------- | ---------------------------------- |
+| `id`        | UUID       | PK - Relacionado con Supabase Auth |
+| `perfil_id` | UUID       | FK - Referencia a `auth.users`     |
+| `nombre`    | VARCHAR    | Nombre del usuario                 |
+| `apellido`  | VARCHAR    | Apellido del usuario               |
+| `telefono`  | VARCHAR(8) | Teléfono de contacto               |
+| `direccion` | TEXT       | Dirección física                   |
+| `rol`       | ENUM       | 'admin' o 'cliente'                |
 
 #### Tabla: `productos`
+
 Catálogo de productos terminados para la venta.
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `id` | SERIAL | PK |
-| `nombre` | VARCHAR | Nombre del producto |
-| `descripcion` | TEXT | Descripción detallada |
-| `precio` | NUMERIC | Precio de venta unitario |
-| `stock_actual` | INTEGER | Cantidad en inventario |
-| `categoria_id` | INTEGER | FK - Categoría del producto |
-| `activo` | BOOLEAN | Visibilidad en catálogo |
-| `requiere_adelanto` | BOOLEAN | Si requiere pago anticipado |
-| `porcentaje_adelanto` | INTEGER | % de adelanto requerido |
+| Campo                 | Tipo    | Descripción                 |
+| --------------------- | ------- | --------------------------- |
+| `id`                  | SERIAL  | PK                          |
+| `nombre`              | VARCHAR | Nombre del producto         |
+| `descripcion`         | TEXT    | Descripción detallada       |
+| `precio`              | NUMERIC | Precio de venta unitario    |
+| `stock_actual`        | INTEGER | Cantidad en inventario      |
+| `categoria_id`        | INTEGER | FK - Categoría del producto |
+| `activo`              | BOOLEAN | Visibilidad en catálogo     |
+| `requiere_adelanto`   | BOOLEAN | Si requiere pago anticipado |
+| `porcentaje_adelanto` | INTEGER | % de adelanto requerido     |
 
 #### Tabla: `ingredientes`
+
 Inventario de materias primas e insumos.
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `id` | SERIAL | PK |
-| `nombre` | VARCHAR | Nombre del ingrediente |
-| `stock_actual` | NUMERIC | Cantidad disponible |
-| `unidad_id` | INTEGER | FK - Unidad de medida |
+| Campo          | Tipo    | Descripción                     |
+| -------------- | ------- | ------------------------------- |
+| `id`           | SERIAL  | PK                              |
+| `nombre`       | VARCHAR | Nombre del ingrediente          |
+| `stock_actual` | NUMERIC | Cantidad disponible             |
+| `unidad_id`    | INTEGER | FK - Unidad de medida           |
 | `es_ilimitado` | BOOLEAN | Si no requiere control de stock |
 
 #### Tabla: `producto_ingredientes`
+
 Relación muchos-a-muchos entre productos e ingredientes (recetas).
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `producto_id` | INTEGER | FK - Producto |
-| `ingrediente_id` | INTEGER | FK - Ingrediente |
+| Campo                | Tipo    | Descripción                   |
+| -------------------- | ------- | ----------------------------- |
+| `producto_id`        | INTEGER | FK - Producto                 |
+| `ingrediente_id`     | INTEGER | FK - Ingrediente              |
 | `cantidad_necesaria` | NUMERIC | Cantidad requerida por unidad |
 
 #### Tabla: `pedidos`
+
 Órdenes de venta de clientes.
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `id` | SERIAL | PK |
-| `perfil_id` | UUID | FK - Cliente que realiza el pedido |
-| `fecha` | TIMESTAMP | Fecha de creación |
-| `total` | NUMERIC | Monto total del pedido |
-| `estado_id` | INTEGER | FK - Estado actual del pedido |
-| `cupon_id` | INTEGER | FK - Cupón aplicado (nullable) |
-| `pago_completo` | BOOLEAN | Si el pago está completado |
-| `requiere_adelanto` | BOOLEAN | Si requiere adelanto |
-| `porcentaje_adelanto` | INTEGER | % de adelanto |
-| `monto_adelanto` | NUMERIC | Monto del adelanto |
-| `monto_pendiente` | NUMERIC | Monto restante |
+| Campo                 | Tipo      | Descripción                        |
+| --------------------- | --------- | ---------------------------------- |
+| `id`                  | SERIAL    | PK                                 |
+| `perfil_id`           | UUID      | FK - Cliente que realiza el pedido |
+| `fecha`               | TIMESTAMP | Fecha de creación                  |
+| `total`               | NUMERIC   | Monto total del pedido             |
+| `estado_id`           | INTEGER   | FK - Estado actual del pedido      |
+| `cupon_id`            | INTEGER   | FK - Cupón aplicado (nullable)     |
+| `pago_completo`       | BOOLEAN   | Si el pago está completado         |
+| `requiere_adelanto`   | BOOLEAN   | Si requiere adelanto               |
+| `porcentaje_adelanto` | INTEGER   | % de adelanto                      |
+| `monto_adelanto`      | NUMERIC   | Monto del adelanto                 |
+| `monto_pendiente`     | NUMERIC   | Monto restante                     |
 
 #### Tabla: `estados_pedido`
+
 Catálogo de estados posibles de un pedido.
 
-| ID | Nombre |
-|----|--------|
-| 1 | Pendiente de Pago |
-| 2 | Confirmado |
-| 3 | En Producción |
-| 4 | Listo para Retiro |
-| 5 | Entregado |
-| 6 | Cancelado |
-| 7 | Pago Parcial |
+| ID  | Nombre            |
+| --- | ----------------- |
+| 1   | Pendiente de Pago |
+| 2   | Confirmado        |
+| 3   | En Producción     |
+| 4   | Listo para Retiro |
+| 5   | Entregado         |
+| 6   | Cancelado         |
+| 7   | Pago Parcial      |
 
 #### Tabla: `cupones`
+
 Sistema de descuentos promocionales.
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `id` | SERIAL | PK |
-| `codigo` | VARCHAR | Código único del cupón |
-| `tipo_descuento` | ENUM | 'porcentaje' o 'fijo' |
-| `valor_descuento` | NUMERIC | Valor del descuento |
-| `activo` | BOOLEAN | Si el cupón está activo |
+| Campo             | Tipo    | Descripción             |
+| ----------------- | ------- | ----------------------- |
+| `id`              | SERIAL  | PK                      |
+| `codigo`          | VARCHAR | Código único del cupón  |
+| `tipo_descuento`  | ENUM    | 'porcentaje' o 'fijo'   |
+| `valor_descuento` | NUMERIC | Valor del descuento     |
+| `activo`          | BOOLEAN | Si el cupón está activo |
 
 #### Tabla: `noticias`
+
 Publicaciones informativas del sistema.
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `id` | SERIAL | PK |
-| `titulo` | VARCHAR | Título de la noticia |
-| `contenido` | TEXT | Contenido completo |
-| `imagen_url` | TEXT | URL de imagen destacada |
-| `autor_id` | UUID | FK - Perfil del autor |
-| `activo` | BOOLEAN | Visibilidad pública |
-| `vistas` | INTEGER | Contador de visualizaciones |
+| Campo        | Tipo    | Descripción                 |
+| ------------ | ------- | --------------------------- |
+| `id`         | SERIAL  | PK                          |
+| `titulo`     | VARCHAR | Título de la noticia        |
+| `contenido`  | TEXT    | Contenido completo          |
+| `imagen_url` | TEXT    | URL de imagen destacada     |
+| `autor_id`   | UUID    | FK - Perfil del autor       |
+| `activo`     | BOOLEAN | Visibilidad pública         |
+| `vistas`     | INTEGER | Contador de visualizaciones |
 
 #### Tabla: `comentarios`
+
 Sistema de interacción en noticias.
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `id` | SERIAL | PK |
-| `noticia_id` | INTEGER | FK - Noticia comentada |
-| `usuario_id` | UUID | FK - Autor del comentario |
-| `contenido` | TEXT | Texto del comentario |
-| `estado` | VARCHAR | 'Pendiente', 'Aprobado', 'Rechazado' |
-| `fecha` | TIMESTAMP | Fecha de creación |
+| Campo        | Tipo      | Descripción                          |
+| ------------ | --------- | ------------------------------------ |
+| `id`         | SERIAL    | PK                                   |
+| `noticia_id` | INTEGER   | FK - Noticia comentada               |
+| `usuario_id` | UUID      | FK - Autor del comentario            |
+| `contenido`  | TEXT      | Texto del comentario                 |
+| `estado`     | VARCHAR   | 'Pendiente', 'Aprobado', 'Rechazado' |
+| `fecha`      | TIMESTAMP | Fecha de creación                    |
 
 ### 5.3 Triggers Automáticos
 
 #### `on_auth_user_created`
+
 **Función:** Sincronización automática de perfiles al registrar un usuario.
 
 ```sql
@@ -383,6 +397,7 @@ Sistema de interacción en noticias.
 ```
 
 #### `trg_gestion_stock_compra`
+
 **Función:** Actualización automática de stock al registrar compras.
 
 ```sql
@@ -405,12 +420,14 @@ Sistema de interacción en noticias.
 ### 6.2 Configuración del Backend
 
 #### Paso 1: Clonar el Repositorio
+
 ```bash
 git clone <url-del-repositorio>
 cd Proyecto-IC7841/backend
 ```
 
 #### Paso 2: Instalar Dependencias
+
 ```bash
 npm install
 ```
@@ -430,6 +447,7 @@ SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key_aqui
 ```
 
 **Variables Explicadas:**
+
 - `PORT`: Puerto donde se ejecutará el servidor Express
 - `SUPABASE_URL`: URL de tu proyecto en Supabase
 - `SUPABASE_KEY`: Clave pública (anon key) de Supabase
@@ -443,6 +461,7 @@ SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key_aqui
 4. (Opcional) Ejecutar `database/seed.sql` para datos de prueba
 
 #### Paso 5: Iniciar Servidor
+
 ```bash
 npm start
 ```
@@ -452,11 +471,13 @@ El servidor estará disponible en `http://localhost:3000`
 ### 6.3 Configuración del Frontend
 
 #### Paso 1: Navegar al Directorio
+
 ```bash
 cd frontend
 ```
 
 #### Paso 2: Instalar Dependencias
+
 ```bash
 npm install
 ```
@@ -475,6 +496,7 @@ VITE_SUPABASE_ANON_KEY=tu_anon_key_aqui
 ```
 
 #### Paso 4: Ejecutar en Desarrollo
+
 ```bash
 npm run dev
 ```
@@ -482,6 +504,7 @@ npm run dev
 La aplicación estará disponible en `http://localhost:5173`
 
 #### Paso 5: Build para Producción
+
 ```bash
 npm run build
 ```
@@ -495,9 +518,11 @@ Los archivos generados estarán en `frontend/dist/`
 ### 7.1 Autenticación
 
 #### `POST /api/auth/login`
+
 Iniciar sesión de usuario.
 
 **Request:**
+
 ```json
 {
   "correo": "usuario@ejemplo.com",
@@ -506,6 +531,7 @@ Iniciar sesión de usuario.
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "user": {
@@ -521,9 +547,11 @@ Iniciar sesión de usuario.
 ```
 
 #### `POST /api/auth/register`
+
 Registrar nuevo usuario.
 
 **Request:**
+
 ```json
 {
   "correo": "nuevo@ejemplo.com",
@@ -538,14 +566,17 @@ Registrar nuevo usuario.
 ### 7.2 Productos
 
 #### `GET /api/productos`
+
 Obtener catálogo de productos con paginación.
 
 **Query Params:**
+
 - `page` (opcional): Número de página (default: 1)
 - `limit` (opcional): Items por página (default: 20)
 - `categoria` (opcional): Filtrar por categoría
 
 **Response (200 OK):**
+
 ```json
 {
   "productos": [...],
@@ -556,9 +587,11 @@ Obtener catálogo de productos con paginación.
 ```
 
 #### `POST /api/productos/validar-disponibilidad`
+
 Validar disponibilidad de productos basado en stock e ingredientes.
 
 **Request:**
+
 ```json
 {
   "items": [
@@ -569,6 +602,7 @@ Validar disponibilidad de productos basado en stock e ingredientes.
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "disponible": true,
@@ -577,6 +611,7 @@ Validar disponibilidad de productos basado en stock e ingredientes.
 ```
 
 **Response (400 Bad Request) - Stock Insuficiente:**
+
 ```json
 {
   "error": "Stock insuficiente para algunos productos",
@@ -594,9 +629,11 @@ Validar disponibilidad de productos basado en stock e ingredientes.
 ### 7.3 Pedidos
 
 #### `POST /api/pedidos`
+
 Crear nuevo pedido (requiere autenticación).
 
 **Request:**
+
 ```json
 {
   "items": [
@@ -614,6 +651,7 @@ Crear nuevo pedido (requiere autenticación).
 ```
 
 **Response (201 Created):**
+
 ```json
 {
   "pedido": {
@@ -628,14 +666,17 @@ Crear nuevo pedido (requiere autenticación).
 ```
 
 #### `GET /api/pedidos/usuario/:perfil_id`
+
 Obtener historial de pedidos de un usuario (requiere autenticación).
 
 ### 7.4 Cupones
 
 #### `POST /api/cupones/validar`
+
 Validar un cupón de descuento.
 
 **Request:**
+
 ```json
 {
   "codigo": "DESCUENTO10"
@@ -643,6 +684,7 @@ Validar un cupón de descuento.
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "valido": true,
@@ -659,9 +701,11 @@ Validar un cupón de descuento.
 ### 7.5 Analíticas (Solo Admin)
 
 #### `GET /api/analytics/resumen`
+
 Obtener resumen general de métricas.
 
 **Response (200 OK):**
+
 ```json
 {
   "totalVentas": 93598.81,
@@ -678,14 +722,17 @@ Obtener resumen general de métricas.
 ```
 
 #### `GET /api/analytics/ventas`
+
 Obtener ventas por período.
 
 **Query Params:**
+
 - `periodo`: "semana", "mes", "año", "personalizado"
 - `fecha_inicio`: ISO date (si periodo = "personalizado")
 - `fecha_fin`: ISO date (si periodo = "personalizado")
 
 **Response (200 OK):**
+
 ```json
 {
   "periodo": "mes",
@@ -694,32 +741,36 @@ Obtener ventas por período.
   "totalVentas": 85000,
   "totalPedidos": 15,
   "promedioVenta": 5666.67,
-  "datosGrafica": [
-    { "fecha": "2025-01-15", "total": 12000, "cantidad": 3 }
-  ]
+  "datosGrafica": [{ "fecha": "2025-01-15", "total": 12000, "cantidad": 3 }]
 }
 ```
 
 #### `GET /api/analytics/ventas-mensuales`
+
 Obtener ventas de los últimos 12 meses.
 
 ### 7.6 Noticias
 
 #### `GET /api/noticias`
+
 Obtener listado de noticias activas (público) o todas (admin).
 
 #### `POST /api/noticias`
+
 Publicar nueva noticia (requiere rol admin).
 
 ### 7.7 Comentarios
 
 #### `POST /api/comentarios`
+
 Publicar comentario en una noticia (requiere autenticación).
 
 #### `PUT /api/comentarios/:id/aprobar`
+
 Aprobar comentario (requiere rol admin).
 
 #### `PUT /api/comentarios/:id/rechazar`
+
 Rechazar comentario (requiere rol admin).
 
 ---
@@ -727,6 +778,7 @@ Rechazar comentario (requiere rol admin).
 ## 8. Módulos del Sistema
 
 ### 8.1 Gestión de Productos (Admin)
+
 - **CRUD completo** de productos
 - **Carga de imágenes** a Supabase Storage
 - **Gestión de recetas** (producto-ingredientes)
@@ -734,18 +786,21 @@ Rechazar comentario (requiere rol admin).
 - **Sistema de adelanto** configurable
 
 ### 8.2 Gestión de Inventario (Admin)
+
 - **CRUD de ingredientes**
 - **Unidades de medida** configurables
 - **Control de stock** con decimales
 - **Ingredientes ilimitados** (sin control de stock)
 
 ### 8.3 Gestión de Compras (Admin)
+
 - **Registro de compras** a proveedores
 - **Actualización automática** de stock vía trigger
 - **Gestión de proveedores**
 - **Historial de transacciones**
 
 ### 8.4 Sistema de Pedidos
+
 - **Catálogo público** con filtros por categoría
 - **Carrito de compras** con persistencia en localStorage
 - **Validación de stock** en tiempo real (algoritmo de "Reactivo Limitante")
@@ -755,12 +810,14 @@ Rechazar comentario (requiere rol admin).
 - **Estados de pedido**: Pendiente, Confirmado, En Producción, Listo, Entregado, Cancelado
 
 ### 8.5 Sistema de Cupones (Admin)
+
 - **CRUD de cupones**
 - **Tipos de descuento**: Porcentaje o monto fijo
 - **Validación** de vigencia y estado
 - **Aplicación automática** en checkout
 
 ### 8.6 Portal de Noticias
+
 - **Publicación de noticias** (admin)
 - **Visualización pública** de noticias activas
 - **Sistema de comentarios** de usuarios registrados
@@ -768,6 +825,7 @@ Rechazar comentario (requiere rol admin).
 - **Contador de vistas**
 
 ### 8.7 Dashboard de Analíticas (Admin) ✨ NUEVO
+
 - **KPIs principales**:
   - Total de ventas
   - Pedidos del mes
@@ -783,11 +841,13 @@ Rechazar comentario (requiere rol admin).
 - **Top 5 productos** más vendidos
 
 ### 8.8 Gestión de Usuarios (Admin)
+
 - **Listado de usuarios** con roles
 - **Edición de perfiles**
 - **Control de acceso** basado en roles
 
 ### 8.9 Autenticación y Seguridad
+
 - **Registro de usuarios** con validación
 - **Inicio de sesión** con JWT
 - **Recuperación de contraseña**
@@ -812,6 +872,7 @@ El sistema utiliza **Supabase Auth** para la gestión de identidad:
 #### RBAC (Control de Acceso Basado en Roles)
 
 **Roles del sistema:**
+
 - `admin`: Acceso completo a panel administrativo
 - `cliente`: Acceso solo a funciones de cliente (catálogo, pedidos propios)
 
@@ -854,7 +915,7 @@ USING (
 ### 9.4 Storage Seguro
 
 - **URLs firmadas**: Para carga de imágenes
-- **Políticas de bucket**: 
+- **Políticas de bucket**:
   - Lectura pública para catálogo
   - Escritura solo para administradores autenticados
 
@@ -877,18 +938,21 @@ USING (
 ### 10.2 Pruebas Unitarias
 
 **Funciones críticas a probar:**
+
 - Cálculo de stock disponible (algoritmo de reactivo limitante)
 - Validación de cupones
 - Cálculo de adelanto
 - Formateo de números de referencia
 
 **Herramientas sugeridas:**
+
 - Jest para Node.js
 - React Testing Library para componentes
 
 ### 10.3 Pruebas de Integración
 
 **Escenarios a validar:**
+
 - Flujo completo de checkout
 - Actualización de stock tras compra
 - Sincronización de perfiles tras registro
@@ -897,6 +961,7 @@ USING (
 ### 10.4 Pruebas de Aceptación
 
 **Casos de uso críticos:**
+
 1. ✅ Usuario puede realizar pedido completo
 2. ✅ Admin puede gestionar inventario
 3. ✅ Sistema previene sobreventa
@@ -950,12 +1015,14 @@ USING (
 En `backend/src/app.js`:
 
 ```javascript
-const cors = require('cors');
+const cors = require("cors");
 
-app.use(cors({
-  origin: 'https://tu-frontend.onrender.com',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: "https://tu-frontend.onrender.com",
+    credentials: true,
+  }),
+);
 ```
 
 ### 11.3 Base de Datos en Supabase
@@ -981,9 +1048,10 @@ app.use(cors({
 **Causa:** Falta de ingredientes necesarios para fabricar el producto.
 
 **Solución:**
+
 ```sql
 -- Verificar ingredientes del producto
-SELECT 
+SELECT
   p.nombre AS producto,
   i.nombre AS ingrediente,
   i.stock_actual,
@@ -1000,9 +1068,10 @@ WHERE p.id = <ID_PRODUCTO>;
 **Causa:** Producto eliminado pero aún en localStorage del cliente.
 
 **Solución:**
+
 ```javascript
 // En consola del navegador
-localStorage.removeItem('cart');
+localStorage.removeItem("cart");
 location.reload();
 ```
 
@@ -1017,6 +1086,7 @@ location.reload();
 **Causa:** Estados de pedidos incorrectos en queries.
 
 **Solución:** Verificar que los IDs de estados coincidan con la DB:
+
 ```sql
 SELECT * FROM estados_pedido ORDER BY id;
 ```
@@ -1024,23 +1094,26 @@ SELECT * FROM estados_pedido ORDER BY id;
 ### 12.2 Verificación de Salud del Sistema
 
 #### Backend Health Check
+
 ```bash
 curl http://localhost:3000/api/health
 ```
 
 #### Verificar Conexión a Supabase
+
 ```javascript
 // En consola del navegador
-fetch('http://localhost:3000/api/productos')
-  .then(r => r.json())
-  .then(data => console.log('Productos:', data));
+fetch("http://localhost:3000/api/productos")
+  .then((r) => r.json())
+  .then((data) => console.log("Productos:", data));
 ```
 
 #### Verificar Autenticación
+
 ```javascript
 // En consola del navegador
-console.log('Token:', localStorage.getItem('token'));
-console.log('User:', localStorage.getItem('user'));
+console.log("Token:", localStorage.getItem("token"));
+console.log("User:", localStorage.getItem("user"));
 ```
 
 ---
@@ -1073,4 +1146,4 @@ Este proyecto es desarrollado con fines académicos para el curso IC-7841.
 
 ---
 
-*Última actualización: Enero 2026*
+_Última actualización: Enero 2026_
