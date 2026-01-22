@@ -59,6 +59,7 @@ import EditarProveedorPage from "./pages/admin/proveedores/EditarProveedorPage";
 import ComprasPage from "./pages/admin/compras/ComprasPage";
 import CrearCompraPage from "./pages/admin/compras/CrearCompraPage";
 import ConsultarCompraPage from "./pages/admin/compras/ConsultarCompraPage";
+import EditarCompraPage from "./pages/admin/compras/EditarCompraPage";
 
 //Comentarios, Noticias y Dashboard
 import NoticiasPage from "./pages/NoticiasPage";
@@ -226,6 +227,10 @@ function App() {
 
             <Route path="/admin/compras" element={<ComprasPage />} />
             <Route path="/admin/compras/nueva" element={<CrearCompraPage />} />
+            <Route
+              path="/admin/compras/editar/:id"
+              element={<EditarCompraPage />}
+            />
             <Route
               path="/admin/compras/:id"
               element={<ConsultarCompraPage />}

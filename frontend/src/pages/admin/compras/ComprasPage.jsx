@@ -40,7 +40,7 @@ const ComprasPage = () => {
     cargarCompras();
   }, []);
 
-  // Notificación de éxito al redirigir desde la creación de compra
+  // Notificación de éxito al redirigir desde la creación/edición de compra
   useEffect(() => {
     if (location.state?.successMessage) {
       showNotification("success", location.state.successMessage);
@@ -240,7 +240,7 @@ const ComprasPage = () => {
                           </td>
                           <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <TableActions
-                              // Cambiamos editLink por viewLink ya que las compras suelen ser inmutables
+                              editLink={`/admin/compras/editar/${compra.id}`}
                               viewLink={`/admin/compras/${compra.id}`}
                               onDelete={() => handleDeleteClick(compra)}
                               deleteTitle="Anular compra"

@@ -1,17 +1,20 @@
-import api from './axiosConfig';
+import api from "./axiosConfig";
 
 /**
- * Obtiene el historial completo de compras registradas en el sistema.
- * Retorna un resumen que incluye el ID, fecha, total y nombre del proveedor.
+ * Servicio de Compras (Abastecimiento de ingredientes).
+ */
+
+/**
+ * Obtiene el historial de todas las compras.
  */
 export const getCompras = async () => {
-  const response = await api.get('/compras');
+  const response = await api.get("/compras");
   return response.data;
 };
 
 /**
- * Recupera el detalle técnico de una compra específica.
- * Incluye la lista de ingredientes (items) adquiridos, cantidades y precios unitarios.
+ * Obtiene el detalle de una compra específica por ID.
+ * Incluye items y sus ingredientes asociados.
  */
 export const getCompraById = async (id) => {
   const response = await api.get(`/compras/${id}`);
@@ -19,19 +22,26 @@ export const getCompraById = async (id) => {
 };
 
 /**
- * Registra una nueva transacción de compra de suministros.
- * Esta operación dispara el trigger en la base de datos para aumentar el stock 
- * de los ingredientes vinculados.
+ * Crea una nueva compra con sus items.
+ * El stock se incrementa automáticamente vía trigger.
  */
 export const createCompra = async (compraData) => {
-  const response = await api.post('/compras', compraData);
+  const response = await api.post("/compras", compraData);
   return response.data;
 };
 
 /**
- * Elimina un registro de compra del historial.
- * Al eliminarse, el sistema revierte automáticamente el stock de los ingredientes
- * asociados a esta compra.
+ * Actualiza una compra existente.
+ * Los items antiguos se eliminan y los nuevos se insertan.
+ * El trigger ajusta el stock automáticamente.
+ */
+export const updateCompra = async (id, compraData) => {
+  const response = await api.put(`/compras/${id}`, compraData);
+  return response.data;
+};
+
+/**
+ * Elimina una compra y revierte el stock vía trigger.
  */
 export const deleteCompra = async (id) => {
   const response = await api.delete(`/compras/${id}`);
