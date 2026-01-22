@@ -925,7 +925,7 @@ USING (
 
 ### 10.1 Estrategia de pruebas
 
-La estrategia de validación del proyecto sigue el enfoque de **Pirámide de Pruebas**, priorizando una base sólida de pruebas automatizadas (unitarias e integración) y complementándolas con validaciones manuales de alto nivel para confirmar la satisfacción del usuario y el cumplimiento de flujos de negocio. :contentReference[oaicite:0]{index=0} :contentReference[oaicite:1]{index=1}
+La estrategia de validación del proyecto sigue el enfoque de **Pirámide de Pruebas**, priorizando una base sólida de pruebas automatizadas (unitarias e integración) y complementándolas con validaciones manuales de alto nivel para confirmar la satisfacción del usuario y el cumplimiento de flujos de negocio.
 
 ---
 
@@ -933,53 +933,50 @@ La estrategia de validación del proyecto sigue el enfoque de **Pirámide de Pru
 
 Las pruebas cubren los componentes principales del sistema:
 
-- **Frontend (SPA):** componentes, manejo de estado (Context API) y flujos de usuario. :contentReference[oaicite:2]{index=2}
-- **Backend (API REST):** endpoints, controladores, middlewares de seguridad y persistencia. :contentReference[oaicite:3]{index=3}
-- **Rendimiento:** auditorías de métricas de rendimiento y calidad web. :contentReference[oaicite:4]{index=4}
+- **Frontend (SPA):** componentes, manejo de estado (Context API) y flujos de usuario.
+- **Backend (API REST):** endpoints, controladores, middlewares de seguridad y persistencia.
+- **Rendimiento:** auditorías de métricas de rendimiento y calidad web.
 
-**Exclusiones:** no se incluyen pruebas de estrés masivo (DDoS) ni pruebas de penetración avanzada, por estar fuera del alcance académico y operativo. :contentReference[oaicite:5]{index=5}
-
----
+## **Exclusiones:** no se incluyen pruebas de estrés masivo (DDoS) ni pruebas de penetración avanzada, por estar fuera del alcance académico y operativo.
 
 ### 10.3 Herramientas de aseguramiento de calidad
 
-- **Unitarias y componentes (Frontend):** Vitest + React Testing Library. :contentReference[oaicite:6]{index=6}
-- **Unitarias e integración (Backend):** Jest + Supertest. :contentReference[oaicite:7]{index=7}
-- **Rendimiento y auditoría:** Google Lighthouse (Performance, Accesibilidad, Buenas Prácticas y SEO en Desktop y Mobile). :contentReference[oaicite:8]{index=8}
-- **Aceptación (UAT):** ejecución manual guiada y minutas de validación/aprobación formal. :contentReference[oaicite:9]{index=9}
+- **Unitarias y componentes (Frontend):** Vitest + React Testing Library.
+- **Unitarias e integración (Backend):** Jest + Supertest.
+- **Rendimiento y auditoría:** Google Lighthouse (Performance, Accesibilidad, Buenas Prácticas y SEO en Desktop y Mobile).
+- **Aceptación (UAT):** ejecución manual guiada y minutas de validación/aprobación formal.
 
 ---
 
 ### 10.4 Pruebas unitarias
 
-**Objetivo:** verificar funciones y componentes aislados sin depender de servicios externos. :contentReference[oaicite:10]{index=10}
+**Objetivo:** verificar funciones y componentes aislados sin depender de servicios externos.
 
 **Enfoque y ejemplos de funciones críticas:**
 
 - Cálculo de stock disponible (reactivo limitante).
 - Validación de cupones.
 - Cálculo de adelanto.
-- Formateo de números de referencia. :contentReference[oaicite:11]{index=11}
+- Formateo de números de referencia.
 
 ---
 
 ### 10.5 Pruebas de integración
 
-**Objetivo:** validar la interacción entre módulos y la comunicación con servicios. :contentReference[oaicite:12]{index=12}
+**Objetivo:** validar la interacción entre módulos y la comunicación con servicios.
 
 **Alcance:**
 
 - **Frontend:** flujos que integran Context API y navegación protegida.
-- **Backend:** validación de endpoints REST con Supertest simulando peticiones HTTP reales y verificando respuestas. :contentReference[oaicite:13]{index=13}
+- **Backend:** validación de endpoints REST con Supertest simulando peticiones HTTP reales y verificando respuestas.
 
 ---
 
 ### 10.6 Pruebas de sistema y aceptación (UAT)
 
-**Objetivo:** confirmar que el sistema completo cumple los flujos de negocio esperados por el cliente real. :contentReference[oaicite:14]{index=14}
+**Objetivo:** confirmar que el sistema completo cumple los flujos de negocio esperados por el cliente real.
 
-**Alcance:** ejecución manual de casos de uso y validación por parte del usuario final (propietaria), documentada con minutas y aprobación formal. :contentReference[oaicite:15]{index=15} :contentReference[oaicite:16]{index=16}
-
+**Alcance:** ejecución manual de casos de uso y validación por parte del usuario final (propietaria), documentada con minutas y aprobación formal.
 **Casos críticos (referencia rápida):**
 
 1. Usuario puede realizar pedido completo.
@@ -987,20 +984,20 @@ Las pruebas cubren los componentes principales del sistema:
 3. Sistema previene sobreventa.
 4. Cupones se aplican correctamente.
 5. Dashboard muestra métricas correctas.
-6. Comentarios se moderan correctamente. :contentReference[oaicite:17]{index=17}
+6. Comentarios se moderan correctamente.
 
 ---
 
 ### 10.7 Ejecución de pruebas
 
-- **Ejecución local:** correr suites automatizadas desde los proyectos de frontend y backend usando el script de pruebas del repositorio (por ejemplo, `npm run test`). :contentReference[oaicite:18]{index=18}
-- **Pre-producción (Render):** validación manual sobre la URL pública y auditoría con Lighthouse. :contentReference[oaicite:19]{index=19}
+- **Ejecución local:** correr suites automatizadas desde los proyectos de frontend y backend usando el script de pruebas del repositorio (por ejemplo, `npm run test`).
+- **Pre-producción (Render):** validación manual sobre la URL pública y auditoría con Lighthouse.
 
 ---
 
 ### 10.8 Documento formal del plan de pruebas
 
-El detalle completo de la estrategia, alcance, gestión de datos, evidencia de ejecución y protocolo UAT se encuentra en el documento **“Plan de Pruebas - Proyecto de Biskoto”**, el cual formaliza verificación y validación contra ERS y SAD, incluyendo aceptación final por parte del usuario. :contentReference[oaicite:20]{index=20} :contentReference[oaicite:21]{index=21}
+El detalle completo de la estrategia, alcance, gestión de datos, evidencia de ejecución y protocolo UAT se encuentra en el documento **“Plan de Pruebas - Proyecto de Biskoto”**, el cual formaliza verificación y validación contra ERS y SAD, incluyendo aceptación final por parte del usuario.
 
 ## 11. Despliegue
 
