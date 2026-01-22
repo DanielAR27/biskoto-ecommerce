@@ -1118,7 +1118,7 @@ console.log("User:", localStorage.getItem("user"));
 
 ---
 
-## 📚 Referencias
+## Referencias
 
 - [Supabase Documentation](https://supabase.com/docs)
 - [React Documentation](https://react.dev)
@@ -1128,7 +1128,7 @@ console.log("User:", localStorage.getItem("user"));
 
 ---
 
-## 👥 Equipo de Desarrollo
+## Equipo de Desarrollo
 
 - **Daniel Alemán Ruiz** - 2023051957
 - **Luis Meza Chavarría** - 2023800023
@@ -1140,7 +1140,7 @@ console.log("User:", localStorage.getItem("user"));
 
 ---
 
-## 📄 Licencia
+## Licencia
 
 Este proyecto es desarrollado con fines académicos para el curso IC-7841.
 
