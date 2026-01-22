@@ -55,6 +55,22 @@ const DashboardPage = () => {
     "#6b7280", // Gris - Otros
   ];
 
+  const getLabelPeriodo = () => {
+    switch (periodoSeleccionado) {
+      case "semana":
+        return "Última Semana";
+      case "mes":
+        return "Último Mes";
+      case "año":
+      case "anio":
+        return "Último Año";
+      case "personalizado":
+        return "Período";
+      default:
+        return "Período";
+    }
+  };
+
   /**
    * Cargar datos iniciales
    */
@@ -81,6 +97,7 @@ const DashboardPage = () => {
     };
 
     cargarDatos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
@@ -172,15 +189,15 @@ const DashboardPage = () => {
 
         {/* KPIs - Cards de Métricas Principales */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Total de Ventas */}
+          {/* Total de Ventas (depende del filtro) */}
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                  Total Ventas
+                  Total Ventas ({getLabelPeriodo()})
                 </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
-                  {formatMoneda(resumen?.totalVentas || 0)}
+                  {formatMoneda(datosVentas?.totalVentas || 0)}
                 </p>
               </div>
               <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
@@ -189,15 +206,15 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Pedidos del Mes */}
+          {/* Pedidos (depende del filtro) */}
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                  Pedidos del Mes
+                  Pedidos ({getLabelPeriodo()})
                 </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
-                  {resumen?.pedidosMesActual || 0}
+                  {datosVentas?.totalPedidos || 0}
                 </p>
               </div>
               <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
@@ -206,7 +223,7 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Total de Clientes */}
+          {/* Total de Clientes (global, no depende del filtro) */}
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
             <div className="flex items-center justify-between">
               <div>
@@ -223,12 +240,12 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Promedio por Pedido */}
+          {/* Promedio por Pedido (ya dependía del filtro, porque viene de datosVentas) */}
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                  Promedio por Pedido
+                  Promedio por Pedido ({getLabelPeriodo()})
                 </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
                   {formatMoneda(datosVentas?.promedioVenta || 0)}
