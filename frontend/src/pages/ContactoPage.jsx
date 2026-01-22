@@ -2,36 +2,33 @@ import { motion } from "framer-motion";
 import {
   MapPin,
   Clock,
-  Phone,
-  Mail,
   Instagram,
   Facebook,
   MessageCircle,
+  ExternalLink,
 } from "lucide-react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import ContactForm from "../components/ContactForm";
 
 const ContactoPage = () => {
-  // Animación de fade-in para secciones
+  // Animación de fade-in
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.6 },
   };
 
-  // Ícono personalizado de TikTok
+  // Ícono TikTok
   const TikTokIcon = () => (
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
       <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
     </svg>
   );
 
+  const googleMapsUrl = "https://maps.app.goo.gl/BpsFXAuVWVREogHD9";
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-biskoto via-biskoto-700 to-biskoto-900 dark:from-biskoto-900 dark:via-slate-900 dark:to-slate-950 text-white overflow-hidden">
-        {/* Patrón decorativo */}
         <div className="absolute inset-0 opacity-10">
           <div
             className="absolute inset-0"
@@ -57,14 +54,8 @@ const ContactoPage = () => {
           </motion.div>
         </div>
 
-        {/* Onda decorativa */}
         <div className="absolute bottom-0 left-0 right-0">
-          <svg
-            viewBox="0 0 1440 120"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-full h-auto"
-          >
+          <svg viewBox="0 0 1440 120" fill="none" className="w-full h-auto">
             <path
               d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z"
               fill="currentColor"
@@ -75,10 +66,10 @@ const ContactoPage = () => {
       </section>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Sección Principal de Contacto */}
+        {/* Información + Mapa */}
         <motion.section {...fadeIn}>
           <div className="grid lg:grid-cols-2 gap-8 mb-16">
-            {/* Columna Izquierda: Información de Contacto */}
+            {/* Columna Izquierda: Información */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-slate-700 space-y-6">
               <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-6">
                 Información de Contacto
@@ -96,10 +87,15 @@ const ContactoPage = () => {
                   <p className="text-gray-600 dark:text-gray-300">
                     Cartago, Costa Rica
                   </p>
-                  <p className="text-sm text-biskoto dark:text-biskoto-400 mt-2 flex items-center gap-1">
-                    <MessageCircle className="w-4 h-4" />
-                    Dirección exacta por WhatsApp
-                  </p>
+                  <a
+                    href={googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-biskoto dark:text-biskoto-400 mt-2 flex items-center gap-1 hover:underline"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Ver en Google Maps
+                  </a>
                 </div>
               </div>
 
@@ -120,7 +116,18 @@ const ContactoPage = () => {
                   >
                     +506 8838-3780
                   </a>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1"></p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Escríbenos para consultas y pedidos
+                  </p>
+                  <a
+                    href="https://wa.me/50688383780"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Abrir WhatsApp
+                  </a>
                 </div>
               </div>
 
@@ -133,20 +140,18 @@ const ContactoPage = () => {
                   <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">
                     Horario
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm">
-                    Lunes a Viernes: 9:00 AM - 6:00 PM
-                    <br />
-                    Sábados: 10:00 AM - 4:00 PM
-                    <br />
-                    Domingos: Cerrado
-                  </p>
+                  <div className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
+                    <p>Lunes a Viernes: 9:00 AM - 6:00 PM</p>
+                    <p>Sábados: 10:00 AM - 4:00 PM</p>
+                    <p>Domingos: Cerrado</p>
+                  </div>
                 </div>
               </div>
 
               {/* Redes Sociales */}
               <div className="pt-6 border-t border-gray-200 dark:border-slate-600">
                 <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4">
-                  Síguenos en Redes
+                  Síguenos
                 </h3>
                 <div className="flex gap-3">
                   <a
@@ -154,7 +159,6 @@ const ContactoPage = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 bg-biskoto/10 dark:bg-biskoto-900/30 hover:bg-biskoto/20 dark:hover:bg-biskoto-900/40 rounded-xl flex items-center justify-center transition-all hover:scale-110"
-                    title="TikTok"
                   >
                     <TikTokIcon />
                   </a>
@@ -163,7 +167,6 @@ const ContactoPage = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 bg-biskoto/10 dark:bg-biskoto-900/30 hover:bg-biskoto/20 dark:hover:bg-biskoto-900/40 rounded-xl flex items-center justify-center transition-all hover:scale-110"
-                    title="Instagram"
                   >
                     <Instagram className="w-6 h-6 text-biskoto dark:text-biskoto-400" />
                   </a>
@@ -172,7 +175,6 @@ const ContactoPage = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 bg-biskoto/10 dark:bg-biskoto-900/30 hover:bg-biskoto/20 dark:hover:bg-biskoto-900/40 rounded-xl flex items-center justify-center transition-all hover:scale-110"
-                    title="Facebook"
                   >
                     <Facebook className="w-6 h-6 text-biskoto dark:text-biskoto-400" />
                   </a>
@@ -180,57 +182,40 @@ const ContactoPage = () => {
               </div>
             </div>
 
-            {/* Columna Derecha: Formulario de Contacto */}
-            <div>
-              <ContactForm />
-            </div>
-          </div>
-        </motion.section>
-
-        {/* Sección de Entregas */}
-        <motion.section
-          {...fadeIn}
-          className="bg-gradient-to-br from-biskoto/5 to-biskoto-700/5 dark:from-biskoto-900/10 dark:to-biskoto/5 rounded-3xl p-8 md:p-12"
-        >
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4">
-              Entregas y Recogida
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              Coordinamos contigo la mejor opción
-            </p>
-          </div>
-
-          {/* Placeholder para mapa */}
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-12 border border-gray-200 dark:border-slate-700">
-            <div className="aspect-video flex items-center justify-center text-center">
-              <div>
-                <div className="text-7xl mb-4">📍</div>
-                <p className="text-gray-900 dark:text-white font-bold text-2xl mb-2">
-                  Entregas en Cartago
-                </p>
-                <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                  Coordinamos la entrega o recogida por WhatsApp según tu
-                  ubicación y preferencia
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <a
-                    href="https://wa.me/50688383780?text=Hola%2C%20me%20gustaría%20coordinar%20entrega"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-biskoto hover:bg-biskoto-700 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    Coordinar Entrega
-                  </a>
-                  <a
-                    href="https://wa.me/50688383780?text=Hola%2C%20me%20gustaría%20la%20dirección%20para%20recoger"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-slate-600 rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-                  >
+            {/* Columna Derecha: Mapa */}
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-slate-700">
+              <div className="h-full min-h-[600px] relative">
+                {/* Encabezado */}
+                <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/60 to-transparent p-4 z-10">
+                  <h3 className="text-white font-bold text-lg flex items-center gap-2">
                     <MapPin className="w-5 h-5" />
-                    Pedir Dirección
+                    Nuestra Ubicación
+                  </h3>
+                </div>
+
+                {/* Mapa */}
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d246.37688207539593!2d-83.91915973854894!3d9.86277459999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa0e3dbfe5f2a73%3A0x9f5f5f5f5f5f5f5f!2sCartago%2C%20Costa%20Rica!5e0!3m2!1ses!2scr!4v1234567890123!5m2!1ses!2scr"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="w-full h-full"
+                  title="Ubicación Biskoto"
+                ></iframe>
+
+                {/* Botón */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                  <a
+                    href={googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-gray-100 text-gray-900 rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                  >
+                    <ExternalLink className="w-5 h-5" />
+                    Abrir en Google Maps
                   </a>
                 </div>
               </div>
@@ -239,7 +224,7 @@ const ContactoPage = () => {
         </motion.section>
 
         {/* Call to Action */}
-        <motion.section {...fadeIn} className="text-center py-16">
+        <motion.section {...fadeIn} className="text-center">
           <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-6">
             ¿Listo para hacer tu pedido?
           </h2>

@@ -375,44 +375,61 @@ const ComentariosAdminPage = () => {
                           </StatusBadge>
                         </td>
 
-                        {/* Acciones */}
+                        {/* Acciones - BOTONES SIEMPRE VISIBLES */}
                         <td className="px-6 py-4 whitespace-nowrap text-right">
                           <div className="flex items-center justify-end gap-2">
-                            {comentario.estado === "pendiente" && (
-                              <>
-                                <button
-                                  onClick={() => handleAprobar(comentario.id)}
-                                  disabled={procesando === comentario.id}
-                                  className="p-2 text-green-600 bg-green-50 dark:text-green-400 dark:bg-white/10 rounded-lg transition-colors hover:bg-green-100 dark:hover:bg-white/20 disabled:opacity-50"
-                                  title="Aprobar"
-                                >
-                                  {procesando === comentario.id ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                  ) : (
-                                    <CheckCircle className="h-4 w-4" />
-                                  )}
-                                </button>
-                                <button
-                                  onClick={() => handleRechazar(comentario.id)}
-                                  disabled={procesando === comentario.id}
-                                  className="p-2 text-orange-600 bg-orange-50 dark:text-orange-400 dark:bg-white/10 rounded-lg transition-colors hover:bg-orange-100 dark:hover:bg-white/20 disabled:opacity-50"
-                                  title="Rechazar"
-                                >
-                                  {procesando === comentario.id ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                  ) : (
-                                    <XCircle className="h-4 w-4" />
-                                  )}
-                                </button>
-                              </>
+                            {/* Botón Aprobar - Visible si NO está aprobado */}
+                            {comentario.estado !== "aprobado" && (
+                              <button
+                                onClick={() => handleAprobar(comentario.id)}
+                                disabled={procesando === comentario.id}
+                                className="p-2 text-green-600 bg-green-50 dark:text-green-400 dark:bg-white/10 rounded-lg transition-colors hover:bg-green-100 dark:hover:bg-white/20 disabled:opacity-50"
+                                title="Aprobar comentario"
+                              >
+                                {procesando === comentario.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <CheckCircle className="h-4 w-4" />
+                                )}
+                              </button>
                             )}
+
+                            {/* Botón Rechazar - Visible si NO está rechazado */}
+                            {comentario.estado !== "rechazado" && (
+                              <button
+                                onClick={() => handleRechazar(comentario.id)}
+                                disabled={procesando === comentario.id}
+                                className="p-2 text-orange-600 bg-orange-50 dark:text-orange-400 dark:bg-white/10 rounded-lg transition-colors hover:bg-orange-100 dark:hover:bg-white/20 disabled:opacity-50"
+                                title="Rechazar comentario"
+                              >
+                                {procesando === comentario.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <XCircle className="h-4 w-4" />
+                                )}
+                              </button>
+                            )}
+
+                            {/* Botón Ver - Siempre visible */}
+                            <button
+                              onClick={() => {
+                                setComentarioVer(comentario);
+                                setModalVer(true);
+                              }}
+                              className="p-2 text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-white/10 rounded-lg transition-colors hover:bg-blue-100 dark:hover:bg-white/20"
+                              title="Ver detalles"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </button>
+
+                            {/* Botón Eliminar - Siempre visible */}
                             <button
                               onClick={() => {
                                 setComentarioEliminar(comentario);
                                 setModalEliminar(true);
                               }}
                               className="p-2 text-red-600 bg-red-50 dark:text-red-400 dark:bg-white/10 rounded-lg transition-colors hover:bg-red-100 dark:hover:bg-white/20"
-                              title="Eliminar"
+                              title="Eliminar comentario"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -501,10 +518,35 @@ const ComentariosAdminPage = () => {
               </div>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-6 flex gap-3">
+              {/* Botones de acción rápida en el modal */}
+              {comentarioVer.estado !== "aprobado" && (
+                <button
+                  onClick={() => {
+                    handleAprobar(comentarioVer.id);
+                    setModalVer(false);
+                  }}
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  Aprobar
+                </button>
+              )}
+              {comentarioVer.estado !== "rechazado" && (
+                <button
+                  onClick={() => {
+                    handleRechazar(comentarioVer.id);
+                    setModalVer(false);
+                  }}
+                  className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <XCircle className="h-4 w-4" />
+                  Rechazar
+                </button>
+              )}
               <button
                 onClick={() => setModalVer(false)}
-                className="w-full px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors"
+                className="flex-1 px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors"
               >
                 Cerrar
               </button>
