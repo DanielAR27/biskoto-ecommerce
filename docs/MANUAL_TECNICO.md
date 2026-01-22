@@ -962,12 +962,12 @@ USING (
 
 **Casos de uso críticos:**
 
-1. ✅ Usuario puede realizar pedido completo
-2. ✅ Admin puede gestionar inventario
-3. ✅ Sistema previene sobreventa
-4. ✅ Cupones se aplican correctamente
-5. ✅ Dashboard muestra métricas correctas
-6. ✅ Comentarios se moderan correctamente
+1. Usuario puede realizar pedido completo
+2. Admin puede gestionar inventario
+3. Sistema previene sobreventa
+4. Cupones se aplican correctamente
+5. Dashboard muestra métricas correctas
+6. Comentarios se moderan correctamente
 
 ---
 
