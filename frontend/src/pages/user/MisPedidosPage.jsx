@@ -113,7 +113,6 @@ const MisPedidosPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-        <Navbar />
         <div className="flex items-center justify-center h-[calc(100vh-80px)]">
           <Loader2 className="h-10 w-10 text-biskoto animate-spin" />
         </div>
@@ -123,8 +122,6 @@ const MisPedidosPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-      <Navbar />
-
       <main className="max-w-5xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -182,7 +179,7 @@ const MisPedidosPage = () => {
               // Obtener primera imagen del primer producto
               const primeraImagen =
                 pedido.detalle_pedidos?.[0]?.productos?.producto_imagenes?.find(
-                  (img) => img.es_principal
+                  (img) => img.es_principal,
                 )?.url ||
                 pedido.detalle_pedidos?.[0]?.productos?.producto_imagenes?.[0]
                   ?.url;
@@ -191,7 +188,7 @@ const MisPedidosPage = () => {
               const totalItems =
                 pedido.detalle_pedidos?.reduce(
                   (sum, item) => sum + item.cantidad,
-                  0
+                  0,
                 ) || 0;
 
               return (

@@ -150,7 +150,6 @@ const DashboardPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
-        <Navbar />
         <div className="flex items-center justify-center h-screen">
           <Loader2 className="h-12 w-12 animate-spin text-biskoto" />
         </div>
@@ -160,8 +159,6 @@ const DashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
-      <Navbar />
-
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">

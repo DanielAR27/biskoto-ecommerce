@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import Navbar from '../../../components/Navbar';
-import CategoriaForm from '../../../components/admin/CategoriaForm'; 
-import * as categoriaService from '../../../api/categoriaService';
-import { LayoutGrid, ArrowLeft } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import Navbar from "../../../components/Navbar";
+import CategoriaForm from "../../../components/admin/CategoriaForm";
+import * as categoriaService from "../../../api/categoriaService";
+import { LayoutGrid, ArrowLeft } from "lucide-react";
 
 /**
  * Página de Creación de Categorías.
@@ -11,7 +11,7 @@ import { LayoutGrid, ArrowLeft } from 'lucide-react';
  */
 const CrearCategoriaPage = () => {
   const navigate = useNavigate();
-  
+
   // Estados para controlar la carga y los errores de la solicitud
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -24,15 +24,19 @@ const CrearCategoriaPage = () => {
     try {
       // Solicita la creación de la categoría al servicio backend
       await categoriaService.createCategoria(formData);
-      
+
       // Redirige al listado y envía un mensaje de éxito mediante el estado de navegación
-      navigate('/admin/categorias', { 
-        state: { successMessage: 'Se ha creado una nueva categoría correctamente.' } 
+      navigate("/admin/categorias", {
+        state: {
+          successMessage: "Se ha creado una nueva categoría correctamente.",
+        },
       });
-      
     } catch (err) {
       // Gestiona los errores retornados por la API o excepciones de red
-      const msg = err.response?.data?.error || err.message || 'Error al crear la categoría.';
+      const msg =
+        err.response?.data?.error ||
+        err.message ||
+        "Error al crear la categoría.";
       setError(msg);
     } finally {
       setLoading(false);
@@ -41,14 +45,11 @@ const CrearCategoriaPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
-      <Navbar />
-
       <main className="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        
         {/* Encabezado de la página con navegación de retorno */}
         <div className="mb-8">
-          <Link 
-            to="/admin/categorias" 
+          <Link
+            to="/admin/categorias"
             className="flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors mb-2"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
@@ -62,13 +63,12 @@ const CrearCategoriaPage = () => {
         </div>
 
         {/* Renderiza el formulario reutilizable sin datos iniciales para el modo de creación */}
-        <CategoriaForm 
-          onSubmit={handleCreate} 
+        <CategoriaForm
+          onSubmit={handleCreate}
           loading={loading}
           error={error}
           buttonText="Crear Categoría"
         />
-
       </main>
     </div>
   );

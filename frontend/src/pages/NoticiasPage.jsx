@@ -12,7 +12,7 @@ import {
   Save,
 } from "lucide-react";
 
-import Navbar from "../components/Navbar";
+//import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import { getNoticias, crearNoticia } from "../api/noticiaService";
 /**
@@ -131,7 +131,7 @@ const NoticiasPage = () => {
     // Filtro por categoría
     if (categoriaSeleccionada !== "todas") {
       resultado = resultado.filter(
-        (n) => n.categoria === categoriaSeleccionada
+        (n) => n.categoria === categoriaSeleccionada,
       );
     }
 
@@ -142,7 +142,7 @@ const NoticiasPage = () => {
         (n) =>
           n.titulo.toLowerCase().includes(term) ||
           n.extracto?.toLowerCase().includes(term) ||
-          n.contenido.toLowerCase().includes(term)
+          n.contenido.toLowerCase().includes(term),
       );
     }
 
@@ -163,7 +163,6 @@ const NoticiasPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-        <Navbar />
         <div className="flex items-center justify-center h-[calc(100vh-80px)]">
           <Loader2 className="h-10 w-10 text-biskoto animate-spin" />
         </div>
@@ -173,8 +172,6 @@ const NoticiasPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-      <Navbar />
-
       <main className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 flex justify-between items-start">

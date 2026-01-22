@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import AdminRoute from "./components/AdminRoute";
-import CartDrawer from "./components/CartDrawer";
+import Layout from "./components/Layout";
 
 // Páginas de Autenticación
 import LoginPage from "./pages/auth/LoginPage";
@@ -23,7 +23,6 @@ import MisPedidosPage from "./pages/user/MisPedidosPage";
 import DetallePedidoPage from "./pages/user/DetallePedidoPage";
 
 // Páginas de Administración
-
 // Categorias
 import CategoriasPage from "./pages/admin/categorias/CategoriasPage";
 import CrearCategoriaPage from "./pages/admin/categorias/CrearCategoriaPage";
@@ -103,171 +102,141 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Rutas Públicas de Autenticación (Redirigen a Home si ya hay sesión) */}
-        <Route
-          path="/login"
-          element={user ? <Navigate to="/home" /> : <LoginPage />}
-        />
-        <Route
-          path="/registro"
-          element={user ? <Navigate to="/home" /> : <RegisterPage />}
-        />
-        <Route path="/recuperar-password" element={<ForgotPasswordPage />} />
-        <Route path="/actualizar-password" element={<UpdatePasswordPage />} />
-        {/* Ruta Pública Principal (Catálogo visible para todos) */}
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/producto/:id" element={<ProductDetailPage />} />
-        {/* Rutas Privadas de Usuario (Requieren Login) */}
-        <Route
-          path="/perfil"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/checkout"
-          element={
-            <ProtectedRoute>
-              <CheckoutPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/perfil"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/checkout"
-          element={
-            <ProtectedRoute>
-              <CheckoutPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/mis-pedidos"
-          element={
-            <ProtectedRoute>
-              <MisPedidosPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/pedido/:id"
-          element={
-            <ProtectedRoute>
-              <DetallePedidoPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/noticias" element={<NoticiasPage />} />
-        <Route path="/noticias/:id" element={<NoticiaDetailPage />} />
-        <Route path="/nosotros" element={<NosotrosPage />} />
-        <Route path="/contacto" element={<ContactoPage />} />
-        {/* Rutas de Administración Protegidas por AdminRoute */}
-        <Route element={<AdminRoute />}>
-          <Route path="/admin/categorias" element={<CategoriasPage />} />
+        {/* Layout global: Navbar + Footer + CartDrawer en todas las páginas */}
+        <Route element={<Layout />}>
+          {/* Rutas Públicas de Autenticación (Redirigen a Home si ya hay sesión) */}
           <Route
-            path="/admin/categorias/nueva"
-            element={<CrearCategoriaPage />}
+            path="/login"
+            element={user ? <Navigate to="/home" /> : <LoginPage />}
           />
           <Route
-            path="/admin/categorias/editar/:id"
-            element={<EditarCategoriaPage />}
+            path="/registro"
+            element={user ? <Navigate to="/home" /> : <RegisterPage />}
           />
+          <Route path="/recuperar-password" element={<ForgotPasswordPage />} />
+          <Route path="/actualizar-password" element={<UpdatePasswordPage />} />
 
-          <Route path="/admin/productos" element={<ProductosPage />} />
-          <Route
-            path="/admin/productos/nuevo"
-            element={<CrearProductoPage />}
-          />
-          <Route
-            path="/admin/productos/editar/:id"
-            element={<EditarProductoPage />}
-          />
+          {/* Rutas Públicas */}
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/producto/:id" element={<ProductDetailPage />} />
+          <Route path="/noticias" element={<NoticiasPage />} />
+          <Route path="/noticias/:id" element={<NoticiaDetailPage />} />
+          <Route path="/nosotros" element={<NosotrosPage />} />
+          <Route path="/contacto" element={<ContactoPage />} />
 
-          <Route path="/admin/ingredientes" element={<IngredientesPage />} />
+          {/* Rutas Privadas de Usuario (Requieren Login) */}
           <Route
-            path="/admin/ingredientes/nuevo"
-            element={<CrearIngredientePage />}
-          />
-          <Route
-            path="/admin/ingredientes/editar/:id"
-            element={<EditarIngredientePage />}
-          />
-
-          <Route path="/admin/cupones" element={<CuponesPage />} />
-          <Route path="/admin/cupones/nuevo" element={<CrearCuponPage />} />
-          <Route
-            path="/admin/cupones/editar/:id"
-            element={<EditarCuponPage />}
-          />
-
-          <Route path="/admin/usuarios" element={<UsuariosPage />} />
-          <Route
-            path="/admin/usuarios/editar/:id"
-            element={<EditarUsuarioPage />}
-          />
-
-          <Route path="/admin/proveedores" element={<ProveedoresPage />} />
-          <Route
-            path="/admin/proveedores/nuevo"
-            element={<CrearProveedorPage />}
-          />
-          <Route
-            path="/admin/proveedores/editar/:id"
-            element={<EditarProveedorPage />}
-          />
-
-          <Route
-            path="/admin/pedidos"
+            path="/perfil"
             element={
-              <AdminRoute>
-                <PedidosAdminPage />
-              </AdminRoute>
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
             }
           />
           <Route
-            path="/admin/noticias"
+            path="/checkout"
             element={
-              <AdminRoute>
-                <NoticiasAdminPage />
-              </AdminRoute>
+              <ProtectedRoute>
+                <CheckoutPage />
+              </ProtectedRoute>
             }
           />
           <Route
-            path="/admin/comentarios"
+            path="/mis-pedidos"
             element={
-              <AdminRoute>
-                <ComentariosAdminPage />
-              </AdminRoute>
+              <ProtectedRoute>
+                <MisPedidosPage />
+              </ProtectedRoute>
             }
           />
           <Route
-            path="/admin/dashboard"
+            path="/pedido/:id"
             element={
-              <ProtectedRoute requiredRole="admin">
-                <DashboardPage />
+              <ProtectedRoute>
+                <DetallePedidoPage />
               </ProtectedRoute>
             }
           />
 
-          <Route path="/admin/compras" element={<ComprasPage />} />
-          <Route path="/admin/compras/nueva" element={<CrearCompraPage />} />
-          <Route path="/admin/compras/:id" element={<ConsultarCompraPage />} />
-        </Route>
-        {/* Gestión de redirecciones predeterminadas */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+          {/* Rutas de Administración Protegidas por AdminRoute */}
+          <Route element={<AdminRoute />}>
+            <Route path="/admin/categorias" element={<CategoriasPage />} />
+            <Route
+              path="/admin/categorias/nueva"
+              element={<CrearCategoriaPage />}
+            />
+            <Route
+              path="/admin/categorias/editar/:id"
+              element={<EditarCategoriaPage />}
+            />
 
-      <CartDrawer />
+            <Route path="/admin/productos" element={<ProductosPage />} />
+            <Route
+              path="/admin/productos/nuevo"
+              element={<CrearProductoPage />}
+            />
+            <Route
+              path="/admin/productos/editar/:id"
+              element={<EditarProductoPage />}
+            />
+
+            <Route path="/admin/ingredientes" element={<IngredientesPage />} />
+            <Route
+              path="/admin/ingredientes/nuevo"
+              element={<CrearIngredientePage />}
+            />
+            <Route
+              path="/admin/ingredientes/editar/:id"
+              element={<EditarIngredientePage />}
+            />
+
+            <Route path="/admin/cupones" element={<CuponesPage />} />
+            <Route path="/admin/cupones/nuevo" element={<CrearCuponPage />} />
+            <Route
+              path="/admin/cupones/editar/:id"
+              element={<EditarCuponPage />}
+            />
+
+            <Route path="/admin/usuarios" element={<UsuariosPage />} />
+            <Route
+              path="/admin/usuarios/editar/:id"
+              element={<EditarUsuarioPage />}
+            />
+
+            <Route path="/admin/proveedores" element={<ProveedoresPage />} />
+            <Route
+              path="/admin/proveedores/nuevo"
+              element={<CrearProveedorPage />}
+            />
+            <Route
+              path="/admin/proveedores/editar/:id"
+              element={<EditarProveedorPage />}
+            />
+
+            {/* OJO: ya estás dentro de AdminRoute, no hace falta envolver de nuevo */}
+            <Route path="/admin/pedidos" element={<PedidosAdminPage />} />
+            <Route path="/admin/noticias" element={<NoticiasAdminPage />} />
+            <Route
+              path="/admin/comentarios"
+              element={<ComentariosAdminPage />}
+            />
+
+            {/* Si DashboardPage solo es admin, AdminRoute ya lo cubre */}
+            <Route path="/admin/dashboard" element={<DashboardPage />} />
+
+            <Route path="/admin/compras" element={<ComprasPage />} />
+            <Route path="/admin/compras/nueva" element={<CrearCompraPage />} />
+            <Route
+              path="/admin/compras/:id"
+              element={<ConsultarCompraPage />}
+            />
+          </Route>
+
+          {/* Redirecciones */}
+          <Route path="/" element={<Navigate to="/home" />} />
+          <Route path="*" element={<Navigate to="/home" />} />
+        </Route>
+      </Routes>
     </Router>
   );
 }

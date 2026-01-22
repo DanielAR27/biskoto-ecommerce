@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
-import Navbar from "../../components/Navbar";
+//import Navbar from "../../components/Navbar";
 import { getProductosCatalogo } from "../../api/productoService";
 import { getCategoriasActivas } from "../../api/categoriaService";
 import {
@@ -183,8 +183,6 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
-      <Navbar />
-
       {/* Header / Hero Section */}
       <div className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -289,7 +287,7 @@ const HomePage = () => {
                           newParams.categorias = categoriasFiltro.join(",");
                         setSearchParams(newParams);
                         const searchInput = document.querySelector(
-                          'input[name="search"]'
+                          'input[name="search"]',
                         );
                         if (searchInput) searchInput.value = "";
                       }}
@@ -379,13 +377,13 @@ const HomePage = () => {
 
                       const stockIng = pi.ingredientes?.stock_actual || 0;
                       return Math.floor(
-                        stockIng / (pi.cantidad_necesaria || 1)
+                        stockIng / (pi.cantidad_necesaria || 1),
                       );
                     });
 
                   stockDisponible = Math.min(
                     stockDisponible,
-                    ...limitesIngredientes
+                    ...limitesIngredientes,
                   );
                 }
 

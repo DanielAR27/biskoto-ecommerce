@@ -1,24 +1,24 @@
-import { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import Navbar from '../../../components/Navbar';
-import * as ingredienteService from '../../../api/ingredienteService';
+import { useState, useEffect } from "react";
+import { useLocation, Link } from "react-router-dom";
+import Navbar from "../../../components/Navbar";
+import * as ingredienteService from "../../../api/ingredienteService";
 
 // Componentes Reutilizables
-import ToastNotification from '../../../components/ToastNotification';
-import ConfirmModal from '../../../components/ConfirmModal';
-import TableSearch from '../../../components/TableSearch';
-import StatusBadge from '../../../components/StatusBadge';
-import TableActions from '../../../components/TableActions';
+import ToastNotification from "../../../components/ToastNotification";
+import ConfirmModal from "../../../components/ConfirmModal";
+import TableSearch from "../../../components/TableSearch";
+import StatusBadge from "../../../components/StatusBadge";
+import TableActions from "../../../components/TableActions";
 
 // Iconos
-import { Plus, ClipboardList, Loader2, AlertTriangle } from 'lucide-react';
+import { Plus, ClipboardList, Loader2, AlertTriangle } from "lucide-react";
 
 const IngredientesPage = () => {
   const location = useLocation();
-  
+
   // Estados de datos
   const [ingredientes, setIngredientes] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Estados de UI
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,7 @@ const IngredientesPage = () => {
 
   // Estados del Modal
   const [ingredienteToDelete, setIngredienteToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false); 
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     cargarIngredientes();
@@ -35,7 +35,7 @@ const IngredientesPage = () => {
 
   useEffect(() => {
     if (location.state?.successMessage) {
-      showNotification('success', location.state.successMessage);
+      showNotification("success", location.state.successMessage);
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -53,7 +53,7 @@ const IngredientesPage = () => {
       setError(null);
     } catch (err) {
       console.error(err);
-      setError('No se pudieron cargar los ingredientes.');
+      setError("No se pudieron cargar los ingredientes.");
     } finally {
       setLoading(false);
     }
@@ -65,34 +65,40 @@ const IngredientesPage = () => {
 
   const confirmDelete = async () => {
     if (!ingredienteToDelete) return;
-    
+
     setIsDeleting(true);
     try {
       await ingredienteService.deleteIngrediente(ingredienteToDelete.id);
-      setIngredientes(prev => prev.filter(ing => ing.id !== ingredienteToDelete.id));
-      showNotification('success', `El ingrediente "${ingredienteToDelete.nombre}" ha sido eliminado.`);
-      setIngredienteToDelete(null); 
+      setIngredientes((prev) =>
+        prev.filter((ing) => ing.id !== ingredienteToDelete.id),
+      );
+      showNotification(
+        "success",
+        `El ingrediente "${ingredienteToDelete.nombre}" ha sido eliminado.`,
+      );
+      setIngredienteToDelete(null);
     } catch (err) {
-      const msg = err.response?.data?.error || 'No se pudo eliminar el ingrediente.';
-      showNotification('error', msg);
-      setIngredienteToDelete(null); 
+      const msg =
+        err.response?.data?.error || "No se pudo eliminar el ingrediente.";
+      showNotification("error", msg);
+      setIngredienteToDelete(null);
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const ingredientesFiltrados = ingredientes.filter((ing) => 
-    ing.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    // Buscamos en la abreviatura o nombre de la relación
-    ing.unidades_medida?.abreviatura.toLowerCase().includes(searchTerm.toLowerCase())
+  const ingredientesFiltrados = ingredientes.filter(
+    (ing) =>
+      ing.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      // Buscamos en la abreviatura o nombre de la relación
+      ing.unidades_medida?.abreviatura
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()),
   );
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300 relative">
-      <Navbar />
-
       <main className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        
         {/* Encabezado Responsivo */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
           <div className="flex-1 min-w-0">
@@ -117,7 +123,7 @@ const IngredientesPage = () => {
 
         {/* Notificación Toast Reutilizable */}
         {notification && (
-          <ToastNotification 
+          <ToastNotification
             type={notification.type}
             message={notification.text}
             onClose={() => setNotification(null)}
@@ -125,9 +131,9 @@ const IngredientesPage = () => {
         )}
 
         {/* Barra de Búsqueda Reutilizable */}
-        <TableSearch 
-          searchTerm={searchTerm} 
-          setSearchTerm={setSearchTerm} 
+        <TableSearch
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
           resultCount={ingredientesFiltrados.length}
           placeholder="Buscar ingrediente..."
         />
@@ -137,22 +143,28 @@ const IngredientesPage = () => {
           <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
               <div className="shadow overflow-hidden border-b border-gray-200 dark:border-slate-700 sm:rounded-b-xl bg-white dark:bg-slate-800 transition-colors duration-300">
-                
                 {loading ? (
                   <div className="flex flex-col items-center justify-center py-20">
                     <Loader2 className="h-10 w-10 text-biskoto animate-spin mb-4" />
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">Cargando inventario...</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      Cargando inventario...
+                    </p>
                   </div>
                 ) : error ? (
                   <div className="p-10 text-center text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/10">
                     <p>{error}</p>
-                    <button onClick={cargarIngredientes} className="mt-4 text-biskoto hover:underline font-medium">Reintentar</button>
+                    <button
+                      onClick={cargarIngredientes}
+                      className="mt-4 text-biskoto hover:underline font-medium"
+                    >
+                      Reintentar
+                    </button>
                   </div>
                 ) : ingredientesFiltrados.length === 0 ? (
                   <div className="p-10 text-center text-gray-500 dark:text-gray-400">
                     <p>
-                      {searchTerm 
-                        ? `No se encontraron ingredientes que coincidan con "${searchTerm}".` 
+                      {searchTerm
+                        ? `No se encontraron ingredientes que coincidan con "${searchTerm}".`
                         : "No hay ingredientes registrados en el inventario."}
                     </p>
                   </div>
@@ -178,7 +190,10 @@ const IngredientesPage = () => {
                     </thead>
                     <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
                       {ingredientesFiltrados.map((ing) => (
-                        <tr key={ing.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
+                        <tr
+                          key={ing.id}
+                          className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
+                        >
                           <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               {/* Avatar responsivo */}
@@ -198,33 +213,43 @@ const IngredientesPage = () => {
                           </td>
                           {/* Columna Unidad oculta en móvil */}
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 hidden sm:table-cell">
-                            {ing.unidades_medida?.nombre} ({ing.unidades_medida?.abreviatura})
+                            {ing.unidades_medida?.nombre} (
+                            {ing.unidades_medida?.abreviatura})
                           </td>
                           <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
                             {ing.es_ilimitado ? (
                               // CASO ILIMITADO: Badge azul o neutro con símbolo infinito
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                <span className="text-lg leading-none mr-1">∞</span> Ilimitado
+                                <span className="text-lg leading-none mr-1">
+                                  ∞
+                                </span>{" "}
+                                Ilimitado
                               </span>
                             ) : (
                               // CASO NORMAL: Lógica de StatusBadge existente
-                              <StatusBadge 
+                              <StatusBadge
                                 variant={
-                                  ing.stock_actual < 0 ? 'error' : 
-                                  ing.stock_actual === 0 ? 'warning' : 
-                                  ing.stock_actual <= 5 ? 'info' : 'success'
+                                  ing.stock_actual < 0
+                                    ? "error"
+                                    : ing.stock_actual === 0
+                                      ? "warning"
+                                      : ing.stock_actual <= 5
+                                        ? "info"
+                                        : "success"
                                 }
                               >
                                 <span className="flex items-center justify-center gap-1">
-                                  {ing.stock_actual < 0 && <AlertTriangle className="h-3 w-3 animate-pulse" />}
+                                  {ing.stock_actual < 0 && (
+                                    <AlertTriangle className="h-3 w-3 animate-pulse" />
+                                  )}
                                   {ing.stock_actual}
                                 </span>
                               </StatusBadge>
                             )}
                           </td>
                           <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <TableActions 
-                              editLink={`/admin/ingredientes/editar/${ing.id}`} 
+                            <TableActions
+                              editLink={`/admin/ingredientes/editar/${ing.id}`}
                               onDelete={() => handleDeleteClick(ing)}
                               deleteTitle="Eliminar ingrediente"
                             />
@@ -250,8 +275,13 @@ const IngredientesPage = () => {
         message={
           ingredienteToDelete && (
             <>
-              Estás a punto de eliminar el ingrediente <span className="font-bold text-gray-800 dark:text-gray-200">"{ingredienteToDelete.nombre}"</span>.
-              <br className="hidden sm:block"/>¿Estás seguro de que quieres continuar?
+              Estás a punto de eliminar el ingrediente{" "}
+              <span className="font-bold text-gray-800 dark:text-gray-200">
+                "{ingredienteToDelete.nombre}"
+              </span>
+              .
+              <br className="hidden sm:block" />
+              ¿Estás seguro de que quieres continuar?
             </>
           )
         }

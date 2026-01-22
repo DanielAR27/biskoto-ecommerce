@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import Navbar from '../../../components/Navbar';
-import CuponForm from '../../../components/admin/CuponForm';
-import * as cuponService from '../../../api/cuponService';
-import { Ticket, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import Navbar from "../../../components/Navbar";
+import CuponForm from "../../../components/admin/CuponForm";
+import * as cuponService from "../../../api/cuponService";
+import { Ticket, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 
 /**
  * Página de Edición de Cupones.
@@ -12,7 +12,7 @@ import { Ticket, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 const EditarCuponPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   // El desarrollador define los estados para el manejo de datos asíncronos
   const [cupon, setCupon] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -33,7 +33,7 @@ const EditarCuponPage = () => {
       setCupon(data);
     } catch (err) {
       console.error(err);
-      setError('No se pudo cargar la información del cupón.');
+      setError("No se pudo cargar la información del cupón.");
     } finally {
       setLoading(false);
     }
@@ -46,17 +46,18 @@ const EditarCuponPage = () => {
     try {
       // Se envía la petición de actualización al servicio
       await cuponService.updateCupon(id, formData);
-      
+
       // El desarrollador redirige al listado con un mensaje de feedback positivo
-      navigate('/admin/cupones', {
-        state: { successMessage: 'Cupón actualizado correctamente.' }
+      navigate("/admin/cupones", {
+        state: { successMessage: "Cupón actualizado correctamente." },
       });
-      
     } catch (err) {
       console.error("Error update:", err);
       // Se extrae el mensaje de error específico si el backend lo provee (ej. código duplicado)
-      const msg = err.response?.data?.error || 'Ocurrió un error inesperado al actualizar.';
-      setError(msg); 
+      const msg =
+        err.response?.data?.error ||
+        "Ocurrió un error inesperado al actualizar.";
+      setError(msg);
     } finally {
       setSaving(false);
     }
@@ -64,20 +65,17 @@ const EditarCuponPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
-      <Navbar />
-
       <main className="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        
         {/* Encabezado con navegación de retorno */}
         <div className="mb-8">
-          <Link 
-            to="/admin/cupones" 
+          <Link
+            to="/admin/cupones"
             className="flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-biskoto dark:hover:text-white transition-colors mb-4 group"
           >
             <ArrowLeft className="h-4 w-4 mr-2 transform group-hover:-translate-x-1 transition-transform" />
             Volver al listado
           </Link>
-          
+
           <div className="flex items-center gap-4">
             <div className="p-3 bg-biskoto/10 rounded-2xl border border-biskoto/20">
               <Ticket className="h-8 w-8 text-biskoto" />
@@ -98,7 +96,9 @@ const EditarCuponPage = () => {
           // Estado de Carga
           <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700">
             <Loader2 className="h-10 w-10 text-biskoto animate-spin mb-4" />
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Cargando datos del cupón...</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              Cargando datos del cupón...
+            </p>
           </div>
         ) : error && !cupon ? (
           // Estado de Error Crítico
@@ -106,9 +106,11 @@ const EditarCuponPage = () => {
             <div className="inline-flex p-3 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 mb-4">
               <AlertCircle className="h-8 w-8" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Error de Carga</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              Error de Carga
+            </h3>
             <p className="text-gray-500 dark:text-gray-400 mb-6">{error}</p>
-            <button 
+            <button
               onClick={cargarDatos}
               className="px-4 py-2 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
             >
@@ -117,15 +119,14 @@ const EditarCuponPage = () => {
           </div>
         ) : (
           // Formulario de Edición con datos precargados
-          <CuponForm 
-            initialData={cupon} 
-            onSubmit={handleUpdate} 
+          <CuponForm
+            initialData={cupon}
+            onSubmit={handleUpdate}
             loading={saving}
             error={error}
             buttonText="Guardar Cambios"
           />
         )}
-
       </main>
     </div>
   );

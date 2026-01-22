@@ -29,8 +29,6 @@ const ContactoPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
-      <Navbar />
-
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-biskoto via-biskoto-700 to-biskoto-900 dark:from-biskoto-900 dark:via-slate-900 dark:to-slate-950 text-white overflow-hidden">
         {/* Patrón decorativo */}
@@ -256,8 +254,6 @@ const ContactoPage = () => {
           </a>
         </motion.section>
       </main>
-
-      <Footer />
     </div>
   );
 };

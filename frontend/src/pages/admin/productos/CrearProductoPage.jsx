@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import Navbar from '../../../components/Navbar';
-import ProductoForm from '../../../components/admin/ProductoForm';
-import { createProducto } from '../../../api/productoService';
-import { Package, ArrowLeft } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import Navbar from "../../../components/Navbar";
+import ProductoForm from "../../../components/admin/ProductoForm";
+import { createProducto } from "../../../api/productoService";
+import { Package, ArrowLeft } from "lucide-react";
 
 /**
  * Página para el registro de nuevos productos.
@@ -22,17 +22,22 @@ const CrearProductoPage = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Enviamos la petición al endpoint de creación
       await createProducto(formData);
-      
+
       // Redirección con mensaje de éxito para que ProductosPage lo muestre
-      navigate('/admin/productos', { 
-        state: { successMessage: `El producto "${formData.nombre}" ha sido creado exitosamente.` } 
+      navigate("/admin/productos", {
+        state: {
+          successMessage: `El producto "${formData.nombre}" ha sido creado exitosamente.`,
+        },
       });
     } catch (err) {
       console.error("Error al crear el producto:", err);
-      setError(err.response?.data?.error || 'No se pudo registrar el producto en la base de datos.');
+      setError(
+        err.response?.data?.error ||
+          "No se pudo registrar el producto en la base de datos.",
+      );
     } finally {
       setLoading(false);
     }
@@ -40,19 +45,17 @@ const CrearProductoPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
-      <Navbar />
-      
       <main className="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         {/* Navegación de regreso */}
         <div className="mb-8">
-          <Link 
-            to="/admin/productos" 
+          <Link
+            to="/admin/productos"
             className="flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-biskoto dark:hover:text-white transition-colors mb-4 group"
           >
             <ArrowLeft className="h-4 w-4 mr-2 transform group-hover:-translate-x-1 transition-transform" />
             Volver al listado
           </Link>
-          
+
           <div className="flex items-center gap-4">
             <div className="p-3 bg-biskoto/10 rounded-2xl">
               <Package className="h-8 w-8 text-biskoto" />
@@ -62,17 +65,18 @@ const CrearProductoPage = () => {
                 Nuevo Producto
               </h1>
               <p className="text-gray-500 dark:text-gray-400">
-                Completa la información técnica y sube las fotos para el catálogo.
+                Completa la información técnica y sube las fotos para el
+                catálogo.
               </p>
             </div>
           </div>
         </div>
 
         {/* Formulario con lógica de imágenes integrada */}
-        <ProductoForm 
-          onSubmit={handleCreate} 
-          loading={loading} 
-          error={error} 
+        <ProductoForm
+          onSubmit={handleCreate}
+          loading={loading}
+          error={error}
           buttonText="Crear Producto"
         />
       </main>

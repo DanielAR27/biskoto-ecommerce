@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import Navbar from '../../../components/Navbar';
-import ProductoForm from '../../../components/admin/ProductoForm';
-import { getProducto, updateProducto } from '../../../api/productoService'; 
-import { Package, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import Navbar from "../../../components/Navbar";
+import ProductoForm from "../../../components/admin/ProductoForm";
+import { getProducto, updateProducto } from "../../../api/productoService";
+import { Package, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 
 const EditarProductoPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const [producto, setProducto] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -20,9 +20,9 @@ const EditarProductoPage = () => {
         setLoading(true);
         setError(null);
         const data = await getProducto(id);
-        
+
         // CORRECCIÓN TÉCNICA: Aseguramos que la data esté limpia para el formulario.
-        // Si el backend devuelve unidades_medida como objeto, el formulario 
+        // Si el backend devuelve unidades_medida como objeto, el formulario
         // lo gestionará, pero aquí garantizamos que el objeto exista.
         setProducto(data);
       } catch (err) {
@@ -39,15 +39,20 @@ const EditarProductoPage = () => {
     try {
       setSubmitting(true);
       setError(null);
-      
+
       await updateProducto(id, formData);
-      
-      navigate('/admin/productos', { 
-        state: { successMessage: `El producto "${formData.nombre}" se actualizó correctamente.` } 
+
+      navigate("/admin/productos", {
+        state: {
+          successMessage: `El producto "${formData.nombre}" se actualizó correctamente.`,
+        },
       });
     } catch (err) {
       console.error("Error al actualizar:", err);
-      setError(err.response?.data?.error || 'Error al guardar los cambios en el servidor.');
+      setError(
+        err.response?.data?.error ||
+          "Error al guardar los cambios en el servidor.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -58,29 +63,36 @@ const EditarProductoPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col items-center justify-center">
         <Loader2 className="animate-spin text-biskoto h-12 w-12 mb-4" />
-        <p className="text-gray-500 dark:text-gray-400 font-medium">Sincronizando ficha técnica...</p>
+        <p className="text-gray-500 dark:text-gray-400 font-medium">
+          Sincronizando ficha técnica...
+        </p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
-      <Navbar />
-      
       <main className="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <Link to="/admin/productos" className="flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-biskoto mb-4 group w-fit">
+          <Link
+            to="/admin/productos"
+            className="flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-biskoto mb-4 group w-fit"
+          >
             <ArrowLeft className="h-4 w-4 mr-2 transform group-hover:-translate-x-1 transition-transform" />
             Volver al listado
           </Link>
-          
+
           <div className="flex items-center gap-4">
             <div className="p-3 bg-biskoto/10 rounded-2xl">
               <Package className="h-8 w-8 text-biskoto" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Editar Producto</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Modifica la información general y la receta del producto.</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Editar Producto
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Modifica la información general y la receta del producto.
+              </p>
             </div>
           </div>
         </div>
@@ -94,11 +106,11 @@ const EditarProductoPage = () => {
         )}
 
         {producto && (
-          <ProductoForm 
-            initialData={producto} 
-            onSubmit={handleUpdate} 
-            loading={submitting} 
-            error={error} 
+          <ProductoForm
+            initialData={producto}
+            onSubmit={handleUpdate}
+            loading={submitting}
+            error={error}
             buttonText="Guardar Cambios"
           />
         )}

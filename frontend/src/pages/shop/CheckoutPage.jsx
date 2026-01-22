@@ -139,7 +139,7 @@ const CheckoutPage = () => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ product_ids: productIds }),
-          }
+          },
         );
 
         const data = await response.json();
@@ -149,7 +149,7 @@ const CheckoutPage = () => {
           setPorcentajeAdelanto(data.porcentaje_adelanto); // ← USAR PORCENTAJE DEL BACKEND
           const totalConDescuento = total;
           const adelanto = Math.ceil(
-            totalConDescuento * (data.porcentaje_adelanto / 100)
+            totalConDescuento * (data.porcentaje_adelanto / 100),
           ); // ← USAR PORCENTAJE DINÁMICO
           setMontoAdelanto(adelanto);
           setMontoPendiente(totalConDescuento - adelanto);
@@ -242,7 +242,7 @@ const CheckoutPage = () => {
     if (datosEntrega.metodo_entrega === "express") {
       if (!datosEntrega.telefono_contacto || !datosEntrega.direccion_entrega) {
         setErrorCheckout(
-          "Por favor completa el teléfono y dirección para el envío express"
+          "Por favor completa el teléfono y dirección para el envío express",
         );
         return;
       }
@@ -278,11 +278,11 @@ const CheckoutPage = () => {
       // Manejar conflictos de stock
       if (error.response?.data?.conflictos) {
         setErrorCheckout(
-          "Algunos productos no tienen suficiente stock. Por favor actualiza tu carrito."
+          "Algunos productos no tienen suficiente stock. Por favor actualiza tu carrito.",
         );
       } else {
         setErrorCheckout(
-          error.response?.data?.error || "Error al procesar el pedido"
+          error.response?.data?.error || "Error al procesar el pedido",
         );
       }
     } finally {
@@ -350,7 +350,7 @@ const CheckoutPage = () => {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify({ fileName: nombreArchivo }),
-        }
+        },
       );
 
       if (!responseUrl.ok) {
@@ -387,7 +387,7 @@ const CheckoutPage = () => {
       console.error("Error al confirmar pago:", error);
       setErrorCheckout(
         error.response?.data?.error ||
-          "Error al procesar el comprobante. Por favor intenta nuevamente."
+          "Error al procesar el comprobante. Por favor intenta nuevamente.",
       );
     } finally {
       setSubiendoComprobante(false);
@@ -415,7 +415,7 @@ const CheckoutPage = () => {
     } catch (error) {
       console.error("Error al cancelar pedido:", error);
       setErrorCheckout(
-        "Error al cancelar el pedido. Por favor intenta nuevamente."
+        "Error al cancelar el pedido. Por favor intenta nuevamente.",
       );
     } finally {
       setCancelando(false);
@@ -424,8 +424,6 @@ const CheckoutPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-      <Navbar />
-
       <main className="max-w-5xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">

@@ -1,19 +1,17 @@
-import { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import Navbar from '../../../components/Navbar';
-import * as cuponService from '../../../api/cuponService';
+import { useState, useEffect } from "react";
+import { useLocation, Link } from "react-router-dom";
+import Navbar from "../../../components/Navbar";
+import * as cuponService from "../../../api/cuponService";
 
 // Importación de componentes reutilizables para estandarizar la UI
-import ToastNotification from '../../../components/ToastNotification';
-import ConfirmModal from '../../../components/ConfirmModal';
-import TableSearch from '../../../components/TableSearch';
-import StatusBadge from '../../../components/StatusBadge';
-import TableActions from '../../../components/TableActions';
+import ToastNotification from "../../../components/ToastNotification";
+import ConfirmModal from "../../../components/ConfirmModal";
+import TableSearch from "../../../components/TableSearch";
+import StatusBadge from "../../../components/StatusBadge";
+import TableActions from "../../../components/TableActions";
 
 // Iconos específicos para la lógica de visualización de cupones
-import { 
-  Plus, Ticket, Loader2, Calendar, Percent 
-} from 'lucide-react';
+import { Plus, Ticket, Loader2, Calendar, Percent } from "lucide-react";
 
 /**
  * Página de Gestión de Cupones.
@@ -21,10 +19,10 @@ import {
  */
 const CuponesPage = () => {
   const location = useLocation();
-  
+
   // Estado para almacenar el listado de cupones y el término de búsqueda
   const [cupones, setCupones] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Estados para controlar la interfaz de usuario (Carga, Errores y Notificaciones)
   const [loading, setLoading] = useState(true);
@@ -33,7 +31,7 @@ const CuponesPage = () => {
 
   // Estados para controlar el Modal de Eliminación
   const [cuponToDelete, setCuponToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false); 
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Carga inicial de datos al montar el componente
   useEffect(() => {
@@ -43,7 +41,7 @@ const CuponesPage = () => {
   // Detecta mensajes de éxito provenientes de otras rutas (ej. creación/edición)
   useEffect(() => {
     if (location.state?.successMessage) {
-      showNotification('success', location.state.successMessage);
+      showNotification("success", location.state.successMessage);
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -63,7 +61,7 @@ const CuponesPage = () => {
       setError(null);
     } catch (err) {
       console.error(err);
-      setError('No se pudieron cargar los cupones.');
+      setError("No se pudieron cargar los cupones.");
     } finally {
       setLoading(false);
     }
@@ -77,63 +75,63 @@ const CuponesPage = () => {
   // Ejecuta la eliminación tras la confirmación del usuario
   const confirmDelete = async () => {
     if (!cuponToDelete) return;
-    
+
     setIsDeleting(true);
     try {
       await cuponService.deleteCupon(cuponToDelete.id);
-      
-      setCupones(prev => prev.filter(c => c.id !== cuponToDelete.id));
-      
-      showNotification('success', `El cupón "${cuponToDelete.codigo}" ha sido eliminado.`);
-      setCuponToDelete(null); 
+
+      setCupones((prev) => prev.filter((c) => c.id !== cuponToDelete.id));
+
+      showNotification(
+        "success",
+        `El cupón "${cuponToDelete.codigo}" ha sido eliminado.`,
+      );
+      setCuponToDelete(null);
     } catch (err) {
-      const msg = err.response?.data?.error || 'No se pudo eliminar el cupón.';
-      showNotification('error', msg);
-      setCuponToDelete(null); 
+      const msg = err.response?.data?.error || "No se pudo eliminar el cupón.";
+      showNotification("error", msg);
+      setCuponToDelete(null);
     } finally {
       setIsDeleting(false);
     }
   };
 
-  // Helper para verificar si un cupón ha expirado por fecha 
+  // Helper para verificar si un cupón ha expirado por fecha
   const isExpired = (fechaExpiracion) => {
     if (!fechaExpiracion) return false;
-    
+
     // Desglosa la fecha para evitar conversiones de zona horaria automáticas
-    const [year, month, day] = fechaExpiracion.split('-').map(Number);
-    
+    const [year, month, day] = fechaExpiracion.split("-").map(Number);
+
     // Crea una fecha local y establece el final del día
     const exp = new Date(year, month - 1, day);
-    exp.setHours(23, 59, 59, 999); 
-    
+    exp.setHours(23, 59, 59, 999);
+
     // Compara con el instante actual
     return new Date() > exp;
   };
 
   // Determina la variante visual del badge según el estado del cupón
   const getStatusVariant = (vencido, inactivo) => {
-    if (vencido) return 'error';   // Rojo
-    if (inactivo) return 'default'; // Gris
-    return 'success';               // Verde
+    if (vencido) return "error"; // Rojo
+    if (inactivo) return "default"; // Gris
+    return "success"; // Verde
   };
 
   const getStatusText = (vencido, inactivo) => {
-    if (vencido) return 'Vencido';
-    if (inactivo) return 'Inactivo';
-    return 'Activo';
+    if (vencido) return "Vencido";
+    if (inactivo) return "Inactivo";
+    return "Activo";
   };
 
   // Filtra los cupones en tiempo real según el término de búsqueda
-  const cuponesFiltrados = cupones.filter((c) => 
-    c.codigo.toLowerCase().includes(searchTerm.toLowerCase())
+  const cuponesFiltrados = cupones.filter((c) =>
+    c.codigo.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300 relative">
-      <Navbar />
-
       <main className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        
         {/* Encabezado de la Sección */}
         <div className="md:flex md:items-center md:justify-between mb-8">
           <div className="flex-1 min-w-0">
@@ -158,17 +156,17 @@ const CuponesPage = () => {
 
         {/* Componente de Notificación (Toast) */}
         {notification && (
-          <ToastNotification 
-            type={notification.type} 
-            message={notification.text} 
-            onClose={() => setNotification(null)} 
+          <ToastNotification
+            type={notification.type}
+            message={notification.text}
+            onClose={() => setNotification(null)}
           />
         )}
 
         {/* Barra de Búsqueda y Filtrado */}
-        <TableSearch 
-          searchTerm={searchTerm} 
-          setSearchTerm={setSearchTerm} 
+        <TableSearch
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
           resultCount={cuponesFiltrados.length}
           placeholder="Buscar por código..."
         />
@@ -178,22 +176,28 @@ const CuponesPage = () => {
           <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
               <div className="shadow overflow-hidden border-b border-gray-200 dark:border-slate-700 sm:rounded-b-xl bg-white dark:bg-slate-800 transition-colors duration-300">
-                
                 {loading ? (
                   <div className="flex flex-col items-center justify-center py-20">
                     <Loader2 className="h-10 w-10 text-biskoto animate-spin mb-4" />
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">Cargando cupones...</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      Cargando cupones...
+                    </p>
                   </div>
                 ) : error ? (
                   <div className="p-10 text-center text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/10">
                     <p>{error}</p>
-                    <button onClick={cargarCupones} className="mt-4 text-biskoto hover:underline font-medium">Reintentar</button>
+                    <button
+                      onClick={cargarCupones}
+                      className="mt-4 text-biskoto hover:underline font-medium"
+                    >
+                      Reintentar
+                    </button>
                   </div>
                 ) : cuponesFiltrados.length === 0 ? (
                   <div className="p-10 text-center text-gray-500 dark:text-gray-400">
                     <p>
-                      {searchTerm 
-                        ? `No se encontraron cupones con el código "${searchTerm}".` 
+                      {searchTerm
+                        ? `No se encontraron cupones con el código "${searchTerm}".`
                         : "No hay cupones registrados en el sistema."}
                     </p>
                   </div>
@@ -201,21 +205,34 @@ const CuponesPage = () => {
                   <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
                     <thead className="bg-gray-50 dark:bg-slate-900/50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Código</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Descuento</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Código
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Descuento
+                        </th>
                         {/* Agregamos 'hidden md:table-cell' para ocultar en móvil */}
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">Expiración</th>
-                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">Estado</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">
+                          Expiración
+                        </th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">
+                          Estado
+                        </th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Acciones
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
                       {cuponesFiltrados.map((cupon) => {
                         const vencido = isExpired(cupon.fecha_expiracion);
                         const inactivo = !cupon.activo;
-                        
+
                         return (
-                          <tr key={cupon.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
+                          <tr
+                            key={cupon.id}
+                            className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
+                          >
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
                                 <div className="flex-shrink-0 h-10 w-10 bg-biskoto/10 dark:bg-white/10 rounded-full flex items-center justify-center text-biskoto dark:text-white border border-biskoto/20 dark:border-white/20">
@@ -235,22 +252,30 @@ const CuponesPage = () => {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                              <div className={`flex items-center text-sm ${vencido ? 'text-red-600 dark:text-red-400 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
+                              <div
+                                className={`flex items-center text-sm ${vencido ? "text-red-600 dark:text-red-400 font-medium" : "text-gray-500 dark:text-gray-400"}`}
+                              >
                                 <Calendar className="h-4 w-4 mr-2" />
-                                {cupon.fecha_expiracion 
-                                  ? new Date(cupon.fecha_expiracion).toLocaleDateString('es-CR', { timeZone: 'UTC' })
-                                  : 'Indefinido'}
+                                {cupon.fecha_expiracion
+                                  ? new Date(
+                                      cupon.fecha_expiracion,
+                                    ).toLocaleDateString("es-CR", {
+                                      timeZone: "UTC",
+                                    })
+                                  : "Indefinido"}
                               </div>
                             </td>
 
                             {/* Columna de Estado usando Badge Reutilizable (Oculta en móvil) */}
                             <td className="px-6 py-4 whitespace-nowrap text-center hidden md:table-cell">
-                              <StatusBadge variant={getStatusVariant(vencido, inactivo)}>
+                              <StatusBadge
+                                variant={getStatusVariant(vencido, inactivo)}
+                              >
                                 {getStatusText(vencido, inactivo)}
                               </StatusBadge>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                              <TableActions 
+                              <TableActions
                                 editLink={`/admin/cupones/editar/${cupon.id}`}
                                 onDelete={() => handleDeleteClick(cupon)}
                                 deleteTitle="Eliminar cupón"
@@ -269,7 +294,7 @@ const CuponesPage = () => {
       </main>
 
       {/* Modal de Confirmación Reutilizable */}
-      <ConfirmModal 
+      <ConfirmModal
         isOpen={!!cuponToDelete}
         onClose={() => setCuponToDelete(null)}
         onConfirm={confirmDelete}
@@ -278,8 +303,13 @@ const CuponesPage = () => {
         message={
           cuponToDelete && (
             <>
-              Estás a punto de eliminar el cupón <span className="font-bold font-mono text-gray-800 dark:text-gray-200">{cuponToDelete.codigo}</span>. 
-              <br className="hidden sm:block"/>Esta acción no se puede deshacer.
+              Estás a punto de eliminar el cupón{" "}
+              <span className="font-bold font-mono text-gray-800 dark:text-gray-200">
+                {cuponToDelete.codigo}
+              </span>
+              .
+              <br className="hidden sm:block" />
+              Esta acción no se puede deshacer.
             </>
           )
         }

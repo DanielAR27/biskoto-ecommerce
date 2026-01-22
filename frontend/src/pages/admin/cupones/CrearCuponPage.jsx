@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import Navbar from '../../../components/Navbar';
-import CuponForm from '../../../components/admin/CuponForm';
-import * as cuponService from '../../../api/cuponService';
-import { Ticket, ArrowLeft } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import Navbar from "../../../components/Navbar";
+import CuponForm from "../../../components/admin/CuponForm";
+import * as cuponService from "../../../api/cuponService";
+import { Ticket, ArrowLeft } from "lucide-react";
 
 /**
  * Página para el registro de nuevos cupones.
@@ -22,19 +22,22 @@ const CrearCuponPage = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Enviamos la petición al endpoint de creación
       await cuponService.createCupon(formData);
-      
-      // Redirección con mensaje de éxito
-      navigate('/admin/cupones', { 
-        state: { successMessage: `El cupón "${formData.codigo}" ha sido creado exitosamente.` } 
-      });
 
+      // Redirección con mensaje de éxito
+      navigate("/admin/cupones", {
+        state: {
+          successMessage: `El cupón "${formData.codigo}" ha sido creado exitosamente.`,
+        },
+      });
     } catch (err) {
       console.error("Error al crear el cupón:", err);
       // Extraemos el mensaje de error del backend (ej. "Ya existe un cupón con este código")
-      const msg = err.response?.data?.error || 'No se pudo registrar el cupón en el sistema.';
+      const msg =
+        err.response?.data?.error ||
+        "No se pudo registrar el cupón en el sistema.";
       setError(msg);
     } finally {
       setLoading(false);
@@ -43,20 +46,17 @@ const CrearCuponPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
-      <Navbar />
-      
       <main className="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        
         {/* Encabezado con navegación de regreso */}
         <div className="mb-8">
-          <Link 
-            to="/admin/cupones" 
+          <Link
+            to="/admin/cupones"
             className="flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-biskoto dark:hover:text-white transition-colors mb-4 group"
           >
             <ArrowLeft className="h-4 w-4 mr-2 transform group-hover:-translate-x-1 transition-transform" />
             Volver al listado
           </Link>
-          
+
           <div className="flex items-center gap-4">
             <div className="p-3 bg-biskoto/10 rounded-2xl border border-biskoto/20">
               <Ticket className="h-8 w-8 text-biskoto" />
@@ -73,10 +73,10 @@ const CrearCuponPage = () => {
         </div>
 
         {/* Formulario de creación */}
-        <CuponForm 
-          onSubmit={handleCreate} 
-          loading={loading} 
-          error={error} 
+        <CuponForm
+          onSubmit={handleCreate}
+          loading={loading}
+          error={error}
           buttonText="Crear Cupón"
         />
       </main>

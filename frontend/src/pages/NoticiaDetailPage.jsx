@@ -65,7 +65,6 @@ const NoticiaDetailPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-        <Navbar />
         <div className="flex items-center justify-center h-[calc(100vh-80px)]">
           <Loader2 className="h-10 w-10 text-biskoto animate-spin" />
         </div>
@@ -76,7 +75,6 @@ const NoticiaDetailPage = () => {
   if (error || !noticia) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-        <Navbar />
         <div className="max-w-4xl mx-auto py-10 px-4">
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-12 text-center">
             <AlertCircle className="mx-auto mb-4 text-red-500" size={64} />
@@ -100,8 +98,6 @@ const NoticiaDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-      <Navbar />
-
       <main className="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         {/* Botón volver */}
         <button
@@ -169,7 +165,7 @@ const NoticiaDetailPage = () => {
                     >
                       {parrafo}
                     </p>
-                  )
+                  ),
               )}
             </div>
           </div>

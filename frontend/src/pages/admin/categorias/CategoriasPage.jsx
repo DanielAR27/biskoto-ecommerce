@@ -71,8 +71,8 @@ const CategoriasPage = () => {
       // Actualizar estado local
       setCategorias((prev) =>
         prev.map((cat) =>
-          cat.id === categoria.id ? { ...cat, activo: !cat.activo } : cat
-        )
+          cat.id === categoria.id ? { ...cat, activo: !cat.activo } : cat,
+        ),
       );
 
       showNotification("success", response.mensaje);
@@ -95,11 +95,11 @@ const CategoriasPage = () => {
     try {
       await categoriaService.deleteCategoria(categoryToDelete.id);
       setCategorias((prev) =>
-        prev.filter((cat) => cat.id !== categoryToDelete.id)
+        prev.filter((cat) => cat.id !== categoryToDelete.id),
       );
       showNotification(
         "success",
-        `La categoría "${categoryToDelete.nombre}" ha sido eliminada.`
+        `La categoría "${categoryToDelete.nombre}" ha sido eliminada.`,
       );
       setCategoryToDelete(null);
     } catch (err) {
@@ -113,13 +113,11 @@ const CategoriasPage = () => {
   };
 
   const categoriasFiltradas = categorias.filter((cat) =>
-    cat.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    cat.nombre.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300 relative">
-      <Navbar />
-
       <main className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         {/* Encabezado */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">

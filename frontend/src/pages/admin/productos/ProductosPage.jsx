@@ -83,13 +83,13 @@ const ProductosPage = () => {
       // Actualizar estado local
       setProductos((prev) =>
         prev.map((prod) =>
-          prod.id === producto.id ? { ...prod, activo: !prod.activo } : prod
-        )
+          prod.id === producto.id ? { ...prod, activo: !prod.activo } : prod,
+        ),
       );
 
       showNotification(
         "success",
-        response.message || "Visibilidad actualizada."
+        response.message || "Visibilidad actualizada.",
       );
     } catch (err) {
       const msg =
@@ -116,7 +116,7 @@ const ProductosPage = () => {
       setProductos((prev) => prev.filter((p) => p.id !== productToDelete.id));
       showNotification(
         "success",
-        `El producto "${productToDelete.nombre}" ha sido eliminado.`
+        `El producto "${productToDelete.nombre}" ha sido eliminado.`,
       );
       setProductToDelete(null);
     } catch (err) {
@@ -133,7 +133,7 @@ const ProductosPage = () => {
   const productosFiltrados = productos.filter(
     (prod) =>
       prod.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      prod.categorias?.nombre?.toLowerCase().includes(searchTerm.toLowerCase())
+      prod.categorias?.nombre?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Formateador de moneda para CRC (Colones)
@@ -153,8 +153,6 @@ const ProductosPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors duration-300 relative">
-      <Navbar />
-
       <main className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         {/* Encabezado de la Sección */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">

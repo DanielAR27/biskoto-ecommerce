@@ -107,7 +107,7 @@ const PedidosAdminPage = () => {
     // Filtro por estado
     if (filtroEstado !== "todos") {
       resultado = resultado.filter(
-        (p) => p.estado_id === parseInt(filtroEstado)
+        (p) => p.estado_id === parseInt(filtroEstado),
       );
     }
 
@@ -119,7 +119,7 @@ const PedidosAdminPage = () => {
           p.id.toString().includes(term) ||
           p.perfiles?.nombre?.toLowerCase().includes(term) ||
           p.perfiles?.apellido?.toLowerCase().includes(term) ||
-          p.perfiles?.email?.toLowerCase().includes(term)
+          p.perfiles?.email?.toLowerCase().includes(term),
       );
     }
 
@@ -156,8 +156,8 @@ const PedidosAdminPage = () => {
                 estado_id: nuevoEstadoId,
                 estados_pedido: estados.find((e) => e.id === nuevoEstadoId),
               }
-            : p
-        )
+            : p,
+        ),
       );
     } catch (error) {
       console.error("Error al actualizar estado:", error);
@@ -195,7 +195,7 @@ const PedidosAdminPage = () => {
 
       // Actualizar localmente
       setPedidos((prev) =>
-        prev.map((p) => (p.id === pedidoEditando.id ? { ...p, ...data } : p))
+        prev.map((p) => (p.id === pedidoEditando.id ? { ...p, ...data } : p)),
       );
 
       setModalEditar(false);
@@ -309,7 +309,7 @@ const PedidosAdminPage = () => {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
             body: JSON.stringify({ fileName: nombreArchivo }),
-          }
+          },
         );
 
         if (!responseUrl.ok) throw new Error("Error al obtener URL de subida");
@@ -342,7 +342,7 @@ const PedidosAdminPage = () => {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify({ comprobante_url: comprobanteUrl }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -361,8 +361,8 @@ const PedidosAdminPage = () => {
                 monto_pagado: p.total,
                 monto_pendiente: 0,
               }
-            : p
-        )
+            : p,
+        ),
       );
 
       alert("Pago completado exitosamente");
@@ -414,7 +414,6 @@ const PedidosAdminPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-        <Navbar />
         <div className="flex items-center justify-center h-[calc(100vh-80px)]">
           <Loader2 className="h-10 w-10 text-biskoto animate-spin" />
         </div>
@@ -424,8 +423,6 @@ const PedidosAdminPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-      <Navbar />
-
       <main className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -539,7 +536,7 @@ const PedidosAdminPage = () => {
                         /* 👈 CAMBIADO: pedidosFiltrados → pedidosActuales */
                       }
                       const estadoActual = estados.find(
-                        (e) => e.id === pedido.estado_id
+                        (e) => e.id === pedido.estado_id,
                       );
 
                       return (
@@ -611,7 +608,7 @@ const PedidosAdminPage = () => {
                                 onChange={(e) =>
                                   handleCambiarEstado(
                                     pedido.id,
-                                    parseInt(e.target.value)
+                                    parseInt(e.target.value),
                                   )
                                 }
                                 disabled={
@@ -619,7 +616,7 @@ const PedidosAdminPage = () => {
                                   pedido.estado_id === 6
                                 }
                                 className={`appearance-none px-3 py-1.5 pr-8 text-xs font-semibold rounded-full border cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${getEstadoClasses(
-                                  estadoActual?.color
+                                  estadoActual?.color,
                                 )}`}
                               >
                                 {estados.map((estado) => (
@@ -798,7 +795,7 @@ const PedidosAdminPage = () => {
           <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             {estados.map((estado) => {
               const count = pedidos.filter(
-                (p) => p.estado_id === estado.id
+                (p) => p.estado_id === estado.id,
               ).length;
               if (count === 0) return null;
 
