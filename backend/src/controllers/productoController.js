@@ -30,7 +30,7 @@ const listarProductosCatalogo = async (req, res) => {
       ingredientes ( stock_actual, es_ilimitado )
     )
   `,
-        { count: "exact" }
+        { count: "exact" },
       )
       .eq("activo", true); // ← AGREGAR ESTA LÍNEA
 
@@ -114,7 +114,7 @@ const obtenerProducto = async (req, res) => {
             unidades_medida (nombre, abreviatura)
           )
         )
-      `
+      `,
       )
       .eq("id", id)
       .single();
@@ -154,7 +154,7 @@ const validarDisponibilidadMasiva = async (req, res) => {
         cantidad_necesaria,
         productos ( id, nombre, stock_actual ),
         ingredientes ( id, nombre, stock_actual, es_ilimitado )
-      `
+      `,
       )
       .in("producto_id", ids);
 
@@ -193,7 +193,7 @@ const validarDisponibilidadMasiva = async (req, res) => {
 
         // Cuántos productos se pueden hacer con este ingrediente específico
         const posibleConEsteIng = Math.floor(
-          stockDisponibleIng / cantidadNecesaria
+          stockDisponibleIng / cantidadNecesaria,
         );
 
         // El "Reactivo Limitante": El mínimo entre el stock del producto y sus ingredientes
@@ -394,7 +394,7 @@ const actualizarProducto = async (req, res) => {
       if (errorStorage)
         console.warn(
           "No se pudieron borrar algunos archivos físicos:",
-          errorStorage
+          errorStorage,
         );
     }
 
@@ -495,7 +495,7 @@ const eliminarProducto = async (req, res) => {
         // Logueamos pero no detenemos el proceso por si el archivo ya no existía físicamente
         console.warn(
           "Aviso: Algunos archivos no se pudieron borrar del Storage:",
-          errorStorage
+          errorStorage,
         );
       }
     }
@@ -517,7 +517,7 @@ const eliminarProducto = async (req, res) => {
     console.error("Error crítico en eliminarProducto:", error);
     res.status(500).json({
       error:
-        "Error interno al intentar eliminar el producto y sus recursos físicos.",
+        "Este producto no puede ser borrado actualmente porque forma parte de pedidos que se encuentran activos. Resuelva primero el estado de dichos pedidos.",
     });
   }
 };
@@ -547,7 +547,7 @@ const verificarAdelanto = async (req, res) => {
     let porcentajeAdelanto = 50; // Default
     if (requiereAdelanto) {
       const porcentajes = productosConAdelanto.map(
-        (p) => p.porcentaje_adelanto || 50
+        (p) => p.porcentaje_adelanto || 50,
       );
       porcentajeAdelanto = Math.max(...porcentajes);
     }

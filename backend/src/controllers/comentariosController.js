@@ -38,7 +38,7 @@ const listarComentariosPorNoticia = async (req, res) => {
           ...comentario,
           perfiles: perfil || { nombre: "Usuario", apellido: "Desconocido" },
         };
-      })
+      }),
     );
 
     res.status(200).json(comentariosConUsuario);
@@ -53,14 +53,44 @@ const listarComentariosPorNoticia = async (req, res) => {
  */
 const listarTodosComentarios = async (req, res) => {
   try {
-    const { data, error } = await supabase
+    // Obtener comentarios
+    const { data: comentarios, error } = await supabase
       .from("comentarios")
       .select("*")
       .order("fecha", { ascending: false });
 
     if (error) throw error;
 
-    res.status(200).json(data);
+    // ✅ Enriquecer con info de usuario y noticia
+    const comentariosEnriquecidos = await Promise.all(
+      comentarios.map(async (comentario) => {
+        // Obtener perfil
+        const { data: perfil } = await supabase
+          .from("perfiles")
+          .select("nombre, apellido, email")
+          .eq("id", comentario.usuario_id)
+          .single();
+
+        // ✅ Obtener noticia
+        const { data: noticia } = await supabase
+          .from("noticias")
+          .select("id, titulo, categoria")
+          .eq("id", comentario.noticia_id)
+          .single();
+
+        return {
+          ...comentario,
+          perfiles: perfil || {
+            nombre: "Usuario",
+            apellido: "Desconocido",
+            email: "N/A",
+          },
+          noticias: noticia || null, // null si fue eliminada
+        };
+      }),
+    );
+
+    res.status(200).json(comentariosEnriquecidos);
   } catch (error) {
     console.error("Error al listar comentarios:", error);
     res.status(500).json({ error: "Error al obtener los comentarios" });
