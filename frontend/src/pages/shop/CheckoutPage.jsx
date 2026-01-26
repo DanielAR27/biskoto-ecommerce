@@ -102,10 +102,9 @@ const CheckoutPage = () => {
             total: pedido.total,
             numeroReferencia: `BISK-${pedido.id.toString().padStart(6, "0")}`,
             datosPago: {
-              telefono: import.meta.env.VITE_SINPE_TELEFONO || "8888-8888",
+              telefono: import.meta.env.VITE_SINPE_TELEFONO || "8838-3780",
               titular:
-                import.meta.env.VITE_SINPE_TITULAR || "Biskoto Repostería",
-              cedula: import.meta.env.VITE_SINPE_CEDULA || "1-2345-6789",
+                import.meta.env.VITE_SINPE_TITULAR || "Sofía Montero Brenes",
               monto: pedido.total,
             },
           });
@@ -638,7 +637,7 @@ const CheckoutPage = () => {
                               telefono_contacto: e.target.value,
                             })
                           }
-                          placeholder="8888-8888"
+                          placeholder="8838-3780"
                           className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-biskoto focus:border-transparent bg-white dark:bg-slate-900 text-gray-900 dark:text-white"
                           required={datosEntrega.metodo_entrega === "express"}
                         />
@@ -747,15 +746,6 @@ const CheckoutPage = () => {
                         </span>
                         <span className="text-lg font-bold text-gray-900 dark:text-white">
                           {pedidoCreado.datosPago.titular}
-                        </span>
-                      </div>
-
-                      <div className="flex justify-between items-center bg-white dark:bg-slate-900 rounded-lg p-3">
-                        <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">
-                          Cédula:
-                        </span>
-                        <span className="text-lg font-bold text-gray-900 dark:text-white">
-                          {pedidoCreado.datosPago.cedula}
                         </span>
                       </div>
 

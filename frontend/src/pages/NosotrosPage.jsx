@@ -18,25 +18,25 @@ const NosotrosPage = () => {
       icon: Heart,
       titulo: "Pasión Artesanal",
       descripcion:
-        "Cada receta lleva el amor y dedicación de generaciones de tradición repostera.",
+        "Cada receta lleva el amor y dedicación heredados de mi abuela Yayi, con ese toque especial que hace la diferencia.",
     },
     {
       icon: Sparkles,
       titulo: "Calidad Premium",
       descripcion:
-        "Seleccionamos los mejores ingredientes para garantizar sabor y frescura en cada bocado.",
+        "Uso ingredientes de la más alta calidad, cuidando cada detalle para conquistar hasta los paladares más exigentes.",
     },
     {
       icon: Award,
       titulo: "Herencia Griega",
       descripcion:
-        "Honramos las recetas tradicionales transmitidas por generaciones, con un toque costarricense.",
+        "Honro las recetas tradicionales que mi abuela de origen griego me compartió desde pequeña, con un toque costarricense.",
     },
     {
       icon: Users,
-      titulo: "Servicio Personalizado",
+      titulo: "Hecho con Amor",
       descripcion:
-        "Cada cliente es especial. Creamos experiencias dulces adaptadas a tus momentos importantes.",
+        "Cada producto está preparado con gratitud y cariño para las personas que confían en mí y en Biskoto.",
     },
   ];
 
@@ -73,12 +73,7 @@ const NosotrosPage = () => {
 
         {/* Onda decorativa */}
         <div className="absolute bottom-0 left-0 right-0">
-          <svg
-            viewBox="0 0 1440 120"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-full h-auto"
-          >
+          <svg viewBox="0 0 1440 120" fill="none" className="w-full h-auto">
             <path
               d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z"
               fill="currentColor"
@@ -94,38 +89,58 @@ const NosotrosPage = () => {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white mb-6">
-                Nuestra Historia
+                Mi Historia
               </h2>
               <div className="space-y-4 text-gray-600 dark:text-gray-300">
                 <p className="text-lg leading-relaxed">
-                  En{" "}
-                  <span className="font-bold text-biskoto dark:text-biskoto-400">
-                    2018
-                  </span>
-                  ,{" "}
+                  Hola, soy{" "}
                   <span className="font-bold text-gray-900 dark:text-white">
-                    Sofía
-                  </span>{" "}
-                  decidió transformar su pasión por la repostería en una
-                  realidad. Inspirada por las recetas tradicionales de su abuela
-                  de origen griego, Sofía comenzó a hornear postres artesanales
-                  que combinaban la autenticidad de las técnicas mediterráneas
-                  con la calidez de los sabores costarricenses.
-                </p>
-                <p className="text-lg leading-relaxed">
-                  Lo que inició como un pequeño emprendimiento familiar,
-                  compartiendo dulces con amigos y vecinos, se convirtió en{" "}
+                    Sofía Montero
+                  </span>
+                  , la persona y el corazón detrás de{" "}
                   <span className="font-bold text-biskoto dark:text-biskoto-400">
                     Biskoto
-                  </span>{" "}
-                  — un espacio donde cada bocado cuenta una historia de
-                  tradición, dedicación y amor por el arte de endulzar momentos
-                  especiales.
+                  </span>
+                  .
                 </p>
                 <p className="text-lg leading-relaxed">
-                  Hoy, más de 5 años después, seguimos honrando esas recetas
-                  ancestrales mientras innovamos con creaciones modernas,
-                  siempre manteniendo la frescura y calidad que nos caracteriza.
+                  Biskoto es un emprendimiento de repostería artesanal, donde
+                  preparo postres, queques y galletas con ingredientes de alta
+                  calidad, cuidando cada detalle para conquistar incluso a los
+                  paladares más exigentes.
+                </p>
+                <p className="text-lg leading-relaxed">
+                  Este proyecto nace de una pasión muy especial por la cocina,
+                  una que me heredó mi{" "}
+                  <span className="font-bold text-biskoto dark:text-biskoto-400">
+                    Yayi
+                  </span>
+                  , mi abuelita materna de origen griego. Desde pequeña me abrió
+                  las puertas de su cocina, me compartió sus recetas y me dejó
+                  experimentar, aprender y enamorarme de ese mundo lleno de
+                  aromas y sabores.
+                </p>
+                <p className="text-lg leading-relaxed">
+                  Con los años, cuando mis hijas ya estaban grandes, decidí
+                  seguir aprendiendo y comencé a llevar cursos y talleres de
+                  cocina. Poco a poco, familiares y amigos empezaron a pedirme
+                  lo que preparaba… y sin darme cuenta, Biskoto ya estaba
+                  tomando forma.
+                </p>
+                <p className="text-lg leading-relaxed">
+                  Para un Día de la Madre, mis hijas me sorprendieron con uno de
+                  los regalos más lindos que he recibido: crearon una cuenta de
+                  Facebook para que pudiera iniciar el negocio de manera formal.
+                  Ese gesto marcó un antes y un después, no solo para mí, sino
+                  para toda nuestra familia.
+                </p>
+                <p className="text-lg leading-relaxed font-medium text-gray-900 dark:text-white">
+                  Así nace Biskoto. Un proyecto hecho con amor, tradición y
+                  mucha gratitud.
+                </p>
+                <p className="text-lg leading-relaxed italic">
+                  Gracias a Dios y a cada persona que día a día confía, prueba y
+                  disfruta de mis productos. Ustedes son parte de esta historia.
                 </p>
               </div>
             </div>
@@ -135,7 +150,7 @@ const NosotrosPage = () => {
                 {/* Imagen de Sofía */}
                 <img
                   src={SofiaFoto}
-                  alt="Sofía - Fundadora de Biskoto"
+                  alt="Sofía Montero - Fundadora de Biskoto"
                   className="w-full h-full object-cover"
                 />
 
@@ -144,9 +159,9 @@ const NosotrosPage = () => {
 
                 {/* Texto sobre la imagen */}
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white text-center">
-                  <p className="text-2xl font-black mb-1">Desde 2018</p>
+                  <p className="text-2xl font-black mb-1">Sofía Montero</p>
                   <p className="text-white/90 text-sm">
-                    Endulzando vidas con tradición
+                    Fundadora y corazón de Biskoto
                   </p>
                 </div>
               </div>
@@ -170,10 +185,10 @@ const NosotrosPage = () => {
               </h3>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                 Crear experiencias dulces memorables a través de repostería
-                artesanal de la más alta calidad, honrando las tradiciones
-                familiares griegas mientras celebramos los sabores y momentos
-                especiales de Costa Rica. Cada producto que elaboramos lleva el
-                cuidado, amor y dedicación que mereces.
+                artesanal de la más alta calidad, honrando las tradiciones que
+                mi abuela Yayi me enseñó. Cada producto lleva el cuidado, amor y
+                dedicación que cada persona merece, conquistando paladares y
+                endulzando momentos especiales.
               </p>
             </div>
 
@@ -186,11 +201,11 @@ const NosotrosPage = () => {
                 Nuestra Visión
               </h3>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Ser reconocidos como la repostería artesanal de referencia en
-                Costa Rica, donde la tradición mediterránea y la innovación
-                local se encuentran para crear postres que no solo endulzan
-                paladares, sino que también conectan corazones y celebran la
-                vida.
+                Ser reconocidos como una repostería artesanal de confianza en
+                Costa Rica, donde la tradición griega y el amor por la cocina se
+                encuentran para crear postres que no solo endulzan paladares,
+                sino que también conectan corazones, celebran la vida y crean
+                recuerdos inolvidables.
               </p>
             </div>
           </div>

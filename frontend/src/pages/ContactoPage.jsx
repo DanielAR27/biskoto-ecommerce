@@ -5,30 +5,30 @@ import {
   Instagram,
   Facebook,
   MessageCircle,
-  ExternalLink,
 } from "lucide-react";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 const ContactoPage = () => {
-  // Animación de fade-in
+  // Animación de fade-in para secciones
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.6 },
   };
 
-  // Ícono TikTok
+  // Ícono personalizado de TikTok
   const TikTokIcon = () => (
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
       <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
     </svg>
   );
 
-  const googleMapsUrl = "https://maps.app.goo.gl/BpsFXAuVWVREogHD9";
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-biskoto via-biskoto-700 to-biskoto-900 dark:from-biskoto-900 dark:via-slate-900 dark:to-slate-950 text-white overflow-hidden">
+        {/* Patrón decorativo */}
         <div className="absolute inset-0 opacity-10">
           <div
             className="absolute inset-0"
@@ -54,6 +54,7 @@ const ContactoPage = () => {
           </motion.div>
         </div>
 
+        {/* Onda decorativa */}
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 120" fill="none" className="w-full h-auto">
             <path
@@ -66,10 +67,10 @@ const ContactoPage = () => {
       </section>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Información + Mapa */}
+        {/* Sección Principal de Contacto */}
         <motion.section {...fadeIn}>
           <div className="grid lg:grid-cols-2 gap-8 mb-16">
-            {/* Columna Izquierda: Información */}
+            {/* Columna Izquierda: Información de Contacto */}
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-slate-700 space-y-6">
               <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-6">
                 Información de Contacto
@@ -85,17 +86,12 @@ const ContactoPage = () => {
                     Ubicación
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300">
-                    Cartago, Costa Rica
+                    El Carmen, Cartago, Costa Rica
                   </p>
-                  <a
-                    href={googleMapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-biskoto dark:text-biskoto-400 mt-2 flex items-center gap-1 hover:underline"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Ver en Google Maps
-                  </a>
+                  <p className="text-sm text-biskoto dark:text-biskoto-400 mt-2 flex items-center gap-1">
+                    <MessageCircle className="w-4 h-4" />
+                    Dirección exacta por WhatsApp
+                  </p>
                 </div>
               </div>
 
@@ -159,6 +155,7 @@ const ContactoPage = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 bg-biskoto/10 dark:bg-biskoto-900/30 hover:bg-biskoto/20 dark:hover:bg-biskoto-900/40 rounded-xl flex items-center justify-center transition-all hover:scale-110"
+                    title="TikTok"
                   >
                     <TikTokIcon />
                   </a>
@@ -167,6 +164,7 @@ const ContactoPage = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 bg-biskoto/10 dark:bg-biskoto-900/30 hover:bg-biskoto/20 dark:hover:bg-biskoto-900/40 rounded-xl flex items-center justify-center transition-all hover:scale-110"
+                    title="Instagram"
                   >
                     <Instagram className="w-6 h-6 text-biskoto dark:text-biskoto-400" />
                   </a>
@@ -175,6 +173,7 @@ const ContactoPage = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 bg-biskoto/10 dark:bg-biskoto-900/30 hover:bg-biskoto/20 dark:hover:bg-biskoto-900/40 rounded-xl flex items-center justify-center transition-all hover:scale-110"
+                    title="Facebook"
                   >
                     <Facebook className="w-6 h-6 text-biskoto dark:text-biskoto-400" />
                   </a>
@@ -182,41 +181,47 @@ const ContactoPage = () => {
               </div>
             </div>
 
-            {/* Columna Derecha: Mapa */}
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-slate-700">
-              <div className="h-full min-h-[600px] relative">
-                {/* Encabezado */}
-                <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/60 to-transparent p-4 z-10">
-                  <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                    <MapPin className="w-5 h-5" />
-                    Nuestra Ubicación
-                  </h3>
-                </div>
+            {/* Columna Derecha: Entregas y Recogida */}
+            <div className="bg-gradient-to-br from-biskoto/5 to-biskoto-700/5 dark:from-biskoto-900/10 dark:to-biskoto/5 rounded-2xl p-8 border border-gray-200 dark:border-slate-700">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4">
+                  Entregas y Recogida
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Coordinamos contigo la mejor opción
+                </p>
+              </div>
 
-                {/* Mapa */}
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d246.37688207539593!2d-83.91915973854894!3d9.86277459999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa0e3dbfe5f2a73%3A0x9f5f5f5f5f5f5f5f!2sCartago%2C%20Costa%20Rica!5e0!3m2!1ses!2scr!4v1234567890123!5m2!1ses!2scr"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen=""
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="w-full h-full"
-                  title="Ubicación Biskoto"
-                ></iframe>
-
-                {/* Botón */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                  <a
-                    href={googleMapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-gray-100 text-gray-900 rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-                  >
-                    <ExternalLink className="w-5 h-5" />
-                    Abrir en Google Maps
-                  </a>
+              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-slate-700">
+                <div className="flex flex-col items-center justify-center text-center min-h-[400px]">
+                  <div className="text-7xl mb-6">📍</div>
+                  <p className="text-gray-900 dark:text-white font-bold text-2xl mb-3">
+                    Entregas en Cartago
+                  </p>
+                  <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md">
+                    Coordinamos la entrega o recogida por WhatsApp según tu
+                    ubicación y preferencia
+                  </p>
+                  <div className="flex flex-col gap-4 w-full max-w-sm">
+                    <a
+                      href="https://wa.me/50688383780?text=Hola%2C%20me%20gustaría%20coordinar%20entrega"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-biskoto hover:bg-biskoto-700 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                    >
+                      <MessageCircle className="w-5 h-5" />
+                      Coordinar Entrega
+                    </a>
+                    <a
+                      href="https://wa.me/50688383780?text=Hola%2C%20me%20gustaría%20la%20dirección%20para%20recoger"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-slate-600 rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                    >
+                      <MapPin className="w-5 h-5" />
+                      Pedir Dirección
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>

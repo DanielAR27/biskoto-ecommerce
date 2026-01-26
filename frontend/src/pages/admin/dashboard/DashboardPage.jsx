@@ -439,7 +439,7 @@ const DashboardPage = () => {
                 labelFormatter={(label) => formatMes(label)}
                 formatter={(value, name) => {
                   if (name === "total") return [formatMoneda(value), "Ventas"];
-                  return [value, "Cantidad de Pedidos"];
+                  return [value, "Cantidad"];
                 }}
               />
 

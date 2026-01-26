@@ -70,7 +70,9 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start gap-2 text-sm">
                 <MapPin className="w-4 h-4 text-white/90 flex-shrink-0 mt-0.5" />
-                <span className="text-white/85">Cartago, Costa Rica</span>
+                <span className="text-white/85">
+                  El Carmen, Cartago, Costa Rica
+                </span>
               </li>
               <li className="flex items-start gap-2 text-sm">
                 <Phone className="w-4 h-4 text-white/90 flex-shrink-0 mt-0.5" />
@@ -93,7 +95,7 @@ const Footer = () => {
                   }}
                   className="text-white/85 hover:text-white transition-colors text-left"
                 >
-                  hola@biskoto.cr
+                  biskotodulcess@gmail.com
                 </button>
               </li>
             </ul>
@@ -139,7 +141,7 @@ const Footer = () => {
               <p className="text-xs text-white/85 leading-relaxed">
                 L-V: 9:00 AM - 6:00 PM
                 <br />
-                Sáb: 10:00 AM - 4:00 PM
+                Sáb: 10:00 AM - 2:00 PM
                 <br />
                 Dom: Cerrado
               </p>

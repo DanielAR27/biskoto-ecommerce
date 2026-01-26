@@ -98,7 +98,7 @@ const ProductoForm = ({
             url: img.url,
             isPrincipal: img.es_principal,
             isExisting: true,
-          }))
+          })),
         );
       }
 
@@ -109,7 +109,7 @@ const ProductoForm = ({
             nombre: item.ingredientes?.nombre,
             unidad: item.ingredientes?.unidades_medida?.abreviatura || "u",
             cantidad: item.cantidad_necesaria,
-          })
+          }),
         );
         setReceta(recetaExistente);
       }
@@ -124,11 +124,11 @@ const ProductoForm = ({
   }, [externalError, uploadError]);
 
   const ingSeleccionadoObj = ingredientesDb.find(
-    (i) => i.id === Number(selectedIngrediente)
+    (i) => i.id === Number(selectedIngrediente),
   );
   const requiereEnteros = ingSeleccionadoObj
     ? ["u", "doc"].includes(
-        ingSeleccionadoObj.unidades_medida?.abreviatura?.toLowerCase()
+        ingSeleccionadoObj.unidades_medida?.abreviatura?.toLowerCase(),
       )
     : false;
 
@@ -144,7 +144,7 @@ const ProductoForm = ({
         }));
       setFiles((prev) => [...prev, ...newFiles]);
     },
-    [files]
+    [files],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -190,7 +190,7 @@ const ProductoForm = ({
 
     if (requiereEnteros && !Number.isInteger(Number(cantidadIngrediente))) {
       setItemError(
-        `El ingrediente "${ingSeleccionadoObj.nombre}" se mide en unidades enteras, no acepta decimales.`
+        `El ingrediente "${ingSeleccionadoObj.nombre}" se mide en unidades enteras, no acepta decimales.`,
       );
       return;
     }
@@ -198,7 +198,7 @@ const ProductoForm = ({
     if (receta.some((item) => item.id === Number(selectedIngrediente))) return;
 
     const ingInfo = ingredientesDb.find(
-      (i) => i.id === Number(selectedIngrediente)
+      (i) => i.id === Number(selectedIngrediente),
     );
     if (!ingInfo) return;
 
@@ -267,7 +267,7 @@ const ProductoForm = ({
       console.error("Error crítico durante el guardado:", err);
       // CORRECCIÓN: Ahora sí actualizamos el estado para mostrar el error visualmente
       setUploadError(
-        "Error al procesar las imágenes. Verifica tu conexión o intenta de nuevo."
+        "Error al procesar las imágenes. Verifica tu conexión o intenta de nuevo.",
       );
 
       // Forzamos el scroll arriba manualmente por si el useEffect falla en timing
@@ -421,9 +421,12 @@ const ProductoForm = ({
           </div>
           <div>
             <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2">
-              <DollarSign size={16} /> Precio de Venta{" "}
-              <span className="text-red-500">*</span>
+              <span className="text-gray-700 dark:text-gray-300 font-black leading-none">
+                ₡
+              </span>
+              Precio de Venta <span className="text-red-500">*</span>
             </label>
+
             <input
               name="precio"
               type="number"
