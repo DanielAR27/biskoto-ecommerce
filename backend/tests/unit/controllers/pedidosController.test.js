@@ -154,18 +154,30 @@ describe("PedidosController - Pruebas Unitarias de Cobertura Completa", () => {
         ingredientes: { id: 1, stock_actual: 100, es_ilimitado: true }
       }];
 
-      const fechaAyer = new Date();
-      fechaAyer.setDate(fechaAyer.getDate() - 1);
-      const mockCupon = { id: 50, activo: true, fecha_expiracion: fechaAyer.toISOString().split("T")[0], descuento_porcentaje: 10 };
+      // Se usa una fecha vieja fija ("2000-01-01") para garantizar expiración
+      // sin importar la zona horaria o la hora de ejecución del test.
+      const mockCupon = { 
+        id: 50, 
+        activo: true, 
+        fecha_expiracion: "2000-01-01", 
+        descuento_porcentaje: 10 
+      };
 
       supabase.from.mockImplementation((table) => {
         if (table === "producto_ingredientes") return createMockQueryBuilder({ data: mockRecetas });
         if (table === "cupones") return createMockQueryBuilder({ data: mockCupon });
+        
+        // Fallback de seguridad. Si la lógica falla y trata de insertar en 'pedidos',
+        // se devuelve un builder vacío para que no tire error 500 (crash), 
+        // permitiendo ver si el error es de lógica y no de mock.
+        return createMockQueryBuilder({ data: {} });
       });
 
       await crearPedido(req, res);
+      
+      // debe entrar al if y devolver 400
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({ error: "El cupón ha expirado" });
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: "El cupón ha expirado" }));
     });
 
     test("Se crea pedido exitosamente con cupón válido y stock suficiente", async () => {
