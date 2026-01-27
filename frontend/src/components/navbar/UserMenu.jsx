@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { User, LogOut, ChevronDown, Package } from "lucide-react";
 
 const UserMenu = ({ user, logout }) => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
   const location = useLocation();
@@ -76,7 +77,7 @@ const UserMenu = ({ user, logout }) => {
           <button
             onClick={() => {
               logout(); // 1. Cierra la sesión (borra tokens)
-              window.location.href = "/home"; // 2. Fuerza la recarga y manda al home
+              navigate("/home");
             }}
             className="w-full flex items-center px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
           >
