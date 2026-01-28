@@ -73,12 +73,24 @@ const CheckoutPage = () => {
   const [pedidoCreado, setPedidoCreado] = useState(null);
   const [archivoComprobante, setArchivoComprobante] = useState(null);
 
-  // Cálculos de precios
-  const subtotal = totalPrice;
+  // 1. Se decide qué items usar (del pedido viejo o del carrito actual)
+  const itemsCalculo = pedidoIdFromURL && pedidoCreado?.items ? pedidoCreado.items : cart;
+
+  // 2. Calcular el subtotal real basado en esos items
+  const subtotal = itemsCalculo.reduce((acc, item) => {
+    const precio = item.price || item.precio || 0;
+    return acc + (precio * item.quantity);
+  }, 0);
+
   const descuento = cuponAplicado
     ? (subtotal * cuponAplicado.descuento) / 100
     : 0;
-  const total = subtotal - descuento;
+  
+  // Si se está viendo un pedido ya creado (paso 2), se respeta su total original
+  // Si está en paso 1, calculamos dinámicamente
+  const total = (pedidoIdFromURL && pedidoCreado) 
+    ? pedidoCreado.total 
+    : subtotal - descuento;
 
   /**
    * Cargar pedido existente si viene pedidoId en la URL
@@ -96,16 +108,35 @@ const CheckoutPage = () => {
             return;
           }
 
+          // Formateamos los items del pedido viejo para que se parezcan a los del carrito
+          const itemsDelPedido = pedido.detalle_pedidos.map((d) => ({
+             id: d.productos.id,
+             nombre: d.productos.nombre,
+             imagen: d.productos.producto_imagenes?.find(img => img.es_principal)?.url || d.productos.producto_imagenes?.[0]?.url || "/placeholder.png",
+             quantity: d.cantidad,
+             price: d.precio_unitario_historico // Usamos el precio histórico
+          }));
+
+          // Recargar cupones
+          if (pedido.cupones) {
+            setCuponAplicado({
+              id: pedido.cupones.id,
+              codigo: pedido.cupones.codigo,
+              descuento: pedido.cupones.descuento_porcentaje
+            });
+          }
+
           // Configurar pedido creado para mostrar pantalla de SINPE
           setPedidoCreado({
             id: pedido.id,
             total: pedido.total,
             numeroReferencia: `BISK-${pedido.id.toString().padStart(6, "0")}`,
-            datosPago: {
-              telefono: import.meta.env.VITE_SINPE_TELEFONO || "8838-3780",
-              titular:
-                import.meta.env.VITE_SINPE_TITULAR || "Sofía Montero Brenes",
-              monto: pedido.total,
+            // Se guardan los items aquí para usarlos en el sidebar
+            items: itemsDelPedido, 
+            datosPago: pedido.datosPago || {
+               telefono: "Sin configuración", 
+               titular: "Biskoto",
+               monto: pedido.total
             },
           });
 
@@ -421,13 +452,38 @@ const CheckoutPage = () => {
     }
   };
 
+  // LÓGICA DE VISUALIZACIÓN (Resumen)
+  // Si se está viendo un pedido viejo (paso 2 o 3 con ID), se muestra sus datos.
+  // Si se está creando uno nuevo (paso 1), semuestra el carrito actual.
+  const modoVisualizacion = pedidoIdFromURL || (paso > 1 && pedidoCreado) ? 'pedido' : 'carrito';
+  
+  const itemsAMostrar = modoVisualizacion === 'pedido' && pedidoCreado?.items 
+      ? pedidoCreado.items 
+      : cart;
+
+  const totalAMostrar = modoVisualizacion === 'pedido' && pedidoCreado 
+      ? pedidoCreado.total 
+      : total; // total viene del cálculo del carrito
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
       <main className="max-w-5xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => (paso === 1 ? navigate(-1) : setPaso(paso - 1))}
+            onClick={() => {
+              if (paso === 1) {
+                // Si está en el paso 1, vuelve a la tienda o carrito
+                navigate(-1);
+              } else {
+                // Si está en el paso 2 (Pago) y quiere volver a editar datos:
+                setPaso(1); // 1. Se vuelve visualmente
+                setPedidoCreado(null); // 2. Se borra el pedido anterior de la memoria del frontend
+                
+                // 3. Limpiamos la URL para quitar el ?pedidoId=...
+                navigate("/checkout", { replace: true }); 
+              }
+            }}
             className="flex items-center gap-2 text-gray-500 hover:text-biskoto transition-colors mb-4 font-medium"
           >
             <ArrowLeft size={20} />{" "}
@@ -924,12 +980,12 @@ const CheckoutPage = () => {
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 sticky top-24">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <ShoppingBag size={20} className="text-biskoto" />
-                Resumen del Pedido
+                {modoVisualizacion === 'pedido' ? 'Detalle de la Orden' : 'Resumen del Carrito'}
               </h3>
 
               {/* Lista de productos */}
-              <div className="space-y-3 mb-6 max-h-64 overflow-y-auto custom-scrollbar">
-                {cart.map((item) => (
+            <div className="space-y-3 mb-6 max-h-64 overflow-y-auto custom-scrollbar">
+                {itemsAMostrar.map((item) => (
                   <div key={item.id} className="flex gap-3">
                     <img
                       src={item.imagen}
@@ -953,7 +1009,7 @@ const CheckoutPage = () => {
               </div>
 
               {/* Cupón */}
-              {paso === 1 && (
+              {(paso === 1 || cuponAplicado) && (
                 <div className="mb-6 pb-6 border-b border-gray-200 dark:border-slate-700">
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                     <Tag size={16} className="inline mr-2" />

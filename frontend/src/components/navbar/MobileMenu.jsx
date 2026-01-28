@@ -145,6 +145,13 @@ const MobileMenu = ({ isOpen, setIsOpen, user, logout, isAdmin }) => {
               >
                 Mi Perfil
               </Link>
+              <Link
+                to="/mis-pedidos"
+                className="block px-4 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800"
+                onClick={() => setIsOpen(false)}
+              >
+                Mis Pedidos
+              </Link>
               <button
                 onClick={() => {
                   logout();

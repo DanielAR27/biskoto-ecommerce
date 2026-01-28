@@ -26,9 +26,8 @@ import {
   actualizarPedido,
   eliminarPedido,
 } from "../../../api/pedidoService";
-import Navbar from "../../../components/Navbar";
 import TableSearch from "../../../components/TableSearch";
-import StatusBadge from "../../../components/StatusBadge";
+import ConfirmModal from "../../../components/ConfirmModal"
 
 /**
  * Panel Admin - Gestión de Pedidos COMPLETO
@@ -68,13 +67,13 @@ const PedidosAdminPage = () => {
 
   // Estados disponibles
   const estados = [
-    { id: 1, nombre: "Pendiente de Pago", color: "warning" },
+    { id: 1, nombre: "Pendiente de Pago", color: "gray" },
     { id: 2, nombre: "Confirmado", color: "info" },
     { id: 3, nombre: "En Producción", color: "brand" },
-    { id: 4, nombre: "Listo para Retiro", color: "warning" },
+    { id: 4, nombre: "Listo para Retiro", color: "purple" },
     { id: 5, nombre: "Entregado", color: "success" },
     { id: 6, nombre: "Cancelado", color: "error" },
-    { id: 7, nombre: "Pago Parcial", color: "info" },
+    { id: 7, nombre: "Pago Parcial", color: "warning" },
   ];
 
   /**
@@ -124,10 +123,10 @@ const PedidosAdminPage = () => {
     }
 
     setPedidosFiltrados(resultado);
-    setPaginaActual(1); // 👈 NUEVO: Reset a página 1 al filtrar
+    setPaginaActual(1); // Reset a página 1 al filtrar
   }, [searchTerm, filtroEstado, pedidos]);
 
-  // 👇 NUEVO: Lógica de paginación
+  // Lógica de paginación
   const indiceUltimo = paginaActual * pedidosPorPagina;
   const indicePrimero = indiceUltimo - pedidosPorPagina;
   const pedidosActuales = pedidosFiltrados.slice(indicePrimero, indiceUltimo);
@@ -178,7 +177,7 @@ const PedidosAdminPage = () => {
     setModalEditar(true);
   };
 
-  // 👇 NUEVO: Guardar cambios del pedido
+  //  NUEVO: Guardar cambios del pedido
   const guardarEdicion = async () => {
     if (!pedidoEditando) return;
 
@@ -391,23 +390,27 @@ const PedidosAdminPage = () => {
   };
 
   /**
-   * Obtener clases de color según estado
+   * Obtener clases de color con MEJOR CONTRASTE para Dark Mode
    */
   const getEstadoClasses = (color) => {
     const classes = {
       success:
-        "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800",
+        "bg-green-100 text-green-700 border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20",
       error:
-        "bg-red-50 text-red-700 border-red-100 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800",
+        "bg-red-50 text-red-700 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20",
       warning:
-        "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800",
-      info: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800",
+        "bg-orange-50 text-orange-700 border-orange-100 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20",
+      info: 
+        "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20",
       brand:
-        "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800",
+        "bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20",
+      purple:
+        "bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20",
+      gray:
+        "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600",
     };
     return (
-      classes[color] ||
-      "bg-gray-100 text-gray-800 border-gray-200 dark:bg-slate-700 dark:text-gray-300 dark:border-slate-600"
+      classes[color] || classes.gray
     );
   };
 
@@ -430,37 +433,62 @@ const PedidosAdminPage = () => {
             Gestión de Pedidos
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            CRUD Completo - Administra todos los pedidos del sistema
+            Administra todos los pedidos del sistema
           </p>
         </div>
 
-        {/* Filtros y búsqueda */}
+        {/* Resumen */}
+        {pedidos.length > 0 && (
+          <div className="mb-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {estados.map((estado) => {
+              const count = pedidos.filter(
+                (p) => p.estado_id === estado.id,
+              ).length;
+              if (count === 0) return null;
+
+              return (
+                <div
+                  key={estado.id}
+                  className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-slate-700"
+                >
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    {estado.nombre}
+                  </p>
+                  <p className="text-2xl font-black text-gray-900 dark:text-white">
+                    {count}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+{/* Filtros y búsqueda */}
         <div className="bg-white dark:bg-slate-800 rounded-t-xl shadow-sm border-b border-gray-200 dark:border-slate-700 p-4">
           <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-            {/* Búsqueda */}
-            <div className="w-full sm:w-auto flex-1 max-w-md">
-              <TableSearch
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                placeholder="Buscar por ID, cliente, email..."
-                resultCount={pedidosFiltrados.length}
-              />
+            
+            {/* GRUPO IZQUIERDO: Buscador + Texto pegadito con Tab */}
+            <div className="w-full sm:flex-1 flex flex-col sm:flex-row items-start sm:items-center">
+              
+              {/* 1. Buscador */}
+{/* Este contenedor debe ser flex-1 para que la barra de búsqueda se estire */}
+  <div className="flex-1 w-full max-w-2xl"> 
+    <TableSearch
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+      placeholder="Buscar por ID, cliente, email..."
+      resultCount={pedidosFiltrados.length}
+    />
+  </div>
             </div>
 
-            {/* 👇 NUEVO: Contador de resultados */}
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              Mostrando {indicePrimero + 1}-
-              {Math.min(indiceUltimo, pedidosFiltrados.length)} de{" "}
-              {pedidosFiltrados.length}
-            </div>
-
-            {/* Filtro por estado */}
-            <div className="flex items-center gap-2">
+            {/* GRUPO DERECHO: Filtro */}
+            <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
               <Filter size={18} className="text-gray-400" />
               <select
                 value={filtroEstado}
                 onChange={(e) => setFiltroEstado(e.target.value)}
-                className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-biskoto focus:border-transparent text-sm"
+                className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-biskoto focus:border-transparent text-sm"
               >
                 <option value="todos">Todos los estados</option>
                 {estados.map((estado) => (
@@ -615,20 +643,25 @@ const PedidosAdminPage = () => {
                                   actualizandoEstado === pedido.id ||
                                   pedido.estado_id === 6
                                 }
-                                className={`appearance-none px-3 py-1.5 pr-8 text-xs font-semibold rounded-full border cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${getEstadoClasses(
+                                className={`appearance-none px-3 py-1.5 pr-8 text-xs font-bold rounded-full border cursor-pointer transition-all focus:ring-2 focus:ring-offset-1 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${getEstadoClasses(
                                   estadoActual?.color,
                                 )}`}
                               >
-                                {estados.map((estado) => (
-                                  <option key={estado.id} value={estado.id}>
-                                    {estado.nombre}
-                                  </option>
-                                ))}
+                                {/* Mapeamos los estados FILTRANDO el ID 1 */}
+                                {estados
+                                  .filter((e) => e.id !== 1) // <--- ESTO OCULTA "PENDIENTE"
+                                  .map((estado) => (
+                                    <option key={estado.id} value={estado.id} className="bg-white text-gray-900 dark:bg-slate-800 dark:text-white">
+                                      {estado.nombre}
+                                    </option>
+                                  ))}
                               </select>
+                              
+                              {/* Icono de carga o flecha */}
                               {actualizandoEstado === pedido.id ? (
-                                <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 animate-spin pointer-events-none" />
+                                <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 animate-spin pointer-events-none opacity-50" />
                               ) : pedido.estado_id === 6 ? null : (
-                                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 pointer-events-none" />
+                                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 pointer-events-none opacity-50" />
                               )}
                             </div>
                           </td>
@@ -790,31 +823,6 @@ const PedidosAdminPage = () => {
           </>
         )}
 
-        {/* Resumen */}
-        {pedidos.length > 0 && (
-          <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {estados.map((estado) => {
-              const count = pedidos.filter(
-                (p) => p.estado_id === estado.id,
-              ).length;
-              if (count === 0) return null;
-
-              return (
-                <div
-                  key={estado.id}
-                  className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-slate-700"
-                >
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    {estado.nombre}
-                  </p>
-                  <p className="text-2xl font-black text-gray-900 dark:text-white">
-                    {count}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        )}
       </main>
 
       {/* Modal de Edición */}
@@ -903,55 +911,25 @@ const PedidosAdminPage = () => {
         </div>
       )}
 
-      {/* 👇 NUEVO: Modal de Confirmación Eliminar */}
-      {modalEliminar && pedidoEliminar && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-md w-full p-6">
-            <div className="flex items-center justify-center mb-4">
-              <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-full">
-                <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
-              </div>
-            </div>
+      <ConfirmModal
+        isOpen={modalEliminar}
+        onClose={() => setModalEliminar(false)}
+        onConfirm={confirmarEliminar}
+        title="¿Eliminar Pedido?"
+        message={
+          pedidoEliminar ? (
+            <span>
+              Estás a punto de eliminar el pedido <strong className="text-gray-900 dark:text-white">#{pedidoEliminar.id}</strong>. 
+              Esta acción no se puede deshacer.
+            </span>
+          ) : ""
+        }
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        isLoading={eliminando}
+      />
 
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">
-              ¿Eliminar Pedido?
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
-              Estás a punto de eliminar el pedido{" "}
-              <strong>#{pedidoEliminar.id}</strong>. Esta acción no se puede
-              deshacer.
-            </p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setModalEliminar(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={confirmarEliminar}
-                disabled={eliminando}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {eliminando ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Eliminando...
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="h-4 w-4" />
-                    Eliminar
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 👇 NUEVO: Modal de Completar Pago */}
+      {/*  NUEVO: Modal de Completar Pago */}
       {modalCompletarPago && pedidoCompletarPago && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-lg w-full p-6">

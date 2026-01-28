@@ -17,7 +17,6 @@ import {
 // Importaciones de servicios, contextos y componentes
 import { getProducto } from "../../api/productoService";
 import { useCart } from "../../context/CartContext";
-import Navbar from "../../components/Navbar";
 
 /**
  * Componente de visualización detallada de un producto.

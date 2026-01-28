@@ -134,6 +134,8 @@ const obtenerProducto = async (req, res) => {
  * Calcula la capacidad máxima real de fabricación e inventario
  * sin limitarse por la cantidad enviada por el usuario.
  */
+// Busca la función validarDisponibilidadMasiva y reemplázala con esta versión mejorada:
+
 const validarDisponibilidadMasiva = async (req, res) => {
   const { items } = req.body;
 
@@ -144,86 +146,105 @@ const validarDisponibilidadMasiva = async (req, res) => {
   try {
     const ids = items.map((item) => item.id);
 
-    // 1. Obtener recetas y stock de todos los productos y sus ingredientes
-    const { data: recetas, error: errorRecetas } = await supabase
-      .from("producto_ingredientes")
-      .select(
-        `
-        producto_id,
-        ingrediente_id,
-        cantidad_necesaria,
-        productos ( id, nombre, stock_actual ),
-        ingredientes ( id, nombre, stock_actual, es_ilimitado )
-      `,
-      )
-      .in("producto_id", ids);
+    // 1. [NUEVO] Verificar existencia y estado activo de los productos
+    const { data: productosInfo, error: errorInfo } = await supabase
+      .from("productos")
+      .select("id, nombre, activo, stock_actual")
+      .in("id", ids);
 
-    if (errorRecetas) throw errorRecetas;
+    if (errorInfo) throw errorInfo;
 
-    // 2. Agrupar datos para cálculos rápidos
-    const infoIngredientes = {};
-    const infoProductos = {};
+    // Mapa para acceso rápido
+    const mapaProductos = {};
+    productosInfo.forEach(p => mapaProductos[p.id] = p);
 
-    recetas.forEach((receta) => {
-      infoIngredientes[receta.ingrediente_id] = receta.ingredientes;
-      infoProductos[receta.producto_id] = receta.productos;
+    // 2. Detectar productos eliminados o inactivos
+    const estadoProductos = {}; // Guardará: 'ok', 'eliminado', 'inactivo'
+    
+    ids.forEach(id => {
+      const prod = mapaProductos[id];
+      if (!prod) {
+        estadoProductos[id] = 'eliminado';
+      } else if (!prod.activo) {
+        estadoProductos[id] = 'inactivo';
+      } else {
+        estadoProductos[id] = 'ok';
+      }
     });
 
+    // 3. Obtener recetas (Solo de los que están OK)
+    const idsValidos = ids.filter(id => estadoProductos[id] === 'ok');
+    
+    let recetas = [];
+    if (idsValidos.length > 0) {
+      const { data: recetasData, error: errorRecetas } = await supabase
+        .from("producto_ingredientes")
+        .select(`
+          producto_id,
+          cantidad_necesaria,
+          ingredientes ( stock_actual, es_ilimitado )
+        `)
+        .in("producto_id", idsValidos);
+        
+      if (errorRecetas) throw errorRecetas;
+      recetas = recetasData;
+    }
+
+    // 4. Calcular disponibilidad (Lógica original optimizada)
     const disponibilidadReal = {};
     const conflictos = [];
 
-    // 3. CÁLCULO DE CAPACIDAD MÁXIMA POR PRODUCTO
     ids.forEach((prodId) => {
-      const producto = infoProductos[prodId];
-      if (!producto) return;
+      // Si el producto no existe o está inactivo, su disponibilidad es 0
+      if (estadoProductos[prodId] !== 'ok') {
+        disponibilidadReal[prodId] = 0;
+        conflictos.push({
+          id: prodId,
+          nombre: mapaProductos[prodId]?.nombre || "Producto eliminado",
+          cantidadSolicitada: items.find(i => i.id === prodId).cantidad,
+          cantidadDisponible: 0,
+          razon: estadoProductos[prodId] // 'eliminado' o 'inactivo'
+        });
+        return;
+      }
 
-      // Iniciamos con el stock físico del producto terminado
+      const producto = mapaProductos[prodId];
       let maximoFabricable = producto.stock_actual || 0;
 
-      // Evaluamos cada ingrediente de la receta para este producto específico
+      // Receta del producto
       const recetaDelProducto = recetas.filter((r) => r.producto_id === prodId);
 
       recetaDelProducto.forEach((r) => {
-        if (r.ingredientes.es_ilimitado) {
-          return;
-        }
-
-        const stockDisponibleIng = r.ingredientes.stock_actual || 0;
-        const cantidadNecesaria = r.cantidad_necesaria || 1;
-
-        // Cuántos productos se pueden hacer con este ingrediente específico
-        const posibleConEsteIng = Math.floor(
-          stockDisponibleIng / cantidadNecesaria,
-        );
-
-        // El "Reactivo Limitante": El mínimo entre el stock del producto y sus ingredientes
-        maximoFabricable = Math.min(maximoFabricable, posibleConEsteIng);
+        if (r.ingredientes.es_ilimitado) return;
+        const stockIng = r.ingredientes.stock_actual || 0;
+        const posible = Math.floor(stockIng / (r.cantidad_necesaria || 1));
+        maximoFabricable = Math.min(maximoFabricable, posible);
       });
 
-      // Guardamos el máximo absoluto posible
       disponibilidadReal[prodId] = maximoFabricable < 0 ? 0 : maximoFabricable;
 
-      // 4. DETECCIÓN DE CONFLICTOS
+      // Conflicto de stock
       const itemEnCarrito = items.find((i) => i.id === prodId);
-      if (itemEnCarrito && itemEnCarrito.cantidad > maximoFabricable) {
+      if (itemEnCarrito.cantidad > maximoFabricable) {
         conflictos.push({
           id: prodId,
           nombre: producto.nombre,
           cantidadSolicitada: itemEnCarrito.cantidad,
-          cantidadDisponible: disponibilidadReal[prodId],
+          cantidadDisponible: maximoFabricable,
+          razon: 'stock_insuficiente'
         });
       }
     });
 
-    // 5. RESPUESTA FINAL
     res.status(200).json({
       valido: conflictos.length === 0,
       conflictos,
-      disponibilidadReal, // Ahora contiene el stock total real (ej: 11), no el limitado (ej: 4)
+      disponibilidadReal,
+      estadoProductos // Envia el estado explícito al frontend
     });
   } catch (error) {
-    console.error("Error al validar disponibilidad masiva:", error);
-    res.status(500).json({ error: "Error interno al validar el inventario." });
+    console.error("Error al validar disponibilidad:", error);
+    res.status(500).json({ error: "Error al validar el inventario." });
   }
 };
 
@@ -462,46 +483,60 @@ const actualizarProducto = async (req, res) => {
 };
 
 /**
- * ELIMINAR PRODUCTO Y ARCHIVOS (Solo Admin)
- * Sincroniza la limpieza de la base de datos con el borrado físico en el Bucket.
+ * ELIMINAR PRODUCTO (INTELIGENTE)
+ * - Si tiene ventas reales (Confirmado, Entregado, etc): BLOQUEA (Sugiere desactivar).
+ * - Si solo está en carritos abandonados (Pendiente) o cancelados: LIMPIA Y BORRA.
  */
 const eliminarProducto = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // 1. OBTENER LAS URLs: Antes de borrar nada, consultamos qué imágenes tiene el producto
-    const { data: imagenes, error: errorConsultar } = await supabase
+    // 1. VERIFICAR VENTAS REALES
+    // Busca si existe en detalles de pedidos que NO sean (1=Pendiente o 6=Cancelado)
+    // Nota: Usamos !inner para filtrar basado en la tabla relacionada 'pedidos'
+    const { count, error: errorCheck } = await supabase
+      .from("detalle_pedidos")
+      .select("id, pedidos!inner(estado_id)", { count: "exact", head: true })
+      .eq("producto_id", id)
+      .neq("pedidos.estado_id", 1) // Ignora Pendientes
+      .neq("pedidos.estado_id", 6); // Ignora Cancelados
+
+    if (errorCheck) throw errorCheck;
+
+    if (count > 0) {
+      return res.status(400).json({
+        error:
+          "No se puede eliminar: Este producto tiene ventas históricas reales. Te recomendamos usar la opción de 'Desactivar' para ocultarlo del catálogo sin perder la contabilidad.",
+      });
+    }
+
+    // 2. LIMPIEZA DE BASURA (Carritos abandonados)
+    // Si se llega aquí, solo está en pedidos Pendientes o Cancelados.
+    // Hay que borrar esas referencias primero para liberar la restricción (Foreign Key).
+    await supabase
+      .from("detalle_pedidos")
+      .delete()
+      .eq("producto_id", id);
+
+    // 3. OBTENER LAS URLs DE IMÁGENES (Para borrar archivos físicos)
+    const { data: imagenes } = await supabase
       .from("producto_imagenes")
       .select("url")
       .eq("producto_id", id);
 
-    if (errorConsultar) throw errorConsultar;
-
-    // 2. BORRADO FÍSICO EN STORAGE: Si el producto tiene imágenes, las eliminamos del bucket
+    // 4. BORRADO FÍSICO EN STORAGE
     if (imagenes && imagenes.length > 0) {
-      // Extraemos el nombre del archivo de la URL pública (ej: "abc123.jpg")
-      // Las URLs de Supabase terminan siempre en /nombre-del-archivo
       const pathsParaBorrar = imagenes.map((img) => {
         const partes = img.url.split("/");
         return partes[partes.length - 1];
       });
 
-      // Ejecutamos el borrado masivo en el bucket 'productos'
-      const { error: errorStorage } = await supabase.storage
+      await supabase.storage
         .from("productos")
         .remove(pathsParaBorrar);
-
-      if (errorStorage) {
-        // Logueamos pero no detenemos el proceso por si el archivo ya no existía físicamente
-        console.warn(
-          "Aviso: Algunos archivos no se pudieron borrar del Storage:",
-          errorStorage,
-        );
-      }
     }
 
-    // 3. BORRADO EN BASE DE DATOS: Finalmente eliminamos el producto
-    // Esto disparará la eliminación en cascada de la tabla producto_imagenes
+    // 5. BORRADO FINAL DEL PRODUCTO
     const { error: errorDB } = await supabase
       .from("productos")
       .delete()
@@ -510,14 +545,13 @@ const eliminarProducto = async (req, res) => {
     if (errorDB) throw errorDB;
 
     res.status(200).json({
-      mensaje:
-        "Producto y sus archivos asociados han sido eliminados del sistema.",
+      mensaje: "Producto eliminado (se limpiaron referencias en carritos abandonados).",
     });
+
   } catch (error) {
-    console.error("Error crítico en eliminarProducto:", error);
+    console.error("Error en eliminarProducto:", error);
     res.status(500).json({
-      error:
-        "Este producto no puede ser borrado actualmente porque forma parte de pedidos que se encuentran activos. Resuelva primero el estado de dichos pedidos.",
+      error: "Error interno al intentar eliminar el producto.",
     });
   }
 };

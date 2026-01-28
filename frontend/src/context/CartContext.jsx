@@ -62,42 +62,60 @@ export const CartProvider = ({ children }) => {
         }
       });
 
-      // 3. Actualizamos el estado visual (UI) para reflejar los nuevos límites y mensajes
+      // 3. Se actualiza el estado visual (UI) para reflejar los nuevos límites y mensajes
       setCart(prevCart => {
         return prevCart.map(item => {
+          // Revisamos primero el estado explícito que nos mandó el backend
+          const estadoProducto = data.estadoProductos ? data.estadoProductos[item.id] : 'ok';
+          
+          if (estadoProducto === 'eliminado') {
+             return {
+               ...item,
+               quantity: 0,
+               status: 'eliminado', // Nuevo estado
+               mensajeError: 'Producto ya no existe'
+             };
+          }
+
+          if (estadoProducto === 'inactivo') {
+             return {
+               ...item,
+               quantity: 0,
+               status: 'inactivo', // Nuevo estado
+               mensajeError: 'Producto fuera de venta'
+             };
+          }
+
+          // Lógica de Stock
           const stockReal = data.disponibilidadReal[item.id];
           
-          // Caso 1: Item o ingredientes agotados
           if (stockReal === 0) {
             return { 
-              ...item, 
-              quantity: 0, 
-              maxStock: 0, 
-              status: 'agotado',
-              mensajeError: 'Insumos agotados' 
+              ...item, quantity: 0, maxStock: 0, status: 'agotado', mensajeError: 'Agotado' 
             };
           }
-
-          // Caso 2: Stock insuficiente para la cantidad deseada (Reducción)
+          
+          // Si no había stock de un producto y vuelve a estarlo, se agrega uno al carrito
+          // en caso de que el usuario no lo haya eliminado.
+          if (item.quantity === 0 && stockReal > 0) {
+             return {
+               ...item,
+               quantity: 1, // <--- Resucita con 1
+               maxStock: stockReal,
+               status: 'ok',
+               mensajeError: null
+             };
+          }
+      
           if (stockReal !== undefined && item.quantity > stockReal) {
             return { 
-              ...item, 
-              quantity: stockReal, 
-              maxStock: stockReal, 
-              status: 'ajustado',
-              mensajeError: `Solo quedan ${stockReal} unidades`
+              ...item, quantity: stockReal, maxStock: stockReal, status: 'ajustado', mensajeError: `Solo quedan ${stockReal}`
             };
           }
 
-          // Caso 3: Stock suficiente. 
-          // Se protege contra 'undefined' para no perder el maxStock previo si la API falla parcialmente.
           const nuevoMaxStock = stockReal !== undefined ? stockReal : item.maxStock;
-
           return { 
-            ...item, 
-            maxStock: nuevoMaxStock, 
-            status: 'ok', 
-            mensajeError: null 
+            ...item, maxStock: nuevoMaxStock, status: 'ok', mensajeError: null 
           };
         });
       });
@@ -188,8 +206,13 @@ export const CartProvider = ({ children }) => {
     setCart(prevCart => prevCart.filter(item => item.id !== id));
   };
 
-  const limpiarAgotados = () => {
-    setCart(prevCart => prevCart.filter(item => item.status !== 'agotado'));
+  // Elimina items que ya no existen, están inactivos o agotados
+  const limpiarNoDisponibles = () => {
+    setCart(prevCart => prevCart.filter(item => 
+      item.status !== 'eliminado' && 
+      item.status !== 'inactivo' && 
+      item.status !== 'agotado'
+    ));
   };
 
   const clearCart = () => setCart([]);
@@ -203,7 +226,7 @@ export const CartProvider = ({ children }) => {
       addToCart, 
       removeFromCart, 
       clearCart, 
-      limpiarAgotados,
+      limpiarNoDisponibles,
       getItemQuantity,
       totalItems,
       totalPrice,

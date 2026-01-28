@@ -18,7 +18,6 @@ import {
   Store,
 } from "lucide-react";
 import { getPedido } from "../../api/pedidoService";
-import Navbar from "../../components/Navbar";
 
 /**
  * Página de Detalle de un Pedido Específico

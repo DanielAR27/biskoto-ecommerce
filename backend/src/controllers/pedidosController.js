@@ -33,32 +33,57 @@ const crearPedido = async (req, res) => {
   }
 
   try {
-    // 2. Validar disponibilidad de stock ANTES de crear el pedido
+      // Si ya existe un pedido pendiente, SE BORRA FÍSICAMENTE.
+      const { data: pedidoViejo } = await supabase
+        .from("pedidos")
+        .select("id")
+        .eq("perfil_id", perfil_id)
+        .eq("estado_id", 1) 
+        .maybeSingle();
+
+      if (pedidoViejo) { 
+        await supabase
+          .from("pedidos")
+          .delete()
+          .eq("id", pedidoViejo.id);
+      }
+  
+    // 2. OBTENER DATOS DE LOS PRODUCTOS (Catálogo)
     const productIds = items.map((item) => item.id);
 
+    // Consulta A: Datos básicos del producto (precio, stock directo, etc.)
+    const { data: productosData, error: errorProductosData } = await supabase
+      .from("productos")
+      .select("id, nombre, stock_actual, precio")
+      .in("id", productIds);
+
+    if (errorProductosData) throw errorProductosData;
+
+    // Consulta B: Ingredientes (Recetas) asociadas a estos productos
     const { data: recetas, error: errorRecetas } = await supabase
       .from("producto_ingredientes")
-      .select(
-        `
+      .select(`
         producto_id,
-        ingrediente_id,
         cantidad_necesaria,
-        productos ( id, nombre, stock_actual, precio ),
         ingredientes ( id, stock_actual, es_ilimitado )
-      `
-      )
+      `)
       .in("producto_id", productIds);
 
     if (errorRecetas) throw errorRecetas;
 
-    // 3. Agrupar datos
-    const infoIngredientes = {};
+    // 3. Agrupar datos para acceso rápido
     const infoProductos = {};
-
-    recetas.forEach((receta) => {
-      infoIngredientes[receta.ingrediente_id] = receta.ingredientes;
-      infoProductos[receta.producto_id] = receta.productos;
+    productosData.forEach((p) => {
+      infoProductos[p.id] = p;
     });
+
+    const infoRecetas = {}; // Agrupar recetas por producto_id
+    if (recetas) {
+      recetas.forEach((r) => {
+        if (!infoRecetas[r.producto_id]) infoRecetas[r.producto_id] = [];
+        infoRecetas[r.producto_id].push(r);
+      });
+    }
 
     // 4. Calcular disponibilidad real y detectar conflictos
     const conflictos = [];
@@ -67,29 +92,34 @@ const crearPedido = async (req, res) => {
     for (const item of items) {
       const producto = infoProductos[item.id];
 
+      // Encuentra productos aun que no tenga ingredientes asociados
       if (!producto) {
-        conflictos.push({ id: item.id, error: "Producto no encontrado" });
+        conflictos.push({ id: item.id, error: "Producto no encontrado en base de datos" });
         continue;
       }
 
-      // Calcular máximo fabricable
-      let maximoFabricable = producto.stock_actual || 0;
+      // LÓGICA DE STOCK HÍBRIDA
+      let maximoFabricable = 0;
+      const recetaDelProducto = infoRecetas[item.id] || [];
 
-      const recetaDelProducto = recetas.filter(
-        (r) => r.producto_id === item.id
-      );
+      if (recetaDelProducto.length > 0) {
+        // CASO A: Tiene receta (se fabrica) -> El límite lo ponen los ingredientes
+        // Inicia con un número alto y va bajando según el ingrediente más limitante
+        maximoFabricable = 999999; 
 
-      recetaDelProducto.forEach((r) => {
-        if (r.ingredientes.es_ilimitado) return;
+        recetaDelProducto.forEach((r) => {
+          if (r.ingredientes.es_ilimitado) return;
 
-        const stockDisponible = r.ingredientes.stock_actual || 0;
-        const cantidadNecesaria = r.cantidad_necesaria || 1;
-        const posibleConEsteIng = Math.floor(
-          stockDisponible / cantidadNecesaria
-        );
+          const stockDisponible = r.ingredientes.stock_actual || 0;
+          const cantidadNecesaria = r.cantidad_necesaria || 1;
+          const posibleConEsteIng = Math.floor(stockDisponible / cantidadNecesaria);
 
-        maximoFabricable = Math.min(maximoFabricable, posibleConEsteIng);
-      });
+          maximoFabricable = Math.min(maximoFabricable, posibleConEsteIng);
+        });
+      } else {
+        // CASO B: No tiene receta (producto terminado/reventa) -> El límite es el stock directo
+        maximoFabricable = producto.stock_actual || 0;
+      }
 
       // Validar cantidad solicitada
       if (item.cantidad > maximoFabricable) {
@@ -98,6 +128,7 @@ const crearPedido = async (req, res) => {
           nombre: producto.nombre,
           cantidadSolicitada: item.cantidad,
           cantidadDisponible: maximoFabricable,
+          error: `Solo hay disponibles ${maximoFabricable} unidades (limitado por ${recetaDelProducto.length > 0 ? "ingredientes" : "stock directo"})`
         });
       }
 
@@ -186,7 +217,7 @@ const crearPedido = async (req, res) => {
         {
           perfil_id,
           total,
-          estado_id: requiereAdelanto ? 7 : 1, // 7 = Pago Parcial, 1 = Pendiente de Pago
+          estado_id: 1, // 1 = Pendiente de Pago
           cupon_id: cupon_id || null,
           notas: JSON.stringify(datos_entrega),
           // Campos de adelanto
@@ -239,9 +270,9 @@ const crearPedido = async (req, res) => {
           : null,
         numeroReferencia,
         datosPago: {
-          telefono: process.env.SINPE_TELEFONO || "8888-8888",
-          titular: process.env.SINPE_TITULAR || "Biskoto Repostería",
-          cedula: process.env.SINPE_CEDULA || "1-2345-6789",
+          telefono: process.env.SINPE_TELEFONO || "8838-3780",
+          titular: process.env.SINPE_TITULAR || "Sofía Montero Brenes",
+          cedula: process.env.SINPE_CEDULA || "1-0899-0361",
           monto: requiereAdelanto ? montoAdelanto : total, // Monto a pagar AHORA
         },
       },
@@ -252,6 +283,11 @@ const crearPedido = async (req, res) => {
   }
 };
 
+/**
+ * CONFIRMAR PAGO
+ * Actualiza el estado del pedido a "Confirmado" y descuenta el stock.
+ * Esta función se llama cuando el usuario sube el comprobante de SINPE.
+ */
 /**
  * CONFIRMAR PAGO
  * Actualiza el estado del pedido a "Confirmado" y descuenta el stock.
@@ -284,7 +320,6 @@ const confirmarPago = async (req, res) => {
     }
 
     // 2. Verificar que el pedido está en estado válido para confirmar pago
-    // Estado 1 = Pendiente de Pago (sin adelanto), Estado 7 = Pago Parcial (con adelanto)
     if (![1, 7].includes(pedido.estado_id)) {
       return res.status(400).json({
         error: "Este pedido ya ha sido procesado o cancelado",
@@ -294,6 +329,15 @@ const confirmarPago = async (req, res) => {
     // 3. Validar disponibilidad de stock nuevamente (por si cambió)
     const productIds = pedido.detalle_pedidos.map((item) => item.producto_id);
 
+    // A. OBTENER PRODUCTOS (Catálogo General)
+    const { data: productosData, error: errorProductos } = await supabase
+      .from("productos")
+      .select("id, nombre, stock_actual")
+      .in("id", productIds);
+
+    if (errorProductos) throw errorProductos;
+
+    // B. OBTENER RECETAS (Ingredientes)
     const { data: recetas, error: errorRecetas } = await supabase
       .from("producto_ingredientes")
       .select(
@@ -301,7 +345,6 @@ const confirmarPago = async (req, res) => {
         producto_id,
         ingrediente_id,
         cantidad_necesaria,
-        productos ( id, nombre, stock_actual ),
         ingredientes ( id, stock_actual, es_ilimitado )
       `
       )
@@ -309,37 +352,49 @@ const confirmarPago = async (req, res) => {
 
     if (errorRecetas) throw errorRecetas;
 
-    // Agrupar datos
-    const infoIngredientes = {};
+    // Agrupar datos para acceso rápido
     const infoProductos = {};
-
-    recetas.forEach((receta) => {
-      infoIngredientes[receta.ingrediente_id] = receta.ingredientes;
-      infoProductos[receta.producto_id] = receta.productos;
+    productosData.forEach((p) => {
+      infoProductos[p.id] = p;
     });
 
-    // Validar stock
+    const infoRecetas = {};
+    if (recetas) {
+      recetas.forEach((r) => {
+        if (!infoRecetas[r.producto_id]) infoRecetas[r.producto_id] = [];
+        infoRecetas[r.producto_id].push(r);
+      });
+    }
+
+    // Validar stock (Lógica Híbrida)
     const conflictos = [];
 
     for (const item of pedido.detalle_pedidos) {
       const producto = infoProductos[item.producto_id];
-      let maximoFabricable = producto.stock_actual || 0;
 
-      const recetaDelProducto = recetas.filter(
-        (r) => r.producto_id === item.producto_id
-      );
+      // Seguridad: Si el producto fue borrado de la DB mientras tanto
+      if (!producto) {
+        conflictos.push({ id: item.producto_id, error: "Producto no encontrado" });
+        continue;
+      }
 
-      recetaDelProducto.forEach((r) => {
-        if (r.ingredientes.es_ilimitado) return;
+      let maximoFabricable = 0;
+      const recetaDelProducto = infoRecetas[item.producto_id] || [];
 
-        const stockDisponible = r.ingredientes.stock_actual || 0;
-        const cantidadNecesaria = r.cantidad_necesaria || 1;
-        const posibleConEsteIng = Math.floor(
-          stockDisponible / cantidadNecesaria
-        );
-
-        maximoFabricable = Math.min(maximoFabricable, posibleConEsteIng);
-      });
+      if (recetaDelProducto.length > 0) {
+        // CASO A: Tiene receta
+        maximoFabricable = 999999;
+        recetaDelProducto.forEach((r) => {
+          if (r.ingredientes.es_ilimitado) return;
+          const stockDisponible = r.ingredientes.stock_actual || 0;
+          const cantidadNecesaria = r.cantidad_necesaria || 1;
+          const posibleConEsteIng = Math.floor(stockDisponible / cantidadNecesaria);
+          maximoFabricable = Math.min(maximoFabricable, posibleConEsteIng);
+        });
+      } else {
+        // CASO B: Producto terminado / Reventa
+        maximoFabricable = producto.stock_actual || 0;
+      }
 
       if (item.cantidad > maximoFabricable) {
         conflictos.push({
@@ -353,18 +408,18 @@ const confirmarPago = async (req, res) => {
 
     if (conflictos.length > 0) {
       return res.status(400).json({
-        error:
-          "Stock insuficiente. El inventario cambió desde que creaste el pedido.",
+        error: "Stock insuficiente. El inventario cambió desde que creaste el pedido.",
         conflictos,
       });
     }
+
     // 4. Actualizar el pedido según tipo de pago
     let nuevoEstado;
     let montoPagado;
     let montoPendiente;
     let pagoCompleto;
 
-    // Parsear notas para agregar comprobante
+    // Parsear notas
     let notasActuales = {};
     try {
       notasActuales = pedido.notas ? JSON.parse(pedido.notas) : {};
@@ -388,7 +443,6 @@ const confirmarPago = async (req, res) => {
       notasActuales.comprobante_url = comprobante_url;
     }
 
-    // Actualizar pedido
     const { error: errorUpdate } = await supabase
       .from("pedidos")
       .update({
@@ -401,36 +455,37 @@ const confirmarPago = async (req, res) => {
       .eq("id", id);
 
     if (errorUpdate) throw errorUpdate;
-    // 4. Descontar stock de productos terminados e ingredientes
-    // Solo descontar stock cuando el pago esté completo
+
+    // 5. Descontar stock (Solo si el pago está completo)
     if (pagoCompleto) {
       for (const item of pedido.detalle_pedidos) {
         const producto = infoProductos[item.producto_id];
 
-        // Descontar producto terminado
-        const nuevoStockProducto = producto.stock_actual - item.cantidad;
-
-        await supabase
-          .from("productos")
-          .update({ stock_actual: nuevoStockProducto })
-          .eq("id", item.producto_id);
-
-        // Descontar ingredientes
-        const recetaDelProducto = recetas.filter(
-          (r) => r.producto_id === item.producto_id
-        );
-
-        for (const r of recetaDelProducto) {
-          if (r.ingredientes.es_ilimitado) continue;
-
-          const cantidadADescontar = r.cantidad_necesaria * item.cantidad;
-          const nuevoStockIngrediente =
-            r.ingredientes.stock_actual - cantidadADescontar;
-
+        if (producto) {
+          // A. Descontar del stock directo del producto
+          const nuevoStockProducto = (producto.stock_actual || 0) - item.cantidad;
+          
           await supabase
-            .from("ingredientes")
-            .update({ stock_actual: nuevoStockIngrediente })
-            .eq("id", r.ingrediente_id);
+            .from("productos")
+            .update({ stock_actual: nuevoStockProducto })
+            .eq("id", item.producto_id);
+
+          // B. Descontar ingredientes (si tiene receta)
+          const recetaDelProducto = infoRecetas[item.producto_id] || [];
+          
+          if (recetaDelProducto.length > 0) {
+            for (const r of recetaDelProducto) {
+              if (r.ingredientes.es_ilimitado) continue;
+
+              const cantidadADescontar = r.cantidad_necesaria * item.cantidad;
+              const nuevoStockIngrediente = r.ingredientes.stock_actual - cantidadADescontar;
+
+              await supabase
+                .from("ingredientes")
+                .update({ stock_actual: nuevoStockIngrediente })
+                .eq("id", r.ingrediente_id);
+            }
+          }
         }
       }
     }
@@ -494,33 +549,68 @@ const obtenerPedido = async (req, res) => {
   const perfil_id = req.user.id;
 
   try {
-    const { data, error } = await supabase
+    // 1. VERIFICAR ROL: Consulta si el usuario actual es admin
+    const { data: perfil } = await supabase
+      .from("perfiles")
+      .select("rol")
+      .eq("id", perfil_id)
+      .single();
+
+    const esAdmin = perfil?.rol === "admin";
+
+    // 2. CONSTRUIR CONSULTA
+    let query = supabase
       .from("pedidos")
-      .select(
-        `
+      .select(`
         *,
+        perfiles (nombre, apellido, email, telefono),
         estados_pedido (nombre),
-        cupones (codigo, descuento_porcentaje),
+        cupones (
+          codigo,
+          descuento_porcentaje
+        ),
         detalle_pedidos (
           cantidad,
           precio_unitario_historico,
           productos (
+            id,
             nombre,
             descripcion,
             producto_imagenes (url, es_principal)
           )
         )
-      `
-      )
-      .eq("id", id)
-      .eq("perfil_id", perfil_id)
-      .single();
+      `)
+      .eq("id", id);
 
-    if (error || !data) {
-      return res.status(404).json({ error: "Pedido no encontrado" });
+    // 3. APLICAR FILTRO DE SEGURIDAD
+    // Si NO es admin, forzamos que solo vea sus propios pedidos.
+    // Si ES admin, no aplicamos este filtro (lo ve todo).
+    if (!esAdmin) {
+      query = query.eq("perfil_id", perfil_id);
     }
 
-    res.status(200).json(data);
+    const { data: pedido, error } = await query.single();
+
+    if (error || !pedido) {
+      return res.status(404).json({ error: "Pedido no encontrado o no autorizado" });
+    }
+
+    // 4. Inyectar datos de pago (SINPE)
+    const pedidoConDatosPago = {
+      ...pedido,
+      datosPago: {
+          telefono: process.env.SINPE_TELEFONO || "8838-3780",
+          titular: process.env.SINPE_TITULAR || "Sofía Montero Brenes",
+          cedula: process.env.SINPE_CEDULA || "1-0899-0361",
+        // Calculamos el monto a mostrar
+        monto: pedido.requiere_adelanto && !pedido.pago_completo 
+               ? pedido.monto_adelanto 
+               : pedido.monto_pendiente > 0 ? pedido.monto_pendiente : pedido.total
+      }
+    };
+
+    res.status(200).json(pedidoConDatosPago);
+
   } catch (error) {
     console.error("Error al obtener pedido:", error);
     res.status(500).json({ error: "Error al obtener el detalle del pedido" });
@@ -544,6 +634,7 @@ const listarTodosPedidos = async (req, res) => {
         detalle_pedidos (cantidad, producto_id)
       `
       )
+      .neq("estado_id", 1) // Se ocultan los pendientes
       .order("fecha", { ascending: false });
 
     if (error) throw error;
