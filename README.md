@@ -161,9 +161,6 @@ npm run dev
 Para optimizar el funcionamiento del Proyecto Biskoto y mejorar la experiencia de usuario, se han identificado las siguientes áreas críticas de desarrollo:
 
 
-**Nota:** Tanto la parte 6.1 como 6.2 son detalles a arreglar, si queda tiempo serán
-resueltos por Daniel, la parte 6.3 en adelante le toca a Luis
-
 ### 6.1. Optimización de Navegación y Feedback (UX)
 
 Actualmente, al realizar acciones que conllevan redireccionamiento o actualizaciones de estado (como eliminar un registro), la posición del scroll se mantiene estática.
@@ -180,7 +177,6 @@ Existe una inconsistencia lógica en el manejo del carrito cuando el inventario 
 
 ---
 
-**Nota:** A partir de aquí, esta parte le toca a Luis, es recomendable comenzar con la 6.4
 
 ### 6.3. Módulo de Gestión de Pedidos (Cliente Final)
 
