@@ -17,20 +17,13 @@ export const AuthProvider = ({ children }) => {
    */
   useEffect(() => {
     const cargarUsuario = async () => {
-      const token = localStorage.getItem('token');
-      
-      if (token) {
-        try {
-          // Si el token es válido (o se renueva exitosamente), cargamos el perfil
-          const perfil = await profileService.getMiPerfil();
-          setUser(perfil);
-        } catch (error) {
-          console.error("Error al cargar sesión persistente:", error);
-          // Si falla definitivamente (incluso tras intentar refresh), limpiamos todo
-          localStorage.removeItem('token');
-          localStorage.removeItem('refresh_token'); // <--- Limpieza completa
-          setUser(null);
-        }
+      try {
+        // Intentamos cargar el perfil directamente. 
+        // Si no hay cookie de sesión, fallará silenciosamente.
+        const perfil = await profileService.getMiPerfil();
+        setUser(perfil);
+      } catch (error) {
+        setUser(null);
       }
       setLoading(false);
     };
@@ -44,11 +37,7 @@ export const AuthProvider = ({ children }) => {
    */
   const login = async (email, password) => {
     try {
-      const data = await authService.login(email, password);
-      
-      // ALMACENAMIENTO DE TOKENS
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('refresh_token', data.refresh_token);
+      await authService.login(email, password);
       
       // Una vez autenticado, descargamos los datos del usuario
       const perfil = await profileService.getMiPerfil();
@@ -90,10 +79,14 @@ export const AuthProvider = ({ children }) => {
    * Cierre de Sesión (Logout).
    * Se asegura de destruir ambas llaves de acceso del almacenamiento local.
    */
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refresh_token'); 
-    setUser(null);
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch (e) {
+      console.error("Error al cerrar sesión", e);
+    } finally {
+      setUser(null);
+    }
   };
 
   const resetPasswordRequest = async (email) => {
@@ -104,9 +97,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const updatePassword = async (newPassword) => {
+  const updatePassword = async (newPassword, token) => {
       try {
-        const data = await authService.updatePassword(newPassword);
+        const data = await authService.updatePassword(newPassword, token);
         return data;
       } catch (error) {
         throw error;

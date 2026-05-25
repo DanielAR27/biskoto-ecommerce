@@ -138,9 +138,16 @@ const authController = {
       if (error)
         return res.status(401).json({ error: "Credenciales inválidas." });
 
+      const cookieOptions = {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+      };
+
+      res.cookie('token', data.session.access_token, cookieOptions);
+      res.cookie('refresh_token', data.session.refresh_token, cookieOptions);
+
       res.status(200).json({
-        token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
         expires_at: data.session.expires_at,
         user: {
           id: data.user.id,
@@ -157,7 +164,7 @@ const authController = {
    * Renueva la sesión utilizando el refresh_token.
    */
   refreshSession: async (req, res) => {
-    const { refresh_token } = req.body;
+    const refresh_token = req.cookies.refresh_token || req.body.refresh_token;
 
     if (!refresh_token) {
       return res.status(400).json({ error: "Se requiere el refresh token." });
@@ -176,9 +183,16 @@ const authController = {
           });
       }
 
+      const cookieOptions = {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+      };
+
+      res.cookie('token', data.session.access_token, cookieOptions);
+      res.cookie('refresh_token', data.session.refresh_token, cookieOptions);
+
       res.status(200).json({
-        token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
         expires_at: data.session.expires_at,
       });
     } catch (error) {
@@ -186,6 +200,26 @@ const authController = {
       res
         .status(500)
         .json({ error: "Error interno al intentar renovar la sesión." });
+    }
+  },
+
+  /**
+   * Cierra la sesión eliminando las cookies.
+   */
+  logout: async (req, res) => {
+    try {
+      const cookieOptions = {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+      };
+      
+      res.clearCookie('token', cookieOptions);
+      res.clearCookie('refresh_token', cookieOptions);
+      res.status(200).json({ mensaje: 'Sesión cerrada exitosamente.' });
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+      res.status(500).json({ error: "Error al cerrar sesión." });
     }
   },
 

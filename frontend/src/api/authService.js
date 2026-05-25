@@ -19,6 +19,11 @@ export const registrar = async (userData) => {
   return response.data;
 };
 
+export const logout = async () => {
+  const response = await api.post('/auth/logout');
+  return response.data;
+};
+
 export const recuperarPassword = async (email) => {
   // Se calcula la URL de retorno dinámicamente (localhost o producción)
   const redirectTo = `${window.location.origin}/actualizar-password`;
@@ -26,8 +31,10 @@ export const recuperarPassword = async (email) => {
   return response.data;
 };
 
-export const updatePassword = async (newPassword) => {
-  // Solo se envía la contraseña.
-  const response = await api.post('/auth/actualizar-password', { password: newPassword });
+export const updatePassword = async (newPassword, token) => {
+  // Solo se envía la contraseña, pero adjuntamos el token de recuperación en los headers
+  const response = await api.post('/auth/actualizar-password', { password: newPassword }, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
   return response.data;
 };

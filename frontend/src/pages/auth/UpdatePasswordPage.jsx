@@ -13,6 +13,7 @@ const UpdatePasswordPage = () => {
   // 2. Estados independientes para cada campo
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [resetToken, setResetToken] = useState('');
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,7 @@ const UpdatePasswordPage = () => {
     const token = params.get('access_token');
 
     if (token) {
-      localStorage.setItem('token', token);
+      setResetToken(token);
     } else {
       setError('Enlace inválido o expirado. Vuelve a solicitar el correo.');
     }
@@ -45,8 +46,7 @@ const UpdatePasswordPage = () => {
     setError('');
 
     try {
-      await updatePassword(password);
-      localStorage.removeItem('token');
+      await updatePassword(password, resetToken);
       navigate('/login', { state: { successMsg: 'Contraseña actualizada. Inicia sesión.' } });
     } catch (err) {
       setError('No se pudo actualizar la contraseña. El enlace puede haber expirado.');

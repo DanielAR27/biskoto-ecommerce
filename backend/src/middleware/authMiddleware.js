@@ -1,8 +1,8 @@
 const supabase = require('../config/supabase');
 
-// Verifica el token JWT enviado por el cliente en los headers.
+// Verifica el token JWT enviado por el cliente en las cookies o headers.
 const verifyToken = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
+  const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
 
   if (!token) {
     return res.status(401).json({ error: 'Token de acceso no proporcionado' });

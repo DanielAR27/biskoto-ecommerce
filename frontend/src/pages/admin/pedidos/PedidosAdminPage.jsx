@@ -305,8 +305,8 @@ const PedidosAdminPage = () => {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
+            credentials: "include",
             body: JSON.stringify({ fileName: nombreArchivo }),
           },
         );
@@ -338,8 +338,8 @@ const PedidosAdminPage = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
+          credentials: "include",
           body: JSON.stringify({ comprobante_url: comprobanteUrl }),
         },
       );

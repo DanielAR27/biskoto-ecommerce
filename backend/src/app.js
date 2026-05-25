@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/authRoutes");
 const perfilRoutes = require("./routes/perfilRoutes");
 const categoriasRoutes = require("./routes/categoriasRoutes");
@@ -17,8 +18,12 @@ const analyticsRoutes = require("./routes/analyticsRoutes");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: true, // Permite que el Access-Control-Allow-Origin coincida con el origen de la petición (ideal para Vercel, Render o Localhost)
+  credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
 
 // 🔍 AGREGAR ESTAS LÍNEAS AQUÍ
 app.use((req, res, next) => {
