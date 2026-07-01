@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 // 1. Agregamos los íconos del ojo
 import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 import IconBackground from '../../components/IconBackground';
-import ThemeToggleBtn from '../../components/ThemeToggleBtn';
 
 const UpdatePasswordPage = () => {
   const [password, setPassword] = useState('');
@@ -57,12 +56,6 @@ const UpdatePasswordPage = () => {
 
   return (
     <IconBackground>
-      
-      {/* Botón flotante de Tema */}
-      <div className="absolute top-6 right-6 z-20">
-        <ThemeToggleBtn />
-      </div>
-
       <div className="min-h-screen flex flex-col items-center justify-center px-4">
         <div className="max-w-md w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 p-8 transition-colors duration-300">
           <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-6">Nueva Contraseña</h2>

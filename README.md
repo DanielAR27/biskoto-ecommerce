@@ -1,213 +1,364 @@
-# Documentación Técnica del Proyecto Biskoto
+<div align="center">
 
-## 1. Visión General del Proyecto
+  <img src="frontend/src/assets/logo_biskoto_transparente_dm.png" alt="Biskoto Logo" width="300" />
 
-El Proyecto Biskoto es una solución integral de comercio electrónico diseñada para la gestión y venta de productos de repostería artesanal. El sistema se compone de una arquitectura cliente-servidor que separa la lógica de negocio y la gestión de datos (Backend) de la interfaz de usuario (Frontend).
+  **Plataforma de comercio electrónico para repostería artesanal**
 
-El objetivo principal es administrar el inventario, procesar compras, gestionar ingredientes y ofrecer un catálogo público interactivo, asegurando la integridad de los datos mediante validaciones de stock en tiempo real.
+  Gestiona productos, pedidos, inventario y clientes en una experiencia moderna y fluida.
 
-## 2. Arquitectura Tecnológica
+  <br />
 
-El sistema utiliza el siguiente stack tecnológico:
+  ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+  ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+  ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+  ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+  ![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
+  ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 
-**Base de Datos y Almacenamiento:** Supabase (PostgreSQL) para datos relacionales y Supabase Storage para el alojamiento de imágenes.
+  <br />
 
-**Backend:** Node.js con Express.
+  [![Live Demo](https://img.shields.io/badge/Live%20Demo-biskoto--ecommerce.vercel.app-3ECF8E?style=flat-square&logo=vercel&logoColor=white)](https://biskoto-ecommerce.vercel.app)
 
-**Frontend:** React.js con Vite.
+  <br />
 
-**Estilos:** Tailwind CSS.
+  [Funcionalidades](#funcionalidades) · [Arquitectura](#arquitectura) · [Inicio Rápido](#inicio-rápido) · [Capturas](#capturas-de-pantalla)
 
-**Gestión de Estado:** React Context API.
+</div>
 
-## 3. Estructura del Proyecto
+<br />
 
-A continuación, se detalla la organización de directorios y archivos principales del código fuente:
+---
+
+<br />
+
+## 🍪 ¿Qué es Biskoto?
+
+**Biskoto** es una solución de e-commerce diseñada para negocios de repostería artesanal. Permite a los clientes explorar el catálogo, gestionar su carrito y realizar pedidos, mientras que los administradores controlan el inventario, productos, ingredientes, proveedores y el flujo completo de ventas, todo desde una interfaz moderna con soporte de modo oscuro.
+
+<br />
+
+## Funcionalidades
+
+<table>
+<tr>
+<td width="50%">
+
+### Para Clientes
+- Explorar el **catálogo de productos** con imágenes y precios
+- Gestión de **carrito** con validación de stock en tiempo real
+- **Perfil de usuario** con historial de pedidos
+- Sistema de **autenticación** seguro con recuperación de contraseña
+- Soporte de **modo oscuro / claro**
+
+</td>
+<td width="50%">
+
+### Para Administradores
+- **Panel de administración** con CRUD completo
+- Gestión de **productos**, **categorías** e **ingredientes**
+- Control de **inventario** y **proveedores**
+- Administración de **usuarios** y roles
+- Procesamiento y seguimiento de **compras**
+
+</td>
+</tr>
+</table>
+
+<br />
+
+### 🔐 Sistema de Autenticación
+
+| Característica | Descripción |
+|:---|:---|
+| **Registro seguro** | Gestionado por Supabase Auth |
+| **Sesiones JWT** | Tokens con refresco automático |
+| **Roles** | Cliente · Administrador |
+| **Rutas protegidas** | Acceso restringido según permisos |
+| **Recuperación de contraseña** | Flujo completo por correo electrónico |
+
+<br />
+
+---
+
+<br />
+
+## 🏗️ Arquitectura
+
 ```
-Proyecto-IC7841/
-├── backend/
-│   ├── src/
-│   │   ├── config/
-│   │   │   └── supabase.js           # Configuración del cliente Supabase
-│   │   ├── controllers/
-│   │   │   ├── authController.js     # Lógica de autenticación
-│   │   │   ├── categoriaController.js
-│   │   │   ├── comprasController.js  # Procesamiento de transacciones
-│   │   │   ├── ingredienteController.js
-│   │   │   ├── productoController.js # Lógica de productos e inventario
-│   │   │   ├── proveedorController.js
-│   │   │   └── usuarioController.js
-│   │   ├── middleware/
-│   │   │   └── authMiddleware.js     # Protección de rutas
-│   │   ├── routes/                   # Definición de endpoints API
-│   │   │   ├── authRoutes.js
-│   │   │   ├── categoriasRoutes.js
-│   │   │   ├── comprasRoutes.js
-│   │   │   ├── ingredientesRoutes.js
-│   │   │   ├── productosRoutes.js
-│   │   │   └── ...
-│   │   └── app.js                    # Configuración de la aplicación Express
-│   ├── index.js                      # Punto de entrada del servidor
-│   └── package.json
+biskoto-ecommerce/
 │
-├── database/                         # Scripts SQL para la base de datos
-│   ├── schema.sql                    # Definición de tablas
-│   ├── seed.sql                      # Datos iniciales
-│   ├── auth_trigger.sql              # Triggers de autenticación
-│   └── ...
+├── frontend/                         # Aplicación React + Vite
+│   └── src/
+│       ├── api/                      # Servicios de comunicación con el backend
+│       │   ├── axiosConfig.js
+│       │   ├── authService.js
+│       │   └── productoService.js
+│       ├── assets/                   # Imágenes, logo e íconos
+│       ├── components/               # Componentes reutilizables de UI
+│       │   ├── Navbar.jsx
+│       │   ├── CartDrawer.jsx
+│       │   └── IconBackground.jsx
+│       ├── context/                  # Estado global
+│       │   ├── AuthContext.jsx
+│       │   └── CartContext.jsx
+│       ├── pages/
+│       │   ├── admin/                # Panel de administración
+│       │   ├── auth/                 # Login, Registro, Recuperación
+│       │   ├── home/                 # Página principal
+│       │   ├── shop/                 # Detalle de producto
+│       │   └── user/                 # Perfil del usuario
+│       └── App.jsx                   # Enrutamiento principal
 │
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── api/                      # Servicios de comunicación con Backend
-│   │   │   ├── axiosConfig.js
-│   │   │   ├── productoService.js
-│   │   │   ├── authService.js
-│   │   │   └── ...
-│   │   ├── assets/                   # Recursos estáticos (imágenes, logos)
-│   │   ├── components/               # Componentes reutilizables de UI
-│   │   │   ├── navbar/
-│   │   │   ├── ui/
-│   │   │   ├── admin/                # Formularios administrativos
-│   │   │   ├── CartDrawer.jsx        # Carrito lateral
-│   │   │   ├── Navbar.jsx
-│   │   │   └── ...
-│   │   ├── context/                  # Gestión de estado global
-│   │   │   ├── AuthContext.jsx
-│   │   │   └── CartContext.jsx
-│   │   ├── pages/                    # Vistas de la aplicación
-│   │   │   ├── admin/                # Vistas del panel de administración
-│   │   │   ├── auth/                 # Login, Registro, Recuperación
-│   │   │   ├── home/                 # Página principal
-│   │   │   ├── shop/                 # Detalle de producto
-│   │   │   └── user/                 # Perfil de usuario
-│   │   ├── App.jsx                   # Enrutamiento principal
-│   │   └── main.jsx                  # Punto de entrada React
-│   ├── index.html
-│   ├── tailwind.config.js
-│   └── vite.config.js
-└── README.md
+├── backend/                          # API REST con Express
+│   └── src/
+│       ├── config/
+│       │   └── supabase.js           # Cliente Supabase
+│       ├── controllers/              # Lógica de negocio
+│       ├── middleware/               # Autenticación y validación
+│       └── routes/                   # Definición de endpoints
+│
+├── database/                         # Scripts SQL
+│   ├── schema.sql
+│   ├── seed.sql
+│   └── auth_trigger.sql
+│
+└── docs/screenshots/                 # Capturas de pantalla
 ```
 
-## 4. Guía de Instalación y Ejecución
+<br />
 
-Para desplegar el proyecto en un entorno local, siga los siguientes pasos:
+### Stack Tecnológico
+
+<table>
+<tr>
+<td align="center" width="33%">
+<br />
+
+**Frontend**
+
+<br />
+
+| Tecnología | Uso |
+|:---:|:---|
+| React | Interfaz de usuario |
+| Vite | Build & Dev Server |
+| Tailwind CSS | Sistema de diseño |
+| React Router | Navegación SPA |
+| Context API | Estado global |
+
+</td>
+<td align="center" width="33%">
+<br />
+
+**Backend**
+
+<br />
+
+| Tecnología | Uso |
+|:---:|:---|
+| Node.js | Runtime |
+| Express | Framework HTTP |
+| Supabase | Base de datos (PostgreSQL) |
+| JWT | Autenticación |
+| Axios | Cliente HTTP |
+
+</td>
+<td align="center" width="33%">
+<br />
+
+**Servicios**
+
+<br />
+
+| Tecnología | Uso |
+|:---:|:---|
+| Supabase Auth | Autenticación |
+| Supabase Storage | Almacenamiento de imágenes |
+| Vercel | Despliegue del frontend |
+| Render | Despliegue del backend |
+
+</td>
+</tr>
+</table>
+
+<br />
+
+---
+
+<br />
+
+## 🚀 Inicio Rápido
 
 ### Prerrequisitos
 
-- Node.js (versión 16 o superior).
-- Cuenta activa en Supabase.
-- Git instalado.
+| Software | Versión mínima |
+|:---|:---|
+| [Node.js](https://nodejs.org/) | `v18+` |
+| [Git](https://git-scm.com/) | cualquier versión reciente |
+| Cuenta en [Supabase](https://supabase.com/) | — |
 
-### Configuración del Backend
+<br />
 
-Navegue al directorio del servidor:
+<details>
+<summary><strong>1. Clonar el repositorio</strong></summary>
+
+<br />
+
+```bash
+git clone https://github.com/DanielAR27/biskoto-ecommerce.git
+cd biskoto-ecommerce
+```
+
+</details>
+
+<details>
+<summary><strong>2. Configurar variables de entorno</strong></summary>
+
+<br />
+
+**`backend/.env`**
+```env
+PORT=3000
+SUPABASE_URL=tu_url_de_supabase
+SUPABASE_KEY=tu_anon_key
+SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
+```
+
+**`frontend/.env`**
+```env
+VITE_API_URL=http://localhost:3000/api
+VITE_SUPABASE_URL=tu_url_de_supabase
+VITE_SUPABASE_ANON_KEY=tu_anon_key
+```
+
+</details>
+
+<details>
+<summary><strong>3. Levantar el backend</strong></summary>
+
+<br />
+
 ```bash
 cd backend
-```
-
-Instale las dependencias necesarias:
-```bash
 npm install
-```
-
-Cree un archivo `.env` en la raíz de backend con las siguientes variables:
-```
-PORT=3000
-SUPABASE_URL=su_url_de_supabase
-SUPABASE_KEY=su_anon_key_de_supabase
-SUPABASE_SERVICE_ROLE_KEY=su_service_role_key
-```
-
-Inicie el servidor:
-```bash
-npm start
-```
-
-### Configuración del Frontend
-
-Navegue al directorio del cliente:
-```bash
-cd frontend
-```
-
-Instale las dependencias necesarias:
-```bash
-npm install
-```
-
-Cree un archivo `.env` en la raíz de frontend para la conexión con el API:
-```
-VITE_API_URL=http://localhost:3000/api
-VITE_SUPABASE_URL=su_url_de_supabase
-VITE_SUPABASE_ANON_KEY=su_anon_key_de_supabase
-```
-
-Ejecute la aplicación en modo desarrollo:
-```bash
 npm run dev
 ```
 
-## 5. Módulos y Funcionalidades Actuales
+> El servidor se ejecutará en `http://localhost:3000`
 
-- **Catálogo de Productos:** Visualización de productos con imágenes, precios y descripciones. Detección automática de disponibilidad basada en inventario.
-- **Gestión de Carrito:** Persistencia de datos local, validación de stock en tiempo real contra el servidor y cálculo de totales.
-- **Panel Administrativo:** CRUD completo para Productos, Ingredientes, Proveedores y Categorías.
-- **Gestión de Inventario:** Control de stock de ingredientes y productos terminados.
-- **Autenticación:** Sistema de registro e inicio de sesión seguro, con roles de usuario y administrador.
+</details>
 
-## 6. Hoja de Ruta: Mejoras y Funcionalidades Pendientes
+<details>
+<summary><strong>4. Levantar el frontend</strong></summary>
 
-Para optimizar el funcionamiento del Proyecto Biskoto y mejorar la experiencia de usuario, se han identificado las siguientes áreas críticas de desarrollo:
+<br />
 
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-### 6.1. Optimización de Navegación y Feedback (UX)
+> La aplicación estará disponible en `http://localhost:5173`
 
-Actualmente, al realizar acciones que conllevan redireccionamiento o actualizaciones de estado (como eliminar un registro), la posición del scroll se mantiene estática.
+</details>
 
-**Requerimiento:** Implementar `window.scrollTo(0, 0)` en las transiciones de página y tras la ejecución de notificaciones tipo "Toast" para asegurar que el usuario visualice los mensajes de confirmación o error en la parte superior de la interfaz.
-
-### 6.2. Refinamiento en el Procesamiento de Compras
-
-Existe una inconsistencia lógica en el manejo del carrito cuando el inventario fluctúa.
-
-**Requerimiento A:** Implementar una limpieza automática en el paso previo al "Checkout". Los ítems que, tras la validación, resulten con una cantidad de 0 debido a falta de stock, deben ser ocultados visualmente de la lista de confirmación final o eliminados automáticamente del carrito para evitar confusión.
-
-**Requerimiento B:** Manejar casos de borde donde un producto previamente agotado recupera stock. El sistema debe permitir la actualización dinámica de estas cantidades sin requerir que el usuario elimine y vuelva a agregar el ítem manualmente.
+<br />
 
 ---
 
+<br />
 
-### 6.3. Módulo de Gestión de Pedidos (Cliente Final)
+## 📸 Capturas de pantalla
 
-Es fundamental establecer una distinción arquitectónica clara entre el módulo de "Compras" (adquisición interna de insumos a proveedores) y el módulo de "Pedidos" (transacciones de venta realizadas por los usuarios finales de la aplicación).
+Las capturas se encuentran en la carpeta [`docs/screenshots/`](docs/screenshots/).
 
-**Requerimiento:** Implementar un sistema de administración de pedidos de venta ("Sales Orders") que permita al personal operativo gestionar el flujo de despacho sin alterar la integridad financiera de la transacción.
+<br />
 
-- **Inmutabilidad del pedido:** Una vez confirmada la orden por el cliente, los ítems y precios pactados no deben ser modificables, garantizando la trazabilidad histórica y la coherencia contable.
+<div align="center">
 
-- **Gestión de Estados:** Gestión de Estados: Implementar una máquina de estados finitos para el ciclo de vida del pedido (ej. "Pendiente de Pago", "Confirmado", "En Producción", "Listo para Retiro", "Entregado", "Cancelado").
+### 🏠 Inicio
 
-- **Visualización:** Visualización: Dashboard para el seguimiento de pedidos activos, con filtros por fecha, cliente y estado.
+Página principal con el catálogo de productos destacados, navegación y carrito lateral.
 
-### 6.4. Procesamiento de Pagos y Checkout (Funcionalidad Crítica)
+<img src="docs/screenshots/biskoto_home.png" alt="Página de Inicio" width="700" />
 
-El cierre del ciclo de venta requiere la implementación de una pasarela de pagos robusta y un sistema de incentivos comerciales.
-
-**Gestión de Cupones de Descuento:** 
-
-- Desarrollar la lógica de validación para códigos promocionales (cupones) en el carrito de compras.
-
-- Soportar diferentes tipos de descuento (porcentaje, monto fijo) y reglas de aplicación (fecha de expiración, monto mínimo de compra, límite de usos).
-
-**Integración con Pasarela de Pagos:** 
-
-- Implementar un servicio de procesamiento de pagos seguro (Payment Gateway Integration) mediante proveedores estándar de la industria como Stripe o equivalentes locales.
-
-- El sistema debe manejar la confirmación asíncrona del pago (Webhooks) para actualizar automáticamente el estado del pedido y descontar el inventario final de productos terminados.
-
-- Garantizar el cumplimiento de estándares de seguridad (PCI-DSS) delegando el manejo de datos sensibles de tarjetas a la pasarela seleccionada
+<br />
 
 ---
 
-*Documento generado para uso interno del equipo de desarrollo del Proyecto Biskoto.*
+### 🛍️ Catálogo de Productos
+
+Vista del catálogo con tarjetas de producto, precios y control de disponibilidad de stock en tiempo real.
+
+<img src="docs/screenshots/biskoto_catalog.png" alt="Catálogo" width="700" />
+
+<br />
+
+---
+
+### 🛒 Carrito de Compras
+
+Carrito lateral con resumen de productos, cantidades, validación de stock y total de compra.
+
+<img src="docs/screenshots/biskoto_shopcart.png" alt="Carrito" width="700" />
+
+<br />
+
+---
+
+### 🔑 Autenticación
+
+Páginas de login y registro con soporte de modo oscuro y recuperación de contraseña por correo.
+
+<img src="docs/screenshots/biskoto_login.png" alt="Autenticación" width="700" />
+
+<br />
+
+---
+
+### 🛠️ Panel de Administración
+
+Panel completo con gestión CRUD de productos, ingredientes, proveedores, categorías y usuarios.
+
+<img src="docs/screenshots/biskoto_products.png" alt="Panel Admin" width="700" />
+
+</div>
+
+<br />
+
+---
+
+<br />
+
+## 🌐 Demo en producción
+
+| | |
+|:---|:---|
+| **Frontend** | [biskoto-ecommerce.vercel.app](https://biskoto-ecommerce.vercel.app) |
+| **Backend** | Render (Node.js + Express) |
+| **Base de datos** | Supabase (PostgreSQL) |
+
+<br />
+
+---
+
+<br />
+
+## 📄 Licencia
+
+Este proyecto se distribuye bajo la licencia [MIT](LICENSE).
+
+<br />
+
+---
+
+<br />
+
+<div align="center">
+
+  Hecho por **Luis Meza** y **Daniel Alemán**
+
+  <sub>© 2025 Biskoto · Proyecto académico</sub>
+
+</div>

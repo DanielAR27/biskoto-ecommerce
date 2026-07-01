@@ -3,7 +3,6 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { XCircle, X, Eye, EyeOff } from "lucide-react";
 import IconBackground from "../../components/IconBackground";
-import ThemeToggleBtn from "../../components/ThemeToggleBtn";
 
 /**
  * Componente de la página de registro de usuarios.
@@ -131,11 +130,6 @@ const RegisterPage = () => {
 
   return (
     <IconBackground>
-      {/* Botón flotante de tema */}
-      <div className="absolute top-6 right-6 z-20">
-        <ThemeToggleBtn />
-      </div>
-
       <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10">
         {/* Alerta de Error */}
         {showAlert && (

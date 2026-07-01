@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext'; 
-import ThemeToggleBtn from '../../components/ThemeToggleBtn';
-import { useTheme } from '../../context/ThemeContext';
 import { Link } from 'react-router-dom';
-import { Mail, ArrowLeft, CheckCircle2, AlertCircle, Moon, Sun } from 'lucide-react'; // Agregamos Sun y Moon
+import { Mail, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 import IconBackground from '../../components/IconBackground';
 
 const ForgotPasswordPage = () => {
@@ -13,9 +11,6 @@ const ForgotPasswordPage = () => {
   const [error, setError] = useState('');
 
   const { resetPasswordRequest } = useAuth();
-  
-  // Usamos el contexto del tema
-  const { theme, toggleTheme } = useTheme();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,12 +31,6 @@ const ForgotPasswordPage = () => {
 
   return (
     <IconBackground>
-      
-      {/* --- BOTÓN FLOTANTE DE TEMA (Top Right) --- */}
-      <div className="absolute top-6 right-6 z-20">
-        <ThemeToggleBtn />
-      </div>
-
       {/* Contenedor Centrado */}
       <div className="min-h-screen flex flex-col items-center justify-center px-4">
         <div className="max-w-md w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 p-8 transition-colors duration-300">

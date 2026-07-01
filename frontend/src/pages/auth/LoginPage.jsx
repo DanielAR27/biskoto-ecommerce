@@ -3,7 +3,6 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { XCircle, X, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import IconBackground from '../../components/IconBackground';
-import ThemeToggleBtn from '../../components/ThemeToggleBtn';
 
 /**
  * Componente de la página de inicio de sesión.
@@ -63,18 +62,7 @@ const LoginPage = () => {
 
   return (
     <IconBackground>
-      
-      {/* CAMBIO 1: Ajuste responsive del botón. 
-          En móvil (top-4 right-4) más pegado a la esquina. 
-          En escritorio (sm:top-6 sm:right-6) más aireado. */}
-      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
-        <ThemeToggleBtn />
-      </div>
-
-      {/* CAMBIO 2: Padding superior (Safe Area).
-          Agregamos 'pt-20' para que en móvil el contenido baje y no toque el botón.
-          En escritorio 'sm:pt-0' para que se mantenga centrado verticalmente. */}
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 pt-20 sm:pt-0">
+      <div className="min-h-screen flex flex-col items-center justify-center px-4">
         
         {/* Banner de Éxito */}
         {showSuccess && (
