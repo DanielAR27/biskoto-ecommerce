@@ -32,6 +32,11 @@ app.use((req, res, next) => {
 });
 // 🔍 FIN
 
+// Ruta rápida para mantener el servidor despierto (Cron Job)
+app.get("/ping", (req, res) => {
+  res.status(200).send("pong");
+});
+
 // Rutas de API
 app.use("/api/auth", authRoutes);
 app.use("/api/perfiles", perfilRoutes);
