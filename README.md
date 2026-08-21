@@ -2,9 +2,9 @@
 
   <img src="frontend/src/assets/logo_biskoto_transparente_dm.png" alt="Biskoto Logo" width="300" />
 
-  **Plataforma de comercio electrónico para repostería artesanal**
+  **E-commerce platform for artisanal bakery**
 
-  Gestiona productos, pedidos, inventario y clientes en una experiencia moderna y fluida.
+  Manage products, orders, inventory, and customers in a modern and seamless experience.
 
   <br />
 
@@ -17,13 +17,28 @@
 
   <br />
 
-  [![Live Demo](https://img.shields.io/badge/Live%20Demo-biskoto--ecommerce.vercel.app-3ECF8E?style=flat-square&logo=vercel&logoColor=white)](https://biskoto-ecommerce.vercel.app)
+  **EN** | [ES](README.es.md)
 
   <br />
 
-  [Funcionalidades](#funcionalidades) · [Arquitectura](#arquitectura) · [Inicio Rápido](#inicio-rápido) · [Capturas](#capturas-de-pantalla)
+  [![Live Demo](https://img.shields.io/badge/Live%20Demo-biskoto--ecommerce.vercel.app-3ECF8E?style=flat-square&logo=vercel&logoColor=white)](https://biskoto-ecommerce.vercel.app)
 
 </div>
+
+<br />
+
+## 📖 Table of Contents
+
+- [1. What is Biskoto?](#-what-is-biskoto)
+- [2. Features](#-features)
+- [3. Authentication System](#-authentication-system)
+- [4. Architecture](#️-architecture)
+- [5. Tech Stack](#-tech-stack)
+- [6. Documentation](#-documentation)
+- [7. Quick Start](#-quick-start)
+- [8. Screenshots](#-screenshots)
+- [9. Live Demo](#-live-demo)
+- [10. License](#-license)
 
 <br />
 
@@ -31,34 +46,34 @@
 
 <br />
 
-## 🍪 ¿Qué es Biskoto?
+## 🍪 What is Biskoto?
 
-**Biskoto** es una solución de e-commerce diseñada para negocios de repostería artesanal. Permite a los clientes explorar el catálogo, gestionar su carrito y realizar pedidos, mientras que los administradores controlan el inventario, productos, ingredientes, proveedores y el flujo completo de ventas, todo desde una interfaz moderna con soporte de modo oscuro.
+**Biskoto** is an e-commerce solution designed for artisanal bakery businesses. It allows customers to browse the catalog, manage their shopping cart, and place orders, while administrators control inventory, products, ingredients, suppliers, and the complete sales flow, all from a modern interface with dark mode support.
 
 <br />
 
-## Funcionalidades
+## ✨ Features
 
 <table>
 <tr>
 <td width="50%">
 
-### Para Clientes
-- Explorar el **catálogo de productos** con imágenes y precios
-- Gestión de **carrito** con validación de stock en tiempo real
-- **Perfil de usuario** con historial de pedidos
-- Sistema de **autenticación** seguro con recuperación de contraseña
-- Soporte de **modo oscuro / claro**
+### For Customers
+- Browse the **product catalog** with images and prices
+- **Shopping cart** management with real-time stock validation
+- **User profile** with order history
+- Secure **authentication** system with password recovery
+- **Dark / Light mode** support
 
 </td>
 <td width="50%">
 
-### Para Administradores
-- **Panel de administración** con CRUD completo
-- Gestión de **productos**, **categorías** e **ingredientes**
-- Control de **inventario** y **proveedores**
-- Administración de **usuarios** y roles
-- Procesamiento y seguimiento de **compras**
+### For Administrators
+- **Admin dashboard** with full CRUD capabilities
+- Management of **products**, **categories**, and **ingredients**
+- **Inventory** and **suppliers** control
+- **User** and role administration
+- **Order** processing and tracking
 
 </td>
 </tr>
@@ -66,15 +81,15 @@
 
 <br />
 
-### 🔐 Sistema de Autenticación
+## 🔐 Authentication System
 
-| Característica | Descripción |
+| Feature | Description |
 |:---|:---|
-| **Registro seguro** | Gestionado por Supabase Auth |
-| **Sesiones JWT** | Tokens con refresco automático |
-| **Roles** | Cliente · Administrador |
-| **Rutas protegidas** | Acceso restringido según permisos |
-| **Recuperación de contraseña** | Flujo completo por correo electrónico |
+| **Secure Registration** | Handled by Supabase Auth |
+| **JWT Sessions** | Tokens with automatic refresh |
+| **Roles** | Customer · Administrator |
+| **Protected Routes** | Restricted access based on permissions |
+| **Password Recovery** | Full email flow |
 
 <br />
 
@@ -82,52 +97,38 @@
 
 <br />
 
-## 🏗️ Arquitectura
+## 🏗️ Architecture
 
-```
+```text
 biskoto-ecommerce/
 │
-├── frontend/                         # Aplicación React + Vite
+├── frontend/                         # React + Vite App
 │   └── src/
-│       ├── api/                      # Servicios de comunicación con el backend
-│       │   ├── axiosConfig.js
-│       │   ├── authService.js
-│       │   └── productoService.js
-│       ├── assets/                   # Imágenes, logo e íconos
-│       ├── components/               # Componentes reutilizables de UI
-│       │   ├── Navbar.jsx
-│       │   ├── CartDrawer.jsx
-│       │   └── IconBackground.jsx
-│       ├── context/                  # Estado global
-│       │   ├── AuthContext.jsx
-│       │   └── CartContext.jsx
-│       ├── pages/
-│       │   ├── admin/                # Panel de administración
-│       │   ├── auth/                 # Login, Registro, Recuperación
-│       │   ├── home/                 # Página principal
-│       │   ├── shop/                 # Detalle de producto
-│       │   └── user/                 # Perfil del usuario
-│       └── App.jsx                   # Enrutamiento principal
+│       ├── api/                      # Backend communication services
+│       ├── assets/                   # Images, logos, and icons
+│       ├── components/               # Reusable UI components
+│       ├── context/                  # Global state
+│       ├── pages/                    # Views (admin, auth, home, shop, user)
+│       └── App.jsx                   # Main routing
 │
-├── backend/                          # API REST con Express
+├── backend/                          # REST API with Express
 │   └── src/
-│       ├── config/
-│       │   └── supabase.js           # Cliente Supabase
-│       ├── controllers/              # Lógica de negocio
-│       ├── middleware/               # Autenticación y validación
-│       └── routes/                   # Definición de endpoints
+│       ├── config/                   # Supabase client setup
+│       ├── controllers/              # Business logic
+│       ├── middleware/               # Auth and validation
+│       └── routes/                   # Endpoint definitions
 │
-├── database/                         # Scripts SQL
+├── database/                         # SQL Scripts
 │   ├── schema.sql
 │   ├── seed.sql
 │   └── auth_trigger.sql
 │
-└── docs/screenshots/                 # Capturas de pantalla
+└── docs/                             # Documentation and screenshots
 ```
 
 <br />
 
-### Stack Tecnológico
+## 💻 Tech Stack
 
 <table>
 <tr>
@@ -138,13 +139,13 @@ biskoto-ecommerce/
 
 <br />
 
-| Tecnología | Uso |
+| Technology | Usage |
 |:---:|:---|
-| React | Interfaz de usuario |
+| React | User Interface |
 | Vite | Build & Dev Server |
-| Tailwind CSS | Sistema de diseño |
-| React Router | Navegación SPA |
-| Context API | Estado global |
+| Tailwind CSS | Design System |
+| React Router | SPA Navigation |
+| Context API | Global State |
 
 </td>
 <td align="center" width="33%">
@@ -154,28 +155,28 @@ biskoto-ecommerce/
 
 <br />
 
-| Tecnología | Uso |
+| Technology | Usage |
 |:---:|:---|
 | Node.js | Runtime |
-| Express | Framework HTTP |
-| Supabase | Base de datos (PostgreSQL) |
-| JWT | Autenticación |
-| Axios | Cliente HTTP |
+| Express | HTTP Framework |
+| Supabase | Database (PostgreSQL) |
+| JWT | Authentication |
+| Axios | HTTP Client |
 
 </td>
 <td align="center" width="33%">
 <br />
 
-**Servicios**
+**Services**
 
 <br />
 
-| Tecnología | Uso |
+| Technology | Usage |
 |:---:|:---|
-| Supabase Auth | Autenticación |
-| Supabase Storage | Almacenamiento de imágenes |
-| Vercel | Despliegue del frontend |
-| Render | Despliegue del backend |
+| Supabase Auth | Authentication |
+| Supabase Storage| Image Storage |
+| Vercel | Frontend Deployment |
+| Render | Backend Deployment |
 
 </td>
 </tr>
@@ -187,20 +188,34 @@ biskoto-ecommerce/
 
 <br />
 
-## 🚀 Inicio Rápido
+## 📚 Documentation
 
-### Prerrequisitos
+Detailed documentation files can be found in the `docs/` folder:
 
-| Software | Versión mínima |
+- 📝 [**Technical Manual**](docs/MANUAL_TECNICO.md) *(Note: The file is in Spanish)*
+- 📘 [**User Manual**](docs/Manual%20de%20Usuario%20-%20Biskoto.docx) *(Note: The file is in Spanish)*
+- 🧪 [**Test Plan**](docs/Plan%20de%20Pruebas%20-%20Proyecto%20de%20Biskoto.pdf) *(Note: The file is in Spanish)*
+
+<br />
+
+---
+
+<br />
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+| Software | Minimum Version |
 |:---|:---|
 | [Node.js](https://nodejs.org/) | `v18+` |
-| [Git](https://git-scm.com/) | cualquier versión reciente |
-| Cuenta en [Supabase](https://supabase.com/) | — |
+| [Git](https://git-scm.com/) | Any recent version |
+| [Supabase](https://supabase.com/) Account | — |
 
 <br />
 
 <details>
-<summary><strong>1. Clonar el repositorio</strong></summary>
+<summary><strong>1. Clone the repository</strong></summary>
 
 <br />
 
@@ -212,29 +227,29 @@ cd biskoto-ecommerce
 </details>
 
 <details>
-<summary><strong>2. Configurar variables de entorno</strong></summary>
+<summary><strong>2. Configure environment variables</strong></summary>
 
 <br />
 
 **`backend/.env`**
 ```env
 PORT=3000
-SUPABASE_URL=tu_url_de_supabase
-SUPABASE_KEY=tu_anon_key
-SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
 
 **`frontend/.env`**
 ```env
 VITE_API_URL=http://localhost:3000/api
-VITE_SUPABASE_URL=tu_url_de_supabase
-VITE_SUPABASE_ANON_KEY=tu_anon_key
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
 ```
 
 </details>
 
 <details>
-<summary><strong>3. Levantar el backend</strong></summary>
+<summary><strong>3. Run the backend</strong></summary>
 
 <br />
 
@@ -244,12 +259,12 @@ npm install
 npm run dev
 ```
 
-> El servidor se ejecutará en `http://localhost:3000`
+> The server will run at `http://localhost:3000`
 
 </details>
 
 <details>
-<summary><strong>4. Levantar el frontend</strong></summary>
+<summary><strong>4. Run the frontend</strong></summary>
 
 <br />
 
@@ -259,7 +274,7 @@ npm install
 npm run dev
 ```
 
-> La aplicación estará disponible en `http://localhost:5173`
+> The application will be available at `http://localhost:5173`
 
 </details>
 
@@ -269,59 +284,59 @@ npm run dev
 
 <br />
 
-## 📸 Capturas de pantalla
+## 📸 Screenshots
 
-Las capturas se encuentran en la carpeta [`docs/screenshots/`](docs/screenshots/).
+Screenshots are available in the [`docs/screenshots/`](docs/screenshots/) folder.
 
 <br />
 
 <div align="center">
 
-### 🏠 Inicio
+### 🏠 Home
 
-Página principal con el catálogo de productos destacados, navegación y carrito lateral.
+Main page featuring the highlighted product catalog, navigation, and sidebar cart.
 
-<img src="docs/screenshots/biskoto_home.png" alt="Página de Inicio" width="700" />
-
-<br />
-
----
-
-### 🛍️ Catálogo de Productos
-
-Vista del catálogo con tarjetas de producto, precios y control de disponibilidad de stock en tiempo real.
-
-<img src="docs/screenshots/biskoto_catalog.png" alt="Catálogo" width="700" />
+<img src="docs/screenshots/biskoto_home.png" alt="Home Page" width="700" />
 
 <br />
 
 ---
 
-### 🛒 Carrito de Compras
+### 🛍️ Product Catalog
 
-Carrito lateral con resumen de productos, cantidades, validación de stock y total de compra.
+Catalog view with product cards, pricing, and real-time stock availability tracking.
 
-<img src="docs/screenshots/biskoto_shopcart.png" alt="Carrito" width="700" />
-
-<br />
-
----
-
-### 🔑 Autenticación
-
-Páginas de login y registro con soporte de modo oscuro y recuperación de contraseña por correo.
-
-<img src="docs/screenshots/biskoto_login.png" alt="Autenticación" width="700" />
+<img src="docs/screenshots/biskoto_catalog.png" alt="Catalog" width="700" />
 
 <br />
 
 ---
 
-### 🛠️ Panel de Administración
+### 🛒 Shopping Cart
 
-Panel completo con gestión CRUD de productos, ingredientes, proveedores, categorías y usuarios.
+Sidebar cart displaying a product summary, quantities, stock validation, and total purchase amount.
 
-<img src="docs/screenshots/biskoto_products.png" alt="Panel Admin" width="700" />
+<img src="docs/screenshots/biskoto_shopcart.png" alt="Shopping Cart" width="700" />
+
+<br />
+
+---
+
+### 🔑 Authentication
+
+Login and registration pages with dark mode support and email password recovery.
+
+<img src="docs/screenshots/biskoto_login.png" alt="Authentication" width="700" />
+
+<br />
+
+---
+
+### 🛠️ Admin Dashboard
+
+Comprehensive dashboard for CRUD management of products, ingredients, suppliers, categories, and users.
+
+<img src="docs/screenshots/biskoto_products.png" alt="Admin Dashboard" width="700" />
 
 </div>
 
@@ -331,13 +346,13 @@ Panel completo con gestión CRUD de productos, ingredientes, proveedores, catego
 
 <br />
 
-## 🌐 Demo en producción
+## 🌐 Live Demo
 
 | | |
 |:---|:---|
 | **Frontend** | [biskoto-ecommerce.vercel.app](https://biskoto-ecommerce.vercel.app) |
 | **Backend** | Render (Node.js + Express) |
-| **Base de datos** | Supabase (PostgreSQL) |
+| **Database** | Supabase (PostgreSQL) |
 
 <br />
 
@@ -345,9 +360,9 @@ Panel completo con gestión CRUD de productos, ingredientes, proveedores, catego
 
 <br />
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto se distribuye bajo la licencia [MIT](LICENSE).
+This project is licensed under the [MIT License](LICENSE).
 
 <br />
 
@@ -357,8 +372,8 @@ Este proyecto se distribuye bajo la licencia [MIT](LICENSE).
 
 <div align="center">
 
-  Hecho por **Luis Meza** y **Daniel Alemán**
+  Made by **Luis Meza** and **Daniel Alemán**
 
-  <sub>© 2025 Biskoto · Proyecto académico</sub>
+  <sub>© 2025 Biskoto · Academic Project</sub>
 
 </div>
